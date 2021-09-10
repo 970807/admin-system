@@ -1,4 +1,4 @@
-const db = require('../db/index.js')
+const adminDb = require('../db/admin.js')
 const md5 = require('../utils/md5')
 
 exports.loginValidator = async (req, res, next) => {
@@ -11,7 +11,7 @@ exports.loginValidator = async (req, res, next) => {
       })
     }
     // 查找对应账号
-    const r = await db.query(
+    const r = await adminDb.query(
       'select * from user_list where username = ?',
       username
     )
@@ -22,7 +22,6 @@ exports.loginValidator = async (req, res, next) => {
       })
     }
     const userInfo = r[0]
-    console.log(md5(password))
     if (userInfo.password !== md5(password)) {
       return res.json({
         code: '-1',

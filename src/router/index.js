@@ -57,6 +57,26 @@ export const constantRoutes = [
     ]
   },
 
+  {
+    path: '/meishijie',
+    component: Layout,
+    alwaysShow: true,
+    name: 'meishijie',
+    meta: {
+      title: '美食杰',
+      icon: 'food'
+    },
+    children: [
+      {
+        path: 'account-list',
+        component: () => import('@/views/meishijie/accountList'),
+        meta: {
+          title: '账号列表'
+        }
+      }
+    ]
+  },
+
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

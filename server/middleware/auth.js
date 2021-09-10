@@ -1,6 +1,6 @@
 const { verify } = require('../utils/jwt')
 const { jwtSecret } = require('../config/default.config')
-const db = require('../db/index.js')
+const adminDb = require('../db/admin.js')
 
 module.exports = async (req, res, next) => {
   // 从请求头获取 token 数据
@@ -12,7 +12,10 @@ module.exports = async (req, res, next) => {
   // 验证 token 是否有效
   try {
     const { userId } = await verify(token, jwtSecret)
-    const r = await db.query('select * from user_list where id = ?', userId)
+    const r = await adminDb.query(
+      'select * from user_list where id = ?',
+      userId
+    )
     if (r.length < 1) {
       return res.json({ code: '401', message: '用户不存在' })
     }
