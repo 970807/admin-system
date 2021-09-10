@@ -13,7 +13,7 @@
         <el-input
           ref="username"
           v-model="loginForm.username"
-          placeholder="Username"
+          placeholder="请输入用户名"
           name="username"
           type="text"
           tabindex="1"
@@ -30,7 +30,7 @@
           ref="password"
           v-model="loginForm.password"
           :type="passwordType"
-          placeholder="Password"
+          placeholder="请输入密码"
           name="password"
           tabindex="2"
           auto-complete="on"
@@ -48,29 +48,27 @@
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
-
 export default {
   name: 'Login',
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
+      if (value.trim().length < 1) {
+        callback(new Error('请输入用户名'))
       } else {
         callback()
       }
     }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
-        callback(new Error('The password can not be less than 6 digits'))
+        callback(new Error('密码长度至少6位'))
       } else {
         callback()
       }
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        username: '',
+        password: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -102,6 +100,9 @@ export default {
     },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
+        if (this.loading) {
+          return
+        }
         if (valid) {
           this.loading = true
           this.$store.dispatch('user/login', this.loginForm).then(() => {
@@ -111,7 +112,7 @@ export default {
             this.loading = false
           })
         } else {
-          console.log('error submit!!')
+          console.log('用户名、密码校验不通过')
           return false
         }
       })
