@@ -1,7 +1,7 @@
-const adminDb = require('../db/admin.js')
-const md5 = require('../utils/md5')
+const adminDb = require('../../../db/admin.js')
+const md5 = require('../../../utils/md5')
 
-exports.loginValidator = async (req, res, next) => {
+exports.login = async (req, res, next) => {
   try {
     const { username, password } = req.body
     if (!username || !password) {

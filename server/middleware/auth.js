@@ -9,9 +9,15 @@ module.exports = async (req, res, next) => {
   if (!token) {
     return res.json({ code: '401', message: 'token不存在' })
   }
-  // 验证 token 是否有效
+  let userId
   try {
-    const { userId } = await verify(token, jwtSecret)
+    // 验证 token 是否有效
+    const r = await verify(token, jwtSecret)
+    userId = r.userId
+  } catch (err) {
+    return res.json({ code: '401', message: 'token已过期' })
+  }
+  try {
     const r = await adminDb.query(
       'select * from user_list where id = ?',
       userId

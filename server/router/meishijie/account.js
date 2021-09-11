@@ -2,7 +2,7 @@ const express = require('express')
 
 const meishijieCtrl = require('../../controller/meishijie')
 const auth = require('../../middleware/auth')
-const meishijieValidator = require('../../middleware/meishijie-validator')
+const validator = require('../../middleware/validator')
 
 const router = express.Router()
 
@@ -13,7 +13,7 @@ router.get('/getList', auth, meishijieCtrl.account.getList)
 router.post(
   '/addAccount',
   auth,
-  meishijieValidator.addAccountValidator,
+  validator.meishijie.account.addAccount,
   meishijieCtrl.account.addAccount
 )
 
@@ -21,7 +21,7 @@ router.post(
 router.put(
   '/editAccount',
   auth,
-  meishijieValidator.editAccountValidator,
+  validator.meishijie.account.editAccount,
   meishijieCtrl.account.editAccount
 )
 
@@ -29,7 +29,7 @@ router.put(
 router.put(
   '/editAccountPassword',
   auth,
-  meishijieValidator.editAccountPasswordValidator,
+  validator.meishijie.account.editAccountPassword,
   meishijieCtrl.account.editAccountPassword
 )
 

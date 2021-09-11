@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="添加食材分类"
+    :title="`${isEdit?'修改':'添加'}食材分类`"
     :visible.sync="isDialogVisible"
     @closed="dialogClose"
   >
@@ -29,15 +29,16 @@
 </template>
 
 <script>
+import { addCategory, editCategory } from '@/api/meishijie/ingredient'
+
 export default {
   name: 'MeishijieIngredientManagementEditCategoryDialog',
   data() {
     return {
+      isEdit: false,
       isDialogVisible: false,
       btnLoading: false,
-      model: {
-        categoryName: ''
-      },
+      model: this.getDefaultModel(),
       rules: {
         categoryName: [
           { required: true, message: '请输入分类名称', trigger: ['blur', 'change'] }
@@ -46,17 +47,42 @@ export default {
     }
   },
   methods: {
-    show() {
+    getDefaultModel() {
+      return {
+        categoryName: ''
+      }
+    },
+    show(info) {
+      this.isEdit = typeof info === 'object'
+      if (this.isEdit) {
+        this.model = info
+      }
       this.$refs.form && this.$refs.form.clearValidate()
       this.isDialogVisible = true
     },
     dialogClose() {
       this.isDialogVisible = false
-      this.model.categoryName = ''
+      this.model = this.getDefaultModel()
+      this.isEdit = false
     },
     confirm() {
       this.$refs.form.validate(valid => {
         if (!valid) return
+        this.btnLoading = true
+        let res
+        if (this.isEdit) {
+          res = editCategory(this.model)
+        } else {
+          res = addCategory(this.model)
+        }
+        res.then(res => {
+          this.$message.success(res.message)
+          this.$emit('finish')
+          this.btnLoading = false
+          this.dialogClose()
+        }).catch(() => {
+          this.btnLoading = false
+        })
       })
     }
   }

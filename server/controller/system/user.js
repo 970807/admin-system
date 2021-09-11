@@ -32,7 +32,7 @@ exports.loginSucess = async (req, res, next) => {
 exports.getInfo = (req, res, next) => {
   const userInfo = { ...req.userInfo }
   delete userInfo.password
-  res.send({
+  res.json({
     code: '200',
     data: { userInfo }
   })

@@ -13,7 +13,7 @@ exports.getList = async (req, res, next) => {
       meishijieDb.query('select count(*) as total from user_list')
     ])
     list.forEach((item) => delete item.password)
-    res.send({
+    res.json({
       code: '200',
       data: { list, totalCount }
     })
@@ -37,7 +37,7 @@ exports.addAccount = async (req, res, next) => {
         updateTime: d
       }
     )
-    res.send({
+    res.json({
       code: '200',
       message: '添加账号成功',
       data: {
@@ -59,7 +59,7 @@ exports.editAccount = async (req, res, next) => {
       'update user_list set account=?,phone=?,avatar=?,updateTime=? where id=?',
       [account, phone, avatar, new Date(), id]
     )
-    res.send({
+    res.json({
       code: '200',
       message: '修改账号成功',
       data: {
@@ -84,13 +84,13 @@ exports.editAccountPassword = async (req, res, next) => {
       id
     ])
     if (changedRows > 0) {
-      res.send({
+      res.json({
         code: '200',
         message: '修改密码成功',
         data: { id }
       })
     } else {
-      res.send({ code: '-1', message: '修改密码失败' })
+      res.json({ code: '-1', message: '修改密码失败' })
     }
   } catch (err) {
     next(err)
@@ -101,7 +101,7 @@ exports.deleteAccountById = async (req, res, next) => {
   try {
     const id = req.body.id
     await meishijieDb.query('delete from user_list where id = ?', id)
-    res.send({
+    res.json({
       code: '200',
       message: '删除成功'
     })
