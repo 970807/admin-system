@@ -1,5 +1,6 @@
 const meishijieDb = require('../db/meishijie')
 const md5 = require('../utils/md5')
+const { meishijieMd5Salt } = require('../config/default.config')
 
 exports.getAccountList = async (req, res, next) => {
   try {
@@ -30,7 +31,7 @@ exports.addAccount = async (req, res, next) => {
       {
         account,
         phone,
-        password: md5(password),
+        password: md5(password, meishijieMd5Salt),
         avatar,
         createTime: d,
         updateTime: d
@@ -79,7 +80,7 @@ exports.editAccountPassword = async (req, res, next) => {
     const {
       changedRows
     } = await meishijieDb.query('update user_list set password=? where id=?', [
-      md5(password),
+      md5(password, meishijieMd5Salt),
       id
     ])
     if (changedRows > 0) {
