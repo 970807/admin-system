@@ -8,6 +8,13 @@ export function getCategoryList(params) {
   })
 }
 
+export function getAllCategoryList() {
+  return request({
+    url: '/meishijie/ingredient/getAllCategoryList',
+    method: 'get'
+  })
+}
+
 export function addCategory(data) {
   return request({
     url: '/meishijie/ingredient/addCategory',
@@ -28,6 +35,30 @@ export function batchDeleteCategory(data) {
   return request({
     url: '/meishijie/ingredient/batchDeleteCategory',
     method: 'delete',
+    data
+  })
+}
+
+export function getIngredientList(params) {
+  return request({
+    url: '/meishijie/ingredient/getIngredientList',
+    method: 'get',
+    params
+  })
+}
+
+export function addIngredient(data) {
+  return request({
+    url: '/meishijie/ingredient/addIngredient',
+    method: 'post',
+    data
+  })
+}
+
+export function editIngredient(data) {
+  return request({
+    url: '/meishijie/ingredient/editIngredient',
+    method: 'put',
     data
   })
 }

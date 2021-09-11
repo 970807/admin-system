@@ -1,25 +1,17 @@
 const meishijieDb = require('../../db/meishijie')
+const getList = require('../../utils/getList')
 const md5 = require('../../utils/md5')
 const { meishijieMd5Salt } = require('../../config/default.config')
 
 exports.getList = async (req, res, next) => {
-  try {
-    const { page, pageSize, account } = req.query
-    const [list, [{ total: totalCount }]] = await Promise.all([
-      meishijieDb.query(
-        'select * from user_list where account like ? order by id desc limit ?,?',
-        [`%${account}%`, parseInt((page - 1) * pageSize), parseInt(pageSize)]
-      ),
-      meishijieDb.query('select count(*) as total from user_list')
-    ])
-    list.forEach((item) => delete item.password)
-    res.json({
-      code: '200',
-      data: { list, totalCount }
-    })
-  } catch (err) {
-    next(err)
-  }
+  getList({
+    req,
+    res,
+    next,
+    db: meishijieDb,
+    dbTable: 'user_list',
+    likeSearchFieldArr: [{ reqField: 'account', dbField: 'account' }]
+  })
 }
 
 exports.addAccount = async (req, res, next) => {

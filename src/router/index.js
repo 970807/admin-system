@@ -77,7 +77,7 @@ export const constantRoutes = [
       {
         path: 'ingredient-management',
         component: () =>
-          import('@/views/meishijie/ingredientManagement.vue/index.vue'),
+          import('@/views/meishijie/ingredientManagement/index.vue'),
         meta: {
           title: '食材管理'
         }

@@ -5,6 +5,9 @@ function underlinetoCamelCase(target) {
   if (typeof target !== 'object' || target === null) {
     return target
   }
+  if (target instanceof Date) {
+    return target
+  }
   if (Array.isArray(target)) {
     target.forEach((item, index) => {
       target[index] = underlinetoCamelCase(item)
@@ -29,9 +32,12 @@ function camelCasetoUnderline(target) {
   if (typeof target !== 'object' || target === null) {
     return target
   }
+  if (target instanceof Date) {
+    return target
+  }
   if (Array.isArray(target)) {
     target.forEach((item, index) => {
-      target[index] = underlinetoCamelCase(item)
+      target[index] = camelCasetoUnderline(item)
     })
     return target
   }
