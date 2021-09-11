@@ -79,12 +79,17 @@ exports.addIngredient = async (req, res, next) => {
       return res.json({ code: '-1', message: '添加失败，分类不存在' })
     }
     // 查找食材名称是否已存在
-    const [{ count2 }] = await meishijieDb.query(
-      'select count(*) as count2 from recipe_ingredient_list where ingredient_name=?',
-      ingredientName
+    const [
+      { count2 }
+    ] = await meishijieDb.query(
+      'select count(*) as count2 from recipe_ingredient_list where ingredient_name=? and category_id=?',
+      [ingredientName, categoryId]
     )
     if (count2) {
-      return res.json({ code: '-1', message: '添加失败，该食材名称已存在' })
+      return res.json({
+        code: '-1',
+        message: '添加失败，该分类下的食材名称已存在'
+      })
     }
     next()
   } catch (err) {
@@ -124,8 +129,8 @@ exports.editIngredient = async (req, res, next) => {
     // 查找食材名称是否已存在
     promiseList.push(
       meishijieDb.query(
-        'select count(*) as count2 from recipe_ingredient_list where ingredient_name=? and id<>?',
-        [ingredientName, id]
+        'select count(*) as count2 from recipe_ingredient_list where ingredient_name=? and category_id=? and id<>?',
+        [ingredientName, categoryId, id]
       )
     )
 
@@ -148,4 +153,12 @@ exports.editIngredient = async (req, res, next) => {
   } catch (err) {
     next(err)
   }
+}
+
+exports.batchDeleteIngredient = (req, res, next) => {
+  const { idList } = req.body
+  if (!idList || !Array.isArray(idList) || idList.length < 1) {
+    return res.json({ code: '-1', message: '请选择要删除的食材' })
+  }
+  next()
 }

@@ -61,4 +61,11 @@ router.put(
   meishijieCtrl.ingredient.editIngredient
 )
 
+router.delete(
+  '/batchDeleteIngredient',
+  auth,
+  validator.meishijie.ingredient.batchDeleteIngredient,
+  meishijieCtrl.ingredient.batchDeleteIngredient
+)
+
 module.exports = router

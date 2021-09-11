@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { getIngredientList, getAllCategoryList } from '@/api/meishijie/ingredient'
+import { getIngredientList, batchDeleteIngredient, getAllCategoryList } from '@/api/meishijie/ingredient'
 import EditIngredientDialog from './editIngredientDialog'
 
 export default {
@@ -106,7 +106,28 @@ export default {
       this.$refs.editIngredientDialog.show({id, categoryId, ingredientName})
     },
     handleBatchDelete() {
-
+      if (this.multiSelection.length === 0) {
+        this.$message('请选择要删除的食材')
+        return
+      }
+      this.$confirm('是否批量删除?', '提示', {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          const idList = this.multiSelection.map((item) => item.id)
+          this.listLoading = true
+          batchDeleteIngredient({idList}).then(res => {
+            this.$message.success(res.message)
+            this.getList()
+          }).catch(() => {
+            this.listLoading = false
+          })
+        })
+        .catch(() => {
+          this.$message.info('已取消!')
+        })
     },
     categoryFormatter({categoryId}) {
       let categoryName = ''

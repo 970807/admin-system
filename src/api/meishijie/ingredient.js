@@ -62,3 +62,11 @@ export function editIngredient(data) {
     data
   })
 }
+
+export function batchDeleteIngredient(data) {
+  return request({
+    url: '/meishijie/ingredient/batchDeleteIngredient',
+    method: 'delete',
+    data
+  })
+}

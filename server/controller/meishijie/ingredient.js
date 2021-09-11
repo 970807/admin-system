@@ -72,12 +72,12 @@ exports.batchDeleteCategory = async (req, res, next) => {
   try {
     const { idList } = req.body
     const {
-      affectRows
+      affectedRows
     } = await meishijieDb.query(
       'delete from recipe_ingredient_category_list where id in ?',
       [[idList]]
     )
-    if (affectRows < 1) {
+    if (affectedRows < 1) {
       return res.json({ code: '-1', message: '批量删除分类失败' })
     }
     res.json({ code: '200', message: '批量删除分类成功' })
@@ -139,6 +139,24 @@ exports.editIngredient = async (req, res, next) => {
       message: '修改食材成功',
       data: { id, categoryId, ingredientName }
     })
+  } catch (err) {
+    next(err)
+  }
+}
+
+exports.batchDeleteIngredient = async (req, res, next) => {
+  try {
+    const { idList } = req.body
+    const {
+      affectedRows
+    } = await meishijieDb.query(
+      'delete from recipe_ingredient_list where id in ?',
+      [[idList]]
+    )
+    if (affectedRows < 1) {
+      return res.json({ code: '-1', message: '批量删除食材失败' })
+    }
+    res.json({ code: '200', message: '批量删除食材成功' })
   } catch (err) {
     next(err)
   }
