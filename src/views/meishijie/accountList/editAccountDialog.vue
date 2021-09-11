@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { addAccount, editAccount } from '@/api/meishijie'
+import { addAccount, editAccount } from '@/api/meishijie/account'
 export default {
   name: 'MeishijieEditAccountDialog',
   data() {

@@ -1,8 +1,8 @@
 import request from '@/utils/request'
 
-export function getAccountList(params) {
+export function getList(params) {
   return request({
-    url: '/meishijie/getAccountList',
+    url: '/meishijie/account/getList',
     method: 'get',
     params
   })
@@ -10,7 +10,7 @@ export function getAccountList(params) {
 
 export function addAccount(data) {
   return request({
-    url: '/meishijie/addAccount',
+    url: '/meishijie/account/addAccount',
     method: 'post',
     data
   })
@@ -18,7 +18,7 @@ export function addAccount(data) {
 
 export function editAccount(data) {
   return request({
-    url: '/meishijie/editAccount',
+    url: '/meishijie/account/editAccount',
     method: 'put',
     data
   })
@@ -26,7 +26,7 @@ export function editAccount(data) {
 
 export function editAccountPassword(data) {
   return request({
-    url: '/meishijie/editAccountPassword',
+    url: '/meishijie/account/editAccountPassword',
     method: 'put',
     data
   })
@@ -34,7 +34,7 @@ export function editAccountPassword(data) {
 
 export function deleteAccountById(data) {
   return request({
-    url: '/meishijie/deleteAccountById',
+    url: '/meishijie/account/deleteAccountById',
     method: 'delete',
     data
   })

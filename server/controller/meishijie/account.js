@@ -1,13 +1,13 @@
-const meishijieDb = require('../db/meishijie')
-const md5 = require('../utils/md5')
-const { meishijieMd5Salt } = require('../config/default.config')
+const meishijieDb = require('../../db/meishijie')
+const md5 = require('../../utils/md5')
+const { meishijieMd5Salt } = require('../../config/default.config')
 
-exports.getAccountList = async (req, res, next) => {
+exports.getList = async (req, res, next) => {
   try {
     const { page, pageSize, account } = req.query
     const [list, [{ total: totalCount }]] = await Promise.all([
       meishijieDb.query(
-        'select * from user_list where account like ? limit ?,?',
+        'select * from user_list where account like ? order by id desc limit ?,?',
         [`%${account}%`, parseInt((page - 1) * pageSize), parseInt(pageSize)]
       ),
       meishijieDb.query('select count(*) as total from user_list')

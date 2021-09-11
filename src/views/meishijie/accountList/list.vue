@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import { getAccountList, editAccountPassword, deleteAccountById } from '@/api/meishijie'
+import { getList, editAccountPassword, deleteAccountById } from '@/api/meishijie/account'
 import EditAccountDialog from './editAccountDialog'
 
 export default {
@@ -99,7 +99,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      getAccountList(this.listQuery).then(res => {
+      getList(this.listQuery).then(res => {
         this.list = res.data.list
         this.total = res.data.totalCount
         this.listLoading = false

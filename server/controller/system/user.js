@@ -1,5 +1,5 @@
-const jwt = require('../utils/jwt')
-const { jwtSecret } = require('../config/default.config')
+const jwt = require('../../utils/jwt')
+const { jwtSecret } = require('../../config/default.config')
 
 async function generateTokenByUserId(userId) {
   // 生成token

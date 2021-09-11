@@ -69,9 +69,17 @@ export const constantRoutes = [
     children: [
       {
         path: 'account-list',
-        component: () => import('@/views/meishijie/accountList'),
+        component: () => import('@/views/meishijie/accountList/list.vue'),
         meta: {
           title: '账号列表'
+        }
+      },
+      {
+        path: 'ingredient-management',
+        component: () =>
+          import('@/views/meishijie/ingredientManagement.vue/index.vue'),
+        meta: {
+          title: '食材管理'
         }
       }
     ]
