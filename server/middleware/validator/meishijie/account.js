@@ -117,6 +117,7 @@ async function validateEditAccount({ id, account, phone, nickname }) {
   }
 
   const r = await Promise.all(promiseList)
+  console.log(r)
 
   for (const item of r) {
     const info = item[0]
@@ -144,7 +145,7 @@ async function validateEditAccount({ id, account, phone, nickname }) {
 }
 
 exports.editAccount = async (req, res, next) => {
-  const { id, account, phone } = req.body
+  const { id, account, phone, nickname } = req.body
   if (!id) {
     return res.json({ code: '-1', message: 'id不能为空' })
   }
@@ -153,7 +154,7 @@ exports.editAccount = async (req, res, next) => {
   }
 
   try {
-    const message = await validateEditAccount({ id, account, phone })
+    const message = await validateEditAccount({ id, account, phone, nickname })
     if (message) {
       return res.json({ code: '-1', message })
     }

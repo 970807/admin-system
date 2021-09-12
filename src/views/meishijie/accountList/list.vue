@@ -2,6 +2,7 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input v-model="listQuery.account" style="width: 220px" placeholder="请输入账号" clearable />
+      <el-input v-model="listQuery.nickname" style="width: 220px;margin-left:15px;" placeholder="请输入昵称" clearable />
       <el-button type="primary" icon="el-icon-search" style="margin-left: 10px" @click="handleFilter">搜索</el-button>
       <el-button type="primary" icon="el-icon-plus" @click="handleAdd">添加账号</el-button>
     </div>
@@ -87,7 +88,8 @@ export default {
       listQuery: {
         page: 1,
         pageSize: 10,
-        account: ''
+        account: '',
+        nickname: ''
       },
       total: 0,
       list: [],
@@ -116,8 +118,8 @@ export default {
     handleAdd() {
       this.$refs.editAccountDialog.show()
     },
-    handleEdit({ id, account, phone, avatar }) {
-      this.$refs.editAccountDialog.show({ id, account, phone, avatar })
+    handleEdit({ id, account, phone, nickname, avatar }) {
+      this.$refs.editAccountDialog.show({ id, account, phone, nickname, avatar })
     },
     // 修改密码
     handleEditPassword(id) {

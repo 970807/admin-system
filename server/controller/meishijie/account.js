@@ -10,7 +10,10 @@ exports.getList = async (req, res, next) => {
     next,
     db: meishijieDb,
     dbTable: 'user_list',
-    likeSearchFieldArr: [{ reqField: 'account', dbField: 'account' }]
+    likeSearchFieldArr: [
+      { reqField: 'account', dbField: 'account' },
+      { reqField: 'nickname', dbField: 'nickname' }
+    ]
   })
 }
 
@@ -49,8 +52,8 @@ exports.editAccount = async (req, res, next) => {
   try {
     const { id, account, phone, nickname, avatar } = req.body
     await meishijieDb.query(
-      'update user_list set account=?,phone=?,avatar=?,update_time=? where id=?',
-      [account, phone, avatar, new Date(), id]
+      'update user_list set account=?,phone=?,nickname=?,avatar=?,update_time=? where id=?',
+      [account, phone, nickname, avatar, new Date(), id]
     )
     res.json({
       code: '200',

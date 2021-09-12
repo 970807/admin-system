@@ -16,7 +16,7 @@ module.exports = async ({
     for (const item of likeSearchFieldArr) {
       const fieldValue = req.query[item.reqField]
       if (!fieldValue && fieldValue !== 0) {
-        break
+        continue
       }
       if (condition.length) {
         condition += `and ${item.dbField} like ? `
@@ -27,6 +27,7 @@ module.exports = async ({
     }
     data.push(parseInt((page - 1) * pageSize))
     data.push(parseInt(pageSize))
+
     const [list, [{ total: totalCount }]] = await Promise.all([
       db.query(
         `select * from ${dbTable} ${condition}order by id desc limit ?,?`,
