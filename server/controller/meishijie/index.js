@@ -1,4 +1,5 @@
 module.exports = {
   account: require('./account'),
-  ingredient: require('./ingredient')
+  ingredient: require('./ingredient'),
+  recipe: require('./recipe')
 }

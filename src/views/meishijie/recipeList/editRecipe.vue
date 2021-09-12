@@ -54,7 +54,7 @@
         <el-col :md="6" :sm="12">
           <el-form-item label="工艺">
             <el-input
-              v-model="model.simple_introduction_technology"
+              v-model="model.simpleIntroductionTechnology"
               placeholder="请输入工艺"
               maxlength="6"
               show-word-limit
@@ -65,7 +65,7 @@
         <el-col :md="6" :sm="12">
           <el-form-item label="口味">
             <el-input
-              v-model="model.simple_introduction_taste"
+              v-model="model.simpleIntroductionTaste"
               placeholder="请输入口味"
               maxlength="6"
               show-word-limit
@@ -76,7 +76,7 @@
         <el-col :md="6" :sm="12">
           <el-form-item label="时间">
             <el-input
-              v-model="model.simple_introduction_time"
+              v-model="model.simpleIntroductionTime"
               placeholder="请输入时间"
               maxlength="6"
               show-word-limit
@@ -87,7 +87,7 @@
         <el-col :md="6" :sm="12">
           <el-form-item label="难度">
             <el-input
-              v-model="model.simple_introduction_difficulty"
+              v-model="model.simpleIntroductionDifficulty"
               placeholder="请输入难度"
               maxlength="6"
               show-word-limit
@@ -304,10 +304,10 @@ export default {
         isVideo: 0,
         coverUrl: '',
         videoUrl: '',
-        simple_introduction_technology: '',
-        simple_introduction_taste: '',
-        simple_introduction_time: '',
-        simple_introduction_difficulty: '',
+        simpleIntroductionTechnology: '',
+        simpleIntroductionTaste: '',
+        simpleIntroductionTime: '',
+        simpleIntroductionDifficulty: '',
         mainIngredientList: [],
         subIngredientList: [],
         peopleCount: 1,
