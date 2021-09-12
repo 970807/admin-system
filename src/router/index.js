@@ -85,19 +85,18 @@ export const constantRoutes = [
         }
       },
       {
-        path: 'recipe-management',
-        name: 'recipeManagement',
-        component: () => import('@/views/meishijie/recipeManagement/index.vue'),
+        path: 'recipe-list',
+        name: 'recipeList',
+        component: () => import('@/views/meishijie/recipeList/list.vue'),
         meta: {
-          title: '菜谱管理'
+          title: '菜谱列表'
         }
       },
       {
         path: 'edit-recipe',
         name: 'editRecipe',
         hidden: true,
-        component: () =>
-          import('@/views/meishijie/recipeManagement/editRecipe.vue'),
+        component: () => import('@/views/meishijie/recipeList/editRecipe.vue'),
         meta: { title: '编辑菜谱' }
       }
     ]

@@ -38,6 +38,15 @@
           clearable
         />
       </el-form-item>
+      <el-form-item label="昵称">
+        <el-input
+          v-model="model.nickname"
+          placeholder="请输入昵称"
+          maxlength="255"
+          show-word-limit
+          clearable
+        />
+      </el-form-item>
       <el-form-item label="头像链接">
         <el-input
           v-model="model.avatar"
@@ -97,6 +106,7 @@ export default {
         account: '',
         phone: '',
         password: '',
+        nickname: '',
         avatar: ''
       }
     },

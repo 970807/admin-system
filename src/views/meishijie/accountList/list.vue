@@ -21,6 +21,7 @@
       />
       <el-table-column label="账号" align="center" prop="account" />
       <el-table-column label="手机号" align="center" prop="phone" />
+      <el-table-column label="昵称" align="center" prop="nickname" />
       <el-table-column label="头像" align="center" width="140">
         <template v-if="scope.row.avatar" slot-scope="scope">
           <el-image

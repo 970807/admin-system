@@ -16,7 +16,7 @@ exports.getList = async (req, res, next) => {
 
 exports.addAccount = async (req, res, next) => {
   try {
-    const { account, phone, password, avatar } = req.body
+    const { account, phone, password, nickname, avatar } = req.body
     const d = new Date()
     const { insertId } = await meishijieDb.query(
       'insert into user_list set ?',
@@ -24,6 +24,7 @@ exports.addAccount = async (req, res, next) => {
         account,
         phone,
         password: md5(password, meishijieMd5Salt),
+        nickname,
         avatar,
         createTime: d,
         updateTime: d
@@ -46,9 +47,9 @@ exports.addAccount = async (req, res, next) => {
 
 exports.editAccount = async (req, res, next) => {
   try {
-    const { id, account, phone, avatar } = req.body
+    const { id, account, phone, nickname, avatar } = req.body
     await meishijieDb.query(
-      'update user_list set account=?,phone=?,avatar=?,updateTime=? where id=?',
+      'update user_list set account=?,phone=?,avatar=?,update_time=? where id=?',
       [account, phone, avatar, new Date(), id]
     )
     res.json({
@@ -58,6 +59,7 @@ exports.editAccount = async (req, res, next) => {
         id,
         account,
         phone,
+        nickname,
         avatar
       }
     })
@@ -71,10 +73,10 @@ exports.editAccountPassword = async (req, res, next) => {
     const { id, password } = req.body
     const {
       changedRows
-    } = await meishijieDb.query('update user_list set password=? where id=?', [
-      md5(password, meishijieMd5Salt),
-      id
-    ])
+    } = await meishijieDb.query(
+      'update user_list set password=?,update_time=? where id=?',
+      [md5(password, meishijieMd5Salt), new Date(), id]
+    )
     if (changedRows > 0) {
       res.json({
         code: '200',
