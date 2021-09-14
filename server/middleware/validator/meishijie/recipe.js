@@ -88,13 +88,15 @@ exports.getRecipeList = (req, res, next) => {
   next()
 }
 
-exports.addRecipe = async (req, res, next) => {
+async function addOrEditRecipeValidator(req, res, next, isEdit) {
   try {
     const {
+      id,
       recipeName,
       isVideo,
       coverUrl,
       videoUrl,
+      recipeQrcode,
       simpleIntroductionTechnology,
       simpleIntroductionTaste,
       simpleIntroductionTime,
@@ -110,8 +112,14 @@ exports.addRecipe = async (req, res, next) => {
       recipeTips,
       authorId
     } = req.body
+    if (isEdit && !id) {
+      return res.json({ code: '-1', message: 'id字段为必须' })
+    }
     if (!recipeName) {
       return res.json({ code: '-1', message: '菜谱名称不能为空' })
+    }
+    if (!recipeQrcode) {
+      return res.json({ code: '-1', message: '菜谱二维码链接不能为空' })
     }
     if (typeof isVideo !== 'number') {
       return res.json({ code: '-1', message: '缺少isVideo字段' })
@@ -173,6 +181,14 @@ exports.addRecipe = async (req, res, next) => {
   } catch (err) {
     next(err)
   }
+}
+
+exports.addRecipe = (req, res, next) => {
+  addOrEditRecipeValidator(req, res, next, false)
+}
+
+exports.editRecipe = (req, res, next) => {
+  addOrEditRecipeValidator(req, res, next, true)
 }
 
 exports.getRecipeDetailById = (req, res, next) => {

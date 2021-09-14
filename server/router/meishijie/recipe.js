@@ -20,6 +20,13 @@ router.post(
   meishijieCtrl.recipe.addRecipe
 )
 
+router.put(
+  '/editRecipe',
+  auth,
+  validator.meishijie.recipe.editRecipe,
+  meishijieCtrl.recipe.editRecipe
+)
+
 router.get(
   '/getRecipeDetailById',
   auth,

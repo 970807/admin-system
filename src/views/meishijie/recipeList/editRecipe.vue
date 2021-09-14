@@ -16,6 +16,15 @@
           clearable
         />
       </el-form-item>
+      <el-form-item label="菜谱二维码">
+        <el-input
+          v-model="model.recipeQrcode"
+          placeholder="请输入二维码链接"
+          maxlength="255"
+          show-word-limit
+          clearable
+        />
+      </el-form-item>
       <el-form-item label="视频菜谱">
         <el-switch
           v-model="model.isVideo"
@@ -281,7 +290,7 @@
       </el-form-item>
     </el-form>
     <footer>
-      <el-button>取消</el-button>
+      <el-button @click="cancel">取消</el-button>
       <el-button type="primary" @click="confirm">确定</el-button>
     </footer>
     <SelectIngredientDialog ref="selectIngredientDialog" />
@@ -289,7 +298,7 @@
 </template>
 
 <script>
-import { addRecipe, getRecipeDetailById } from '@/api/meishijie/recipe'
+import { addRecipe, editRecipe, getRecipeDetailById } from '@/api/meishijie/recipe'
 import { getList as getAuthorList } from '@/api/meishijie/account'
 import SelectIngredientDialog from './selectIngredientDialog'
 
@@ -303,6 +312,7 @@ export default {
       isEdit: false,
       model: {
         recipeName: '',
+        recipeQrcode: '',
         isVideo: 0,
         coverUrl: '',
         videoUrl: '',
@@ -335,15 +345,24 @@ export default {
       if (id) {
         this.isEdit = true
         getRecipeDetailById({id}).then(res => {
-          console.log(res.data)
           this.model = res.data
         })
       }
     },
     confirm() {
-      addRecipe(this.model).then(res => {
+      let res
+      if (this.isEdit) {
+        res = editRecipe(this.model)
+      } else {
+        res = addRecipe(this.model)
+      }
+      res.then(res => {
         this.$message.success(res.message)
+        this.cancel()
       })
+    },
+    cancel() {
+      this.$router.push('/meishijie/recipe-list')
     },
     searchAuthorRemoteMethod(authorNickname) {
       this.authorSearchLoading = true

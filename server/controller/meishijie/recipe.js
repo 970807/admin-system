@@ -76,7 +76,8 @@ exports.getRecipeList = (req, res, next) => {
     res,
     next,
     db: meishijieDb,
-    dbTable: 'recipe_detail_list'
+    dbTable: 'recipe_detail_list',
+    likeSearchFieldArr: [{ reqField: 'recipeName', dbField: 'recipe_name' }]
   })
 }
 
@@ -87,6 +88,7 @@ exports.addRecipe = async (req, res, next) => {
       isVideo,
       coverUrl,
       videoUrl,
+      recipeQrcode,
       simpleIntroductionTechnology,
       simpleIntroductionTaste,
       simpleIntroductionTime,
@@ -105,12 +107,13 @@ exports.addRecipe = async (req, res, next) => {
     } = req.body
     const d = new Date()
     const id = uuidv4()
-    const r1 = await meishijieDb.query('insert into recipe_detail_list set ?', {
+    const r = await meishijieDb.query('insert into recipe_detail_list set ?', {
       id,
       recipeName,
       isVideo,
       coverUrl,
       videoUrl,
+      recipeQrcode,
       simpleIntroductionTechnology,
       simpleIntroductionTaste,
       simpleIntroductionTime,
@@ -129,10 +132,67 @@ exports.addRecipe = async (req, res, next) => {
       createTime: d,
       updateTime: d
     })
-    if (r1.affectedRows < 1) {
+    if (r.affectedRows < 1) {
       res.json({ code: '-1', message: '添加菜谱失败' })
     }
     res.json({ code: '200', message: '添加菜谱成功', data: { id } })
+  } catch (err) {
+    next(err)
+  }
+}
+
+exports.editRecipe = async (req, res, next) => {
+  try {
+    const {
+      id,
+      recipeName,
+      isVideo,
+      coverUrl,
+      videoUrl,
+      recipeQrcode,
+      simpleIntroductionTechnology,
+      simpleIntroductionTaste,
+      simpleIntroductionTime,
+      simpleIntroductionDifficulty,
+      mainIngredientList,
+      subIngredientList,
+      peopleCount,
+      favCount,
+      browerCount,
+      authorWords,
+      stepList,
+      finishFoodImgUrlList,
+      recipeTips,
+      authorId,
+      originWebLink
+    } = req.body
+    const r = await meishijieDb.query('update recipe_detail_list set ?', {
+      recipeName,
+      isVideo,
+      coverUrl,
+      videoUrl,
+      recipeQrcode,
+      simpleIntroductionTechnology,
+      simpleIntroductionTaste,
+      simpleIntroductionTime,
+      simpleIntroductionDifficulty,
+      mainIngredientsStr: formatIngredientListToStr(mainIngredientList),
+      subIngredientsStr: formatIngredientListToStr(subIngredientList),
+      peopleCount,
+      favCount,
+      browerCount,
+      authorWords,
+      finishFoodImgsStr: formatFinishFoodImgUrlListToStr(finishFoodImgUrlList),
+      stepsStr: formatStepListToStr(stepList),
+      recipeTips,
+      authorId,
+      originWebLink,
+      updateTime: new Date()
+    })
+    if (r.changedRows < 1) {
+      res.json({ code: '-1', message: '修改菜谱失败' })
+    }
+    res.json({ code: '200', message: '修改菜谱成功', data: { id } })
   } catch (err) {
     next(err)
   }

@@ -79,7 +79,6 @@ export default {
       this.listLoading = true
       getRecipeList(this.listQuery).then(res => {
         this.list = res.data.list
-        console.log(this.list)
         this.total = res.data.totalCount
         this.listLoading = false
       }).catch(() => {

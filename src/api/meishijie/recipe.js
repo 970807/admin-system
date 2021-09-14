@@ -16,6 +16,14 @@ export function addRecipe(data) {
   })
 }
 
+export function editRecipe(data) {
+  return request({
+    url: '/meishijie/recipe/editRecipe',
+    method: 'put',
+    data
+  })
+}
+
 export function getRecipeDetailById(params) {
   return request({
     url: '/meishijie/recipe/getRecipeDetailById',

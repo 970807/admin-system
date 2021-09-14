@@ -117,7 +117,6 @@ async function validateEditAccount({ id, account, phone, nickname }) {
   }
 
   const r = await Promise.all(promiseList)
-  console.log(r)
 
   for (const item of r) {
     const info = item[0]
