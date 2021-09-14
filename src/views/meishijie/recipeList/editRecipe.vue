@@ -282,13 +282,14 @@
     </el-form>
     <footer>
       <el-button>取消</el-button>
-      <el-button type="primary">确定</el-button>
+      <el-button type="primary" @click="confirm">确定</el-button>
     </footer>
     <SelectIngredientDialog ref="selectIngredientDialog" />
   </div>
 </template>
 
 <script>
+import { addRecipe, getRecipeDetailById } from '@/api/meishijie/recipe'
 import { getList as getAuthorList } from '@/api/meishijie/account'
 import SelectIngredientDialog from './selectIngredientDialog'
 
@@ -299,6 +300,7 @@ export default {
   },
   data() {
     return {
+      isEdit: false,
       model: {
         recipeName: '',
         isVideo: 0,
@@ -324,7 +326,25 @@ export default {
       authorSearchList: []
     }
   },
+  created() {
+    this.init()
+  },
   methods: {
+    init() {
+      const id = this.$route.query.id
+      if (id) {
+        this.isEdit = true
+        getRecipeDetailById({id}).then(res => {
+          console.log(res.data)
+          this.model = res.data
+        })
+      }
+    },
+    confirm() {
+      addRecipe(this.model).then(res => {
+        this.$message.success(res.message)
+      })
+    },
     searchAuthorRemoteMethod(authorNickname) {
       this.authorSearchLoading = true
       getAuthorList({ page: 1, pageSize: 10, nickname: authorNickname })

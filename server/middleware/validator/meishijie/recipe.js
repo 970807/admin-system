@@ -77,6 +77,17 @@ const validateAuthorId = async (authorId) => {
   }
 }
 
+exports.getRecipeList = (req, res, next) => {
+  const { page, pageSize } = req.query
+  if (!page) {
+    return res.json({ code: '-1', message: 'page字段为必须' })
+  }
+  if (!pageSize) {
+    return res.json({ code: '-1', message: 'pageSize字段为必须' })
+  }
+  next()
+}
+
 exports.addRecipe = async (req, res, next) => {
   try {
     const {
@@ -162,4 +173,12 @@ exports.addRecipe = async (req, res, next) => {
   } catch (err) {
     next(err)
   }
+}
+
+exports.getRecipeDetailById = (req, res, next) => {
+  const { id } = req.query
+  if (!id) {
+    return res.json({ code: '-1', message: 'id字段为必须' })
+  }
+  next()
 }

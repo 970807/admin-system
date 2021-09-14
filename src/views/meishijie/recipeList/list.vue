@@ -25,7 +25,7 @@
         width="50"
         align="center"
       />
-      <el-table-column label="菜谱名称" align="center" />
+      <el-table-column label="菜谱名称" align="center" prop="recipeName" />
       <el-table-column label="操作" align="center" width="130">
         <template slot-scope="scope">
           <el-button
@@ -54,6 +54,8 @@
 </template>
 
 <script>
+import {getRecipeList} from '@/api/meishijie/recipe'
+
 export default {
   name: 'MeishijieRecipeManagementIndex',
   data() {
@@ -69,15 +71,26 @@ export default {
       multiSelection: []
     }
   },
+  created() {
+    this.getList()
+  },
   methods: {
     getList() {
-
+      this.listLoading = true
+      getRecipeList(this.listQuery).then(res => {
+        this.list = res.data.list
+        console.log(this.list)
+        this.total = res.data.totalCount
+        this.listLoading = false
+      }).catch(() => {
+        this.listLoading = false
+      })
     },
     handleAdd() {
       this.$router.push('/meishijie/edit-recipe')
     },
-    handleEdit() {
-
+    handleEdit({id}) {
+      this.$router.push({path: '/meishijie/edit-recipe', query: {id}})
     },
     handleFilter() {
       this.listQuery.page = 1

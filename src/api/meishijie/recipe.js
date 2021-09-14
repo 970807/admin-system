@@ -1,0 +1,25 @@
+import request from '@/utils/request'
+
+export function getRecipeList(params) {
+  return request({
+    url: '/meishijie/recipe/getRecipeList',
+    method: 'get',
+    params
+  })
+}
+
+export function addRecipe(data) {
+  return request({
+    url: '/meishijie/recipe/addRecipe',
+    method: 'post',
+    data
+  })
+}
+
+export function getRecipeDetailById(params) {
+  return request({
+    url: '/meishijie/recipe/getRecipeDetailById',
+    method: 'get',
+    params
+  })
+}
