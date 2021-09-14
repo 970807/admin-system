@@ -1,6 +1,7 @@
 const meishijieDb = require('../../db/meishijie')
 
-const formatRecipeListToStr = (list) => {
+const sortAndFormatRecipeListToStr = (list) => {
+  list.sort((a, b) => a.sort - b.sort)
   return list.map((item) => `${item.id},${item.sort}`).join(';') + ';'
 }
 
@@ -67,7 +68,7 @@ exports.getColumnDetail = async (req, res, next) => {
 exports.addColumn = async (req, res, next) => {
   try {
     const { columnTitle, showRecipeCount, recipeList } = req.body
-    const recipeListStr = formatRecipeListToStr(recipeList)
+    const recipeListStr = sortAndFormatRecipeListToStr(recipeList)
     const d = new Date()
     const { insertId: id } = await meishijieDb.query(
       'insert into home_recommend_column_list set ?',
@@ -88,7 +89,7 @@ exports.addColumn = async (req, res, next) => {
 exports.editColumn = async (req, res, next) => {
   try {
     const { id, columnTitle, showRecipeCount, recipeList } = req.body
-    const recipeListStr = formatRecipeListToStr(recipeList)
+    const recipeListStr = sortAndFormatRecipeListToStr(recipeList)
     const d = new Date()
     const {
       changedRows

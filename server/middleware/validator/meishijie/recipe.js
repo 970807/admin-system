@@ -65,7 +65,6 @@ async function addOrEditRecipeValidator(req, res, next, isEdit) {
       peopleCount,
       favCount,
       browerCount,
-      authorWords,
       stepList,
       finishFoodImgUrlList,
       recipeTips,
@@ -115,9 +114,6 @@ async function addOrEditRecipeValidator(req, res, next, isEdit) {
     }
     if (typeof browerCount !== 'number' || browerCount < 0) {
       return res.json({ code: '-1', message: '浏览数字段缺失或错误' })
-    }
-    if (!authorWords) {
-      return res.json({ code: '-1', message: '作者推荐语不能为空' })
     }
     const resMsg3 = validateStepList(stepList)
     if (resMsg3) {
