@@ -24,6 +24,14 @@ export function editRecipe(data) {
   })
 }
 
+export function batchDeleteRecipe(data) {
+  return request({
+    url: '/meishijie/recipe/batchDeleteRecipe',
+    method: 'delete',
+    data
+  })
+}
+
 export function getRecipeDetailById(params) {
   return request({
     url: '/meishijie/recipe/getRecipeDetailById',

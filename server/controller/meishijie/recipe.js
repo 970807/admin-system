@@ -167,6 +167,24 @@ exports.editRecipe = async (req, res, next) => {
   }
 }
 
+exports.batchDeleteRecipe = async (req, res, next) => {
+  try {
+    const { idList } = req.body
+    const {
+      affectedRows
+    } = await meishijieDb.query(
+      'delete from recipe_detail_list where id in ?',
+      [[idList]]
+    )
+    if (affectedRows < 1) {
+      return res.json({ code: '-1', message: '批量删除菜谱失败' })
+    }
+    res.json({ code: '200', message: '批量删除菜谱成功' })
+  } catch (err) {
+    next(err)
+  }
+}
+
 exports.getRecipeDetailById = async (req, res, next) => {
   try {
     const { id } = req.query

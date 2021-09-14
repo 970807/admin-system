@@ -27,6 +27,13 @@ router.put(
   meishijieCtrl.recipe.editRecipe
 )
 
+router.delete(
+  '/batchDeleteRecipe',
+  auth,
+  validator.meishijie.recipe.batchDeleteRecipe,
+  meishijieCtrl.recipe.batchDeleteRecipe
+)
+
 router.get(
   '/getRecipeDetailById',
   auth,

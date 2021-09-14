@@ -148,6 +148,14 @@ exports.editRecipe = (req, res, next) => {
   addOrEditRecipeValidator(req, res, next, true)
 }
 
+exports.batchDeleteRecipe = (req, res, next) => {
+  const { idList } = req.body
+  if (!idList || idList.length < 1) {
+    return res.json({ code: '-1', message: 'idList数组至少有1个元素' })
+  }
+  next()
+}
+
 exports.getRecipeDetailById = (req, res, next) => {
   const { id } = req.query
   if (!id) {
