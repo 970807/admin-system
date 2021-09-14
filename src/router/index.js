@@ -98,6 +98,23 @@ export const constantRoutes = [
         hidden: true,
         component: () => import('@/views/meishijie/recipeList/editRecipe.vue'),
         meta: { title: '编辑菜谱' }
+      },
+      {
+        path: 'home-recommend-column',
+        name: 'homeRecommendColumn',
+        component: () =>
+          import('@/views/meishijie/homeRecommendColumn/list.vue'),
+        meta: { title: '首页推荐栏目' }
+      },
+      {
+        path: 'edit-recommend-column',
+        name: 'editRecommendColumn',
+        hidden: true,
+        component: () =>
+          import(
+            '@/views/meishijie/homeRecommendColumn/editRecommentColumn.vue'
+          ),
+        meta: { title: '编辑推荐栏目' }
       }
     ]
   },

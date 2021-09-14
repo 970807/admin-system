@@ -273,20 +273,15 @@
       <el-button @click="cancel">取消</el-button>
       <el-button type="primary" :loading="btnLoading" @click="confirm">确定</el-button>
     </footer>
-    <SelectIngredientDialog ref="selectIngredientDialog" />
   </div>
 </template>
 
 <script>
 import { addRecipe, editRecipe, getRecipeDetailById } from '@/api/meishijie/recipe'
 import { getList as getAuthorList } from '@/api/meishijie/account'
-import SelectIngredientDialog from './selectIngredientDialog'
 
 export default {
   name: 'MeishijieRecipeManagementEditRecipe',
-  components: {
-    SelectIngredientDialog
-  },
   data() {
     return {
       isEdit: false,

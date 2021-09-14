@@ -5,5 +5,6 @@ const router = express.Router()
 router.use('/account', require('./account'))
 router.use('/ingredient', require('./ingredient'))
 router.use('/recipe', require('./recipe'))
+router.use('/homeRecommendColumn', require('./homeRecommendColumn'))
 
 module.exports = router

@@ -135,29 +135,33 @@ exports.editRecipe = async (req, res, next) => {
       authorId,
       originWebLink
     } = req.body
-    const r = await meishijieDb.query('update recipe_detail_list set ?', {
-      recipeName,
-      isVideo,
-      coverUrl,
-      videoUrl,
-      recipeQrcode,
-      simpleIntroductionTechnology,
-      simpleIntroductionTaste,
-      simpleIntroductionTime,
-      simpleIntroductionDifficulty,
-      mainIngredientsStr,
-      subIngredientsStr,
-      peopleCount,
-      favCount,
-      browerCount,
-      authorWords,
-      finishFoodImgsStr: formatFinishFoodImgUrlListToStr(finishFoodImgUrlList),
-      stepsStr: formatStepListToStr(stepList),
-      recipeTips,
-      authorId,
-      originWebLink,
-      updateTime: new Date()
-    })
+    const r = await meishijieDb.query(
+      'update recipe_detail_list set recipe_name=?,is_video=?,cover_url=?,video_url=?,recipe_qrcode=?,simple_introduction_technology=?,simple_introduction_taste=?,simple_introduction_time=?,simple_introduction_difficulty=?,main_ingredients_str=?,sub_ingredients_str=?,people_count=?,fav_count=?,brower_count=?,author_words=?,finish_food_imgs_str=?,steps_str=?,recipe_tips=?,author_id=?,origin_web_link=?,update_time=? where id=?',
+      [
+        recipeName,
+        isVideo,
+        coverUrl,
+        videoUrl,
+        recipeQrcode,
+        simpleIntroductionTechnology,
+        simpleIntroductionTaste,
+        simpleIntroductionTime,
+        simpleIntroductionDifficulty,
+        mainIngredientsStr,
+        subIngredientsStr,
+        peopleCount,
+        favCount,
+        browerCount,
+        authorWords,
+        formatFinishFoodImgUrlListToStr(finishFoodImgUrlList),
+        formatStepListToStr(stepList),
+        recipeTips,
+        authorId,
+        originWebLink,
+        new Date(),
+        id
+      ]
+    )
     if (r.changedRows < 1) {
       res.json({ code: '-1', message: '修改菜谱失败' })
     }
@@ -271,6 +275,10 @@ exports.importFromHtmlStr = async (req, res, next) => {
     .match(/\·\s+(\d+)\s+浏览/)
   const browerCount = browserRegResult && Number(browserRegResult[1])
   const authorName = $('.recipe_header_info .info1 a').text()
+  const authorRegResult = $('.recipe_author .avatarw')
+    .css('background')
+    .match(/url\((.+)\)/)
+  const authorAvatar = authorRegResult && authorRegResult[1]
   const authorWords = $('.author_words p').text()
   let stepsStr = ''
   $('.recipe_step_box .recipe_step .step_content').each((index, item) => {
@@ -308,6 +316,7 @@ exports.importFromHtmlStr = async (req, res, next) => {
           account: randomStr,
           password: randomStr,
           nickname: authorName,
+          avatar: authorAvatar,
           createTime: d,
           updateTime: d
         }
