@@ -28,6 +28,7 @@
         align="center"
       />
       <el-table-column label="菜谱名称" align="center" prop="recipeName" />
+      <el-table-column label="菜谱id" align="center" prop="id" />
       <el-table-column label="操作" align="center" width="130">
         <template slot-scope="scope">
           <el-button
