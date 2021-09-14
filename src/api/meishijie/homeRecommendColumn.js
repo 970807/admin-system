@@ -31,3 +31,11 @@ export function editColumn(data) {
     data
   })
 }
+
+export function deleteColumn(data) {
+  return request({
+    url: '/meishijie/homeRecommendColumn/deleteColumn',
+    method: 'delete',
+    data
+  })
+}

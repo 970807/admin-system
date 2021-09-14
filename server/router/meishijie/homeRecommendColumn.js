@@ -33,4 +33,11 @@ router.put(
   meishijieCtrl.homeRecommendColumn.editColumn
 )
 
+router.delete(
+  '/deleteColumn',
+  auth,
+  validator.meishijie.homeRecommendColumn.deleteColumn,
+  meishijieCtrl.homeRecommendColumn.deleteColumn
+)
+
 module.exports = router

@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import {getColumnList} from '@/api/meishijie/homeRecommendColumn'
+import {getColumnList, deleteColumn} from '@/api/meishijie/homeRecommendColumn'
 
 export default {
   name: 'MeishijieHomeRecommendList',
@@ -71,7 +71,23 @@ export default {
       this.$router.push({path: '/meishijie/edit-recommend-column', query: {id}})
     },
     handleDelete(id) {
-
+      this.$confirm('删除后将无法恢复，是否继续？', '提示', {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          this.listLoading = true
+          deleteColumn({ id }).then(res => {
+            this.$message.success(res.message)
+            this.getList()
+          }).catch(() => {
+            this.listLoading = false
+          })
+        })
+        .catch(() => {
+          this.$message.info('已取消!')
+        })
     }
   }
 }

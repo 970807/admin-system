@@ -104,3 +104,19 @@ exports.editColumn = async (req, res, next) => {
     next(err)
   }
 }
+
+exports.deleteColumn = async (req, res, next) => {
+  try {
+    const { id } = req.body
+    const { affectedRows } = await meishijieDb.query(
+      'delete from home_recommend_column_list where id=?',
+      id
+    )
+    if (affectedRows < 1) {
+      return res.json({ code: '-1', message: '删除推荐栏目失败' })
+    }
+    res.json({ code: '200', message: '删除推荐栏目成功' })
+  } catch (err) {
+    next(err)
+  }
+}

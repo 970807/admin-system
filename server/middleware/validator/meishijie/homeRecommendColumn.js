@@ -36,3 +36,11 @@ exports.editColumn = (req, res, next) => {
   }
   next()
 }
+
+exports.deleteColumn = (req, res, next) => {
+  const { id } = req.body
+  if (!id) {
+    return res.json({ code: '-1', message: 'id字段为必须' })
+  }
+  next()
+}
