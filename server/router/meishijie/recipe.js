@@ -34,4 +34,11 @@ router.get(
   meishijieCtrl.recipe.getRecipeDetailById
 )
 
+router.post(
+  '/importFromHtmlStr',
+  auth,
+  validator.meishijie.recipe.importFromHtmlStr,
+  meishijieCtrl.recipe.importFromHtmlStr
+)
+
 module.exports = router

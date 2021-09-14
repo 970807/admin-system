@@ -106,39 +106,19 @@
         </el-col>
       </el-row>
       <el-form-item label="主料">
-        <el-tag
-          v-for="item in model.mainIngredientList"
-          :key="item.ingredientId"
-          type="success"
-          closable
-          style="margin-right:10px"
-          @click="handleIngredientItemClick(item)"
-          @close="handleDeleteMainIngredientItem(item.ingredientId)"
-        >{{ item.ingredientName }} {{ item.ingredientDose }}</el-tag>
-        <el-button
-          type="primary"
-          circle
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAddMainIngredientItem"
+        <el-input
+          v-model="model.mainIngredientsStr"
+          type="textarea"
+          :autosize="{minRows:2,maxRows:4}"
+          placeholder="格式为食材:用量;食材:用量;食材:用量;"
         />
       </el-form-item>
       <el-form-item label="辅料">
-        <el-tag
-          v-for="item in model.subIngredientList"
-          :key="item.ingredientId"
-          type="info"
-          closable
-          style="margin-right:10px"
-          @click="handleIngredientItemClick(item)"
-          @close="handleDeleteSubIngredientItem(item.ingredientId)"
-        >{{ item.ingredientName }} {{ item.ingredientDose }}</el-tag>
-        <el-button
-          type="primary"
-          circle
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAddSubIngredientItem"
+        <el-input
+          v-model="model.subIngredientsStr"
+          type="textarea"
+          :autosize="{minRows:2,maxRows:4}"
+          placeholder="格式为食材:用量;食材:用量;食材:用量;"
         />
       </el-form-item>
       <el-row>
@@ -291,7 +271,7 @@
     </el-form>
     <footer>
       <el-button @click="cancel">取消</el-button>
-      <el-button type="primary" @click="confirm">确定</el-button>
+      <el-button type="primary" :loading="btnLoading" @click="confirm">确定</el-button>
     </footer>
     <SelectIngredientDialog ref="selectIngredientDialog" />
   </div>
@@ -320,8 +300,8 @@ export default {
         simpleIntroductionTaste: '',
         simpleIntroductionTime: '',
         simpleIntroductionDifficulty: '',
-        mainIngredientList: [],
-        subIngredientList: [],
+        mainIngredientsStr: '',
+        subIngredientsStr: '',
         peopleCount: 1,
         favCount: 0,
         browerCount: 0,
@@ -333,7 +313,8 @@ export default {
         authorId: undefined
       },
       authorSearchLoading: false,
-      authorSearchList: []
+      authorSearchList: [],
+      btnLoading: false
     }
   },
   created() {
@@ -350,6 +331,7 @@ export default {
       }
     },
     confirm() {
+      this.btnLoading = true
       let res
       if (this.isEdit) {
         res = editRecipe(this.model)
@@ -358,7 +340,10 @@ export default {
       }
       res.then(res => {
         this.$message.success(res.message)
+        this.btnLoading = false
         this.cancel()
+      }).catch(() => {
+        this.btnLoading = false
       })
     },
     cancel() {
@@ -392,49 +377,6 @@ export default {
     // 删除做法步骤
     handleDeleteStep(index) {
       this.model.stepList.splice(index)
-    },
-    // 添加主料
-    handleAddMainIngredientItem() {
-      this.$refs.selectIngredientDialog.show(({id: ingredientId, ingredientName}) => {
-        if (this.model.mainIngredientList.find(item => item.ingredientId === ingredientId)) {
-          return this.$message.warning('该食材已存在，请勿重复添加')
-        }
-        this.model.mainIngredientList.push({ingredientId, ingredientName, ingredientDose: '适量'})
-      })
-    },
-    // 添加辅料
-    handleAddSubIngredientItem() {
-      this.$refs.selectIngredientDialog.show(({id: ingredientId, ingredientName}) => {
-        if (this.model.subIngredientList.find(item => item.ingredientId === ingredientId)) {
-          return this.$message.warning('该食材已存在，请勿重复添加')
-        }
-        this.model.subIngredientList.push({ingredientId, ingredientName, ingredientDose: '适量'})
-      })
-    },
-    handleIngredientItemClick(info) {
-      this.$prompt('', '请输入食材用量', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputValue: info.ingredientDose,
-        inputPattern: /.+/,
-        inputErrorMessage: '请输入食材用量'
-      }).then(({value}) => {
-        info.ingredientDose = value
-      }).catch(() => {
-        this.$message.info('取消输入')
-      })
-    },
-    handleDeleteMainIngredientItem(ingredientId) {
-      const delIndex = this.model.mainIngredientList.findIndex(item => item.ingredientId === ingredientId)
-      if (delIndex !== -1) {
-        this.model.mainIngredientList.splice(delIndex, 1)
-      }
-    },
-    handleDeleteSubIngredientItem(ingredientId) {
-      const delIndex = this.model.subIngredientList.findIndex(item => item.ingredientId === ingredientId)
-      if (delIndex !== -1) {
-        this.model.subIngredientList.splice(delIndex, 1)
-      }
     }
   }
 }

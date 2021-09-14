@@ -1,46 +1,5 @@
 const meishijieDb = require('../../../db/meishijie')
 
-const isNoHasThisFieldInArr = (field, arr) => {
-  for (const item of arr) {
-    if (typeof item !== 'object') {
-      return true
-    }
-    if (field in item) {
-      continue
-    }
-    return true
-  }
-  return false
-}
-
-const isHasRepeatFieldInArr = (field, arr) => {
-  const noRepeatArr = []
-  for (const item of arr) {
-    if (!noRepeatArr.find((item2) => item2[field] === item[field])) {
-      noRepeatArr.push(item)
-    }
-  }
-  return noRepeatArr.length !== arr.length
-}
-
-const validateIngredientList = (ingredientName, ingredientList) => {
-  if (!Array.isArray(ingredientList)) {
-    return `${ingredientName}字段缺失或错误`
-  }
-  if (ingredientList.length < 1) {
-    return `${ingredientName}应至少为1个`
-  }
-  if (isNoHasThisFieldInArr('ingredientId', ingredientList)) {
-    return `${ingredientName}ingredientId字段为必须`
-  }
-  if (isNoHasThisFieldInArr('ingredientDose', ingredientList)) {
-    return `${ingredientName}ingredientDose字段为必须`
-  }
-  if (isHasRepeatFieldInArr('ingredientId', ingredientList)) {
-    return `${ingredientName}重复`
-  }
-}
-
 const validateStepList = (list) => {
   if (!Array.isArray(list)) {
     return 'stepList字段缺失或错误'
@@ -101,8 +60,8 @@ async function addOrEditRecipeValidator(req, res, next, isEdit) {
       simpleIntroductionTaste,
       simpleIntroductionTime,
       simpleIntroductionDifficulty,
-      mainIngredientList,
-      subIngredientList,
+      mainIngredientsStr,
+      subIngredientsStr,
       peopleCount,
       favCount,
       browerCount,
@@ -142,13 +101,11 @@ async function addOrEditRecipeValidator(req, res, next, isEdit) {
     if (!simpleIntroductionDifficulty) {
       return res.json({ code: '-1', message: '难度字段不能为空' })
     }
-    const resMsg1 = validateIngredientList('主料', mainIngredientList)
-    if (resMsg1) {
-      return res.json({ code: '-1', message: resMsg1 })
+    if (!mainIngredientsStr) {
+      return res.json({ code: '-1', message: '主料字段不能为空' })
     }
-    const resMsg2 = validateIngredientList('辅料', subIngredientList)
-    if (resMsg2) {
-      return res.json({ code: '-1', message: resMsg2 })
+    if (!subIngredientsStr) {
+      return res.json({ code: '-1', message: '辅料字段不能为空' })
     }
     if (typeof peopleCount !== 'number' || peopleCount < 1) {
       return res.json({ code: '-1', message: '份数字段缺失或错误' })
@@ -195,6 +152,14 @@ exports.getRecipeDetailById = (req, res, next) => {
   const { id } = req.query
   if (!id) {
     return res.json({ code: '-1', message: 'id字段为必须' })
+  }
+  next()
+}
+
+exports.importFromHtmlStr = (req, res, next) => {
+  const { htmlStr } = req.body
+  if (!htmlStr) {
+    return res.json({ code: '-1', message: 'htmlStr字段为必须' })
   }
   next()
 }

@@ -31,3 +31,11 @@ export function getRecipeDetailById(params) {
     params
   })
 }
+
+export function importFromHtmlStr(data) {
+  return request({
+    url: '/meishijie/recipe/importFromHtmlStr',
+    method: 'post',
+    data
+  })
+}

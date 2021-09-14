@@ -4,6 +4,7 @@
       <el-input v-model="listQuery.recipeName" style="width: 220px" placeholder="请输入菜谱名称" clearable />
       <el-button type="primary" icon="el-icon-search" style="margin-left: 10px" @click="handleFilter">搜索</el-button>
       <el-button type="primary" icon="el-icon-plus" @click="handleAdd">添加菜谱</el-button>
+      <el-button type="primary" icon="el-icon-s-promotion" @click="handleImportFromHtml">html导入菜谱</el-button>
     </div>
     <el-table
       v-loading="listLoading"
@@ -50,14 +51,19 @@
         @current-change="handleCurrentChange"
       />
     </div>
+    <ImportFromHtmlDialog ref="importFromHtmlDialog" @finish="handleFilter" />
   </div>
 </template>
 
 <script>
 import {getRecipeList} from '@/api/meishijie/recipe'
+import ImportFromHtmlDialog from './importFromHtmlDialog'
 
 export default {
   name: 'MeishijieRecipeManagementIndex',
+  components: {
+    ImportFromHtmlDialog
+  },
   data() {
     return {
       listLoading: false,
@@ -90,6 +96,9 @@ export default {
     },
     handleEdit({id}) {
       this.$router.push({path: '/meishijie/edit-recipe', query: {id}})
+    },
+    handleImportFromHtml() {
+      this.$refs.importFromHtmlDialog.show()
     },
     handleFilter() {
       this.listQuery.page = 1

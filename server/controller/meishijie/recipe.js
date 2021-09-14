@@ -1,27 +1,7 @@
 const { v4: uuidv4 } = require('uuid')
+const cheerio = require('cheerio')
 const meishijieDb = require('../../db/meishijie')
 const getList = require('../../utils/getList')
-
-/*
-  把食材列表格式化成特定字符串： 食材id:用量;食材id:用量;
-*/
-const formatIngredientListToStr = (list) => {
-  let resStr = ''
-  for (const { ingredientId, ingredientDose } of list) {
-    resStr += `${ingredientId}:${ingredientDose};`
-  }
-  return resStr
-}
-
-const formatIngredientsStrToList = (str) => {
-  return str
-    .slice(0, -1)
-    .split(';')
-    .map((item) => {
-      const [ingredientId, ingredientDose] = item.split(':')
-      return { ingredientId: Number(ingredientId), ingredientDose }
-    })
-}
 
 /*
   把成品图列表格式化成特定字符串： 图片链接;图片链接;图片链接;
@@ -59,17 +39,6 @@ const formatStepStrToList = (str) => {
     })
 }
 
-const getIngredientNameFromIngredientMap = (ingredientList, ingredientMap) => {
-  const res = []
-  for (const item of ingredientList) {
-    const ingredientId = item.ingredientId
-    const r = ingredientMap.find((item2) => item2.id === ingredientId)
-    const ingredientName = r && r.ingredientName
-    res.push({ ...item, ...{ ingredientName } })
-  }
-  return res
-}
-
 exports.getRecipeList = (req, res, next) => {
   getList({
     req,
@@ -93,8 +62,8 @@ exports.addRecipe = async (req, res, next) => {
       simpleIntroductionTaste,
       simpleIntroductionTime,
       simpleIntroductionDifficulty,
-      mainIngredientList,
-      subIngredientList,
+      mainIngredientsStr,
+      subIngredientsStr,
       peopleCount,
       favCount,
       browerCount,
@@ -118,8 +87,8 @@ exports.addRecipe = async (req, res, next) => {
       simpleIntroductionTaste,
       simpleIntroductionTime,
       simpleIntroductionDifficulty,
-      mainIngredientsStr: formatIngredientListToStr(mainIngredientList),
-      subIngredientsStr: formatIngredientListToStr(subIngredientList),
+      mainIngredientsStr,
+      subIngredientsStr,
       peopleCount,
       favCount,
       browerCount,
@@ -154,8 +123,8 @@ exports.editRecipe = async (req, res, next) => {
       simpleIntroductionTaste,
       simpleIntroductionTime,
       simpleIntroductionDifficulty,
-      mainIngredientList,
-      subIngredientList,
+      mainIngredientsStr,
+      subIngredientsStr,
       peopleCount,
       favCount,
       browerCount,
@@ -176,8 +145,8 @@ exports.editRecipe = async (req, res, next) => {
       simpleIntroductionTaste,
       simpleIntroductionTime,
       simpleIntroductionDifficulty,
-      mainIngredientsStr: formatIngredientListToStr(mainIngredientList),
-      subIngredientsStr: formatIngredientListToStr(subIngredientList),
+      mainIngredientsStr,
+      subIngredientsStr,
       peopleCount,
       favCount,
       browerCount,
@@ -216,32 +185,153 @@ exports.getRecipeDetailById = async (req, res, next) => {
     delete detail.finishFoodImgsStr
     delete detail.createTime
     delete detail.updateTime
-    detail.mainIngredientList = formatIngredientsStrToList(
-      detail.mainIngredientsStr
-    )
-    delete detail.mainIngredientsStr
-    detail.subIngredientList = formatIngredientsStrToList(
-      detail.subIngredientsStr
-    )
-    delete detail.subIngredientsStr
-    const allIngredientIdList = [
-      ...detail.mainIngredientList.map((item) => item.ingredientId),
-      ...detail.subIngredientList.map((item) => item.ingredientId)
-    ]
-    const ingredientMap = await meishijieDb.query(
-      'select * from recipe_ingredient_list where id in (?)',
-      [allIngredientIdList]
-    )
-    detail.mainIngredientList = getIngredientNameFromIngredientMap(
-      detail.mainIngredientList,
-      ingredientMap
-    )
-    detail.subIngredientList = getIngredientNameFromIngredientMap(
-      detail.subIngredientList,
-      ingredientMap
-    )
     res.json({ code: '200', data: detail })
   } catch (err) {
     next(err)
+  }
+}
+
+exports.importFromHtmlStr = async (req, res, next) => {
+  const { htmlStr } = req.body
+  const $ = cheerio.load(htmlStr)
+  const recipeName = $('.recipe_header_info .recipe_title').text()
+  const isVideo = $('.recipe_header_c .recipe_topvideow').length > 0
+  let coverUrl
+  let videoUrl
+  if (isVideo) {
+    coverUrl = $('.recipe_header_c .recipe_topvideow .recipe_topvideo_bg').attr(
+      'src'
+    )
+    videoUrl = $('.recipe_header_c .recipe_topvideow .recipe_topvideo').attr(
+      'src'
+    )
+  }
+  const simpleIntroductionTechnology = $(
+    '.recipe_header_info .info2 .info2_item1 strong'
+  ).text()
+  const simpleIntroductionTaste = $(
+    '.recipe_header_info .info2 .info2_item2 strong'
+  ).text()
+  const simpleIntroductionTime = $(
+    '.recipe_header_info .info2 .info2_item3 strong'
+  ).text()
+  const simpleIntroductionDifficulty = $(
+    '.recipe_header_info .info2 .info2_item4 strong'
+  ).text()
+  const recipeQrcode = $('.recipe_qrcodebox .qrcode img').attr('src')
+  let mainIngredientsStr = ''
+  $('.recipe_ingredients:first-child .right strong').each((index, item) => {
+    const ingredientName = $(item)
+      .find('a')
+      .text()
+    const ingredientDose = $(item)
+      .text()
+      .slice(ingredientName.length)
+    mainIngredientsStr += `${ingredientName}:${ingredientDose};`
+  })
+  let subIngredientsStr = ''
+  $('.recipe_ingredients1 .right strong').each((index, item) => {
+    const ingredientName = $(item)
+      .find('a')
+      .text()
+    const ingredientDose = $(item)
+      .text()
+      .slice(ingredientName.length)
+    subIngredientsStr += `${ingredientName}:${ingredientDose};`
+  })
+  const peopleCount = Number(
+    $('.rf')
+      .text()
+      .slice(0, -2)
+  )
+  const favRegResult = $('.recipe_header_info .info1')
+    .text()
+    .match(/\·\s+(\d+)\s+收藏/)
+  const favCount = favRegResult && Number(favRegResult[1])
+  const browserRegResult = $('.recipe_header_info .info1')
+    .text()
+    .match(/\·\s+(\d+)\s+浏览/)
+  const browerCount = browserRegResult && Number(browserRegResult[1])
+  const authorName = $('.recipe_header_info .info1 a').text()
+  const authorWords = $('.author_words p').text()
+  let stepsStr = ''
+  $('.recipe_step_box .recipe_step .step_content').each((index, item) => {
+    const imgUrl = $(item)
+      .find('img.stepimg')
+      .attr('src')
+    const content = $(item)
+      .find('p')
+      .text()
+    stepsStr += `${imgUrl},${content};`
+  })
+  let finishFoodImgsStr = ''
+  $('.recipe_finish_box img').each((index, item) => {
+    finishFoodImgsStr += $(item).attr('src')
+    finishFoodImgsStr += ';'
+  })
+  const recipeTips = $('.recipe_tips .recipe_tips_words p').text()
+  try {
+    const d = new Date()
+    // 根据作者名查找该作者是否存在，不存在则创建作者
+    const [r] = await meishijieDb.query(
+      'select id from user_list where nickname=?',
+      authorName
+    )
+    let authorId
+    if (r) {
+      // 作者已存在
+      authorId = r.id
+    } else {
+      // 不存在，创建该作者
+      const randomStr = uuidv4()
+      const { insertId } = await meishijieDb.query(
+        'insert into user_list set ?',
+        {
+          account: randomStr,
+          password: randomStr,
+          nickname: authorName,
+          createTime: d,
+          updateTime: d
+        }
+      )
+      authorId = insertId
+    }
+
+    // 创建菜谱
+    const { insertId: recipeId } = await meishijieDb.query(
+      'insert into recipe_detail_list set ?',
+      {
+        id: uuidv4(),
+        isVideo,
+        coverUrl,
+        videoUrl,
+        recipeName,
+        favCount,
+        browerCount,
+        simpleIntroductionTechnology,
+        simpleIntroductionTaste,
+        simpleIntroductionTime,
+        simpleIntroductionDifficulty,
+        recipeQrcode,
+        mainIngredientsStr,
+        subIngredientsStr,
+        peopleCount,
+        authorId,
+        authorWords,
+        finishFoodImgsStr,
+        stepsStr,
+        recipeTips,
+        createTime: d,
+        updateTime: d
+      }
+    )
+    res.send({
+      code: '200',
+      message: '创建菜谱成功',
+      data: { recipeId, recipeName }
+    })
+  } catch (err) {
+    next(err)
+    return
   }
 }
