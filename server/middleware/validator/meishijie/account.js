@@ -58,16 +58,16 @@ async function validateAddAccount({ account, phone, nickname }) {
 exports.addAccount = async (req, res, next) => {
   const { account, phone, password, nickname } = req.body
   if (!account && !phone) {
-    return res.json({ code: '-1', message: '账号和手机号必须填写一个' })
+    return res.json({ code: -1, message: '账号和手机号必须填写一个' })
   }
   if (!password) {
-    return res.json({ code: '-1', message: '密码不能为空' })
+    return res.json({ code: -1, message: '密码不能为空' })
   }
 
   try {
     const message = await validateAddAccount({ account, phone, nickname })
     if (message) {
-      return res.json({ code: '-1', message })
+      return res.json({ code: -1, message })
     }
     next()
   } catch (err) {
@@ -146,16 +146,16 @@ async function validateEditAccount({ id, account, phone, nickname }) {
 exports.editAccount = async (req, res, next) => {
   const { id, account, phone, nickname } = req.body
   if (!id) {
-    return res.json({ code: '-1', message: 'id不能为空' })
+    return res.json({ code: -1, message: 'id不能为空' })
   }
   if (!account && !phone) {
-    return res.json({ code: '-1', message: '账号和手机号必须填写一个' })
+    return res.json({ code: -1, message: '账号和手机号必须填写一个' })
   }
 
   try {
     const message = await validateEditAccount({ id, account, phone, nickname })
     if (message) {
-      return res.json({ code: '-1', message })
+      return res.json({ code: -1, message })
     }
     next()
   } catch (err) {
@@ -166,10 +166,10 @@ exports.editAccount = async (req, res, next) => {
 exports.editAccountPassword = async (req, res, next) => {
   const { id, password } = req.body
   if (!id) {
-    return res.json({ code: '-1', message: 'id不能为空' })
+    return res.json({ code: -1, message: 'id不能为空' })
   }
   if (!password) {
-    return res.json({ code: '-1', message: '密码不能为空' })
+    return res.json({ code: -1, message: '密码不能为空' })
   }
   next()
 }

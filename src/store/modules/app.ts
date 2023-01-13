@@ -1,108 +1,64 @@
-import type {
-  ProjectConfig,
-  HeaderSetting,
-  MenuSetting,
-  TransitionSetting,
-  MultiTabsSetting,
-} from '/#/config'
-import type { BeforeMiniState } from '/#/store'
-
+import { store } from '@/store'
+import { appType } from './types'
 import { defineStore } from 'pinia'
-import { store } from '/@/store'
+import { getConfig } from '@/config'
+import { deviceDetection, storageLocal } from '@pureadmin/utils'
 
-import { ThemeEnum } from '/@/enums/appEnum'
-import { APP_DARK_MODE_KEY_, PROJ_CFG_KEY } from '/@/enums/cacheEnum'
-import { Persistent } from '/@/utils/cache/persistent'
-import { darkMode } from '/@/settings/designSetting'
-import { resetRouter } from '/@/router'
-import { deepMerge } from '/@/utils'
-
-interface AppState {
-  darkMode?: ThemeEnum
-  // Page loading status
-  pageLoading: boolean
-  // project config
-  projectConfig: ProjectConfig | null
-  // When the window shrinks, remember some states, and restore these states when the window is restored
-  beforeMiniInfo: BeforeMiniState
-}
-let timeId: TimeoutHandle
 export const useAppStore = defineStore({
-  id: 'app',
-  state: (): AppState => ({
-    darkMode: undefined,
-    pageLoading: false,
-    projectConfig: Persistent.getLocal(PROJ_CFG_KEY),
-    beforeMiniInfo: {},
+  id: 'pure-app',
+  state: (): appType => ({
+    sidebar: {
+      opened:
+        storageLocal().getItem<StorageConfigs>('responsive-layout')
+          ?.sidebarStatus ?? getConfig().SidebarStatus,
+      withoutAnimation: false,
+      isClickCollapse: false
+    },
+    // 这里的layout用于监听容器拖拉后恢复对应的导航模式
+    layout:
+      storageLocal().getItem<StorageConfigs>('responsive-layout')?.layout ??
+      getConfig().Layout,
+    device: deviceDetection() ? 'mobile' : 'desktop'
   }),
   getters: {
-    getPageLoading(): boolean {
-      return this.pageLoading
+    getSidebarStatus() {
+      return this.sidebar.opened
     },
-    getDarkMode(): 'light' | 'dark' | string {
-      return this.darkMode || localStorage.getItem(APP_DARK_MODE_KEY_) || darkMode
-    },
-
-    getBeforeMiniInfo(): BeforeMiniState {
-      return this.beforeMiniInfo
-    },
-
-    getProjectConfig(): ProjectConfig {
-      return this.projectConfig || ({} as ProjectConfig)
-    },
-
-    getHeaderSetting(): HeaderSetting {
-      return this.getProjectConfig.headerSetting
-    },
-    getMenuSetting(): MenuSetting {
-      return this.getProjectConfig.menuSetting
-    },
-    getTransitionSetting(): TransitionSetting {
-      return this.getProjectConfig.transitionSetting
-    },
-    getMultiTabsSetting(): MultiTabsSetting {
-      return this.getProjectConfig.multiTabsSetting
-    },
+    getDevice() {
+      return this.device
+    }
   },
   actions: {
-    setPageLoading(loading: boolean): void {
-      this.pageLoading = loading
-    },
-
-    setDarkMode(mode: ThemeEnum): void {
-      this.darkMode = mode
-      localStorage.setItem(APP_DARK_MODE_KEY_, mode)
-    },
-
-    setBeforeMiniInfo(state: BeforeMiniState): void {
-      this.beforeMiniInfo = state
-    },
-
-    setProjectConfig(config: DeepPartial<ProjectConfig>): void {
-      this.projectConfig = deepMerge(this.projectConfig || {}, config)
-      Persistent.setLocal(PROJ_CFG_KEY, this.projectConfig)
-    },
-
-    async resetAllState() {
-      resetRouter()
-      Persistent.clearAll()
-    },
-    async setPageLoadingAction(loading: boolean): Promise<void> {
-      if (loading) {
-        clearTimeout(timeId)
-        // Prevent flicker
-        timeId = setTimeout(() => {
-          this.setPageLoading(loading)
-        }, 50)
-      } else {
-        this.setPageLoading(loading)
-        clearTimeout(timeId)
+    TOGGLE_SIDEBAR(opened?: boolean, resize?: string) {
+      const layout = storageLocal().getItem<StorageConfigs>('responsive-layout')
+      if (opened && resize) {
+        this.sidebar.withoutAnimation = true
+        this.sidebar.opened = true
+        layout.sidebarStatus = true
+      } else if (!opened && resize) {
+        this.sidebar.withoutAnimation = true
+        this.sidebar.opened = false
+        layout.sidebarStatus = false
+      } else if (!opened && !resize) {
+        this.sidebar.withoutAnimation = false
+        this.sidebar.opened = !this.sidebar.opened
+        this.sidebar.isClickCollapse = !this.sidebar.opened
+        layout.sidebarStatus = this.sidebar.opened
       }
+      storageLocal().setItem('responsive-layout', layout)
     },
-  },
+    async toggleSideBar(opened?: boolean, resize?: string) {
+      await this.TOGGLE_SIDEBAR(opened, resize)
+    },
+    toggleDevice(device: string) {
+      this.device = device
+    },
+    setLayout(layout) {
+      this.layout = layout
+    }
+  }
 })
 
-// Need to be used outside the setup
-export function useAppStoreWithOut() {
+export function useAppStoreHook() {
   return useAppStore(store)
 }

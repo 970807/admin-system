@@ -39,7 +39,7 @@ module.exports = async ({
       )
     ])
     res.json({
-      code: '200',
+      code: 0,
       data: { list, totalCount }
     })
   } catch (err) {

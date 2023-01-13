@@ -6,7 +6,7 @@ const getList = require('../../utils/getList')
 /*
   把成品图列表格式化成特定字符串： 图片链接;图片链接;图片链接;
 */
-const formatFinishFoodImgUrlListToStr = (list) => {
+const formatFinishFoodImgUrlListToStr = list => {
   let resStr = ''
   for (const item of list) {
     resStr += `${item};`
@@ -14,14 +14,14 @@ const formatFinishFoodImgUrlListToStr = (list) => {
   return resStr
 }
 
-const formatFinishFoodImgUrlStrToList = (str) => {
+const formatFinishFoodImgUrlStrToList = str => {
   return str.slice(0, -1).split(';')
 }
 
 /*
   把步骤列表格式化成特定字符串：  步骤图片,步骤内容;步骤图片,步骤内容;步骤图片,步骤内容;
 */
-const formatStepListToStr = (list) => {
+const formatStepListToStr = list => {
   let resStr = ''
   for (const { imgUrl = '', content = '' } of list) {
     resStr += `${imgUrl},${content};`
@@ -29,11 +29,11 @@ const formatStepListToStr = (list) => {
   return resStr
 }
 
-const formatStepStrToList = (str) => {
+const formatStepStrToList = str => {
   return str
     .slice(0, -1)
     .split(';')
-    .map((item) => {
+    .map(item => {
       const [imgUrl, content] = item.split(',')
       return { imgUrl, content }
     })
@@ -102,9 +102,9 @@ exports.addRecipe = async (req, res, next) => {
       updateTime: d
     })
     if (r.affectedRows < 1) {
-      res.json({ code: '-1', message: '添加菜谱失败' })
+      res.json({ code: -1, message: '添加菜谱失败' })
     }
-    res.json({ code: '200', message: '添加菜谱成功', data: { id } })
+    res.json({ code: 0, message: '添加菜谱成功', data: { id } })
   } catch (err) {
     next(err)
   }
@@ -163,9 +163,9 @@ exports.editRecipe = async (req, res, next) => {
       ]
     )
     if (r.changedRows < 1) {
-      res.json({ code: '-1', message: '修改菜谱失败' })
+      res.json({ code: -1, message: '修改菜谱失败' })
     }
-    res.json({ code: '200', message: '修改菜谱成功', data: { id } })
+    res.json({ code: 0, message: '修改菜谱成功', data: { id } })
   } catch (err) {
     next(err)
   }
@@ -174,16 +174,14 @@ exports.editRecipe = async (req, res, next) => {
 exports.batchDeleteRecipe = async (req, res, next) => {
   try {
     const { idList } = req.body
-    const {
-      affectedRows
-    } = await meishijieDb.query(
+    const { affectedRows } = await meishijieDb.query(
       'delete from recipe_detail_list where id in ?',
       [[idList]]
     )
     if (affectedRows < 1) {
-      return res.json({ code: '-1', message: '批量删除菜谱失败' })
+      return res.json({ code: -1, message: '批量删除菜谱失败' })
     }
-    res.json({ code: '200', message: '批量删除菜谱成功' })
+    res.json({ code: 0, message: '批量删除菜谱成功' })
   } catch (err) {
     next(err)
   }
@@ -197,7 +195,7 @@ exports.getRecipeDetailById = async (req, res, next) => {
       id
     )
     if (!detail) {
-      res.json({ code: '-1', message: '获取详情失败' })
+      res.json({ code: -1, message: '获取详情失败' })
     }
     detail.stepList = formatStepStrToList(detail.stepsStr)
     delete detail.stepsStr
@@ -207,7 +205,7 @@ exports.getRecipeDetailById = async (req, res, next) => {
     delete detail.finishFoodImgsStr
     delete detail.createTime
     delete detail.updateTime
-    res.json({ code: '200', data: detail })
+    res.json({ code: 0, data: detail })
   } catch (err) {
     next(err)
   }
@@ -243,29 +241,17 @@ exports.importFromHtmlStr = async (req, res, next) => {
   const recipeQrcode = $('.recipe_qrcodebox .qrcode img').attr('src')
   let mainIngredientsStr = ''
   $('.recipe_ingredients:first-child .right strong').each((index, item) => {
-    const ingredientName = $(item)
-      .find('a')
-      .text()
-    const ingredientDose = $(item)
-      .text()
-      .slice(ingredientName.length)
+    const ingredientName = $(item).find('a').text()
+    const ingredientDose = $(item).text().slice(ingredientName.length)
     mainIngredientsStr += `${ingredientName}:${ingredientDose};`
   })
   let subIngredientsStr = ''
   $('.recipe_ingredients1 .right strong').each((index, item) => {
-    const ingredientName = $(item)
-      .find('a')
-      .text()
-    const ingredientDose = $(item)
-      .text()
-      .slice(ingredientName.length)
+    const ingredientName = $(item).find('a').text()
+    const ingredientDose = $(item).text().slice(ingredientName.length)
     subIngredientsStr += `${ingredientName}:${ingredientDose};`
   })
-  const peopleCount = Number(
-    $('.rf')
-      .text()
-      .slice(0, -2)
-  )
+  const peopleCount = Number($('.rf').text().slice(0, -2))
   const favRegResult = $('.recipe_header_info .info1')
     .text()
     .match(/\·\s+(\d+)\s+收藏/)
@@ -282,12 +268,8 @@ exports.importFromHtmlStr = async (req, res, next) => {
   const authorWords = $('.author_words p').text()
   let stepsStr = ''
   $('.recipe_step_box .recipe_step .step_content').each((index, item) => {
-    const imgUrl = $(item)
-      .find('img.stepimg')
-      .attr('src')
-    const content = $(item)
-      .find('p')
-      .text()
+    const imgUrl = $(item).find('img.stepimg').attr('src')
+    const content = $(item).find('p').text()
     stepsStr += `${imgUrl},${content};`
   })
   let finishFoodImgsStr = ''
@@ -353,7 +335,7 @@ exports.importFromHtmlStr = async (req, res, next) => {
       }
     )
     res.send({
-      code: '200',
+      code: 0,
       message: '创建菜谱成功',
       data: { recipeId, recipeName }
     })

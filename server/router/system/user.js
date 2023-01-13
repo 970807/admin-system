@@ -9,6 +9,6 @@ const router = express.Router()
 router.post('/login', validator.system.user.login, systemCtrl.user.loginSucess)
 
 // 获取用户信息
-router.get('/getUserInfo', auth, systemCtrl.user.getUserInfo)
+router.get('/getInfo', auth, systemCtrl.user.getInfo)
 
 module.exports = router

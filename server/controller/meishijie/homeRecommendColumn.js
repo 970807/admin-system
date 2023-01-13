@@ -1,8 +1,8 @@
 const meishijieDb = require('../../db/meishijie')
 
-const sortAndFormatRecipeListToStr = (list) => {
+const sortAndFormatRecipeListToStr = list => {
   list.sort((a, b) => a.sort - b.sort)
-  return list.map((item) => `${item.id},${item.sort}`).join(';') + ';'
+  return list.map(item => `${item.id},${item.sort}`).join(';') + ';'
 }
 
 exports.getColumnList = async (req, res, next) => {
@@ -12,16 +12,17 @@ exports.getColumnList = async (req, res, next) => {
       'select * from home_recommend_column_list where column_title like ?',
       `%${columnTitle || ''}%`
     )
-    list = list.map((item) => {
-      const columnRecipeCount = item.recipeListStr.slice(0, -1).split(';')
-        .length
+    list = list.map(item => {
+      const columnRecipeCount = item.recipeListStr
+        .slice(0, -1)
+        .split(';').length
       return {
         id: item.id,
         columnTitle: item.columnTitle,
         columnRecipeCount
       }
     })
-    res.json({ code: '200', list })
+    res.json({ code: 0, list })
   } catch (err) {
     next(err)
   }
@@ -35,13 +36,13 @@ exports.getColumnDetail = async (req, res, next) => {
       id
     )
     if (!detail) {
-      return res.json({ code: '-1', message: '详情获取失败' })
+      return res.json({ code: -1, message: '详情获取失败' })
     }
     const recipeIds = []
     detail.recipeList = detail.recipeListStr
       .slice(0, -1)
       .split(';')
-      .map((item) => {
+      .map(item => {
         const [id, sort] = item.split(',')
         recipeIds.push(id)
         return { id, sort }
@@ -51,15 +52,15 @@ exports.getColumnDetail = async (req, res, next) => {
       'select id,recipe_name from recipe_detail_list where id in (?)',
       [recipeIds]
     )
-    detail.recipeList.forEach((item) => {
+    detail.recipeList.forEach(item => {
       let recipeName = ''
-      const res = recipeMap.find((item2) => item.id === item2.id)
+      const res = recipeMap.find(item2 => item.id === item2.id)
       if (res) {
         recipeName = res.recipeName
       }
       item.recipeName = recipeName
     })
-    res.json({ code: '200', data: detail })
+    res.json({ code: 0, data: detail })
   } catch (err) {
     next(err)
   }
@@ -80,7 +81,7 @@ exports.addColumn = async (req, res, next) => {
         updateTime: d
       }
     )
-    res.json({ code: '200', message: '添加推荐栏目成功', data: { id } })
+    res.json({ code: 0, message: '添加推荐栏目成功', data: { id } })
   } catch (err) {
     next(err)
   }
@@ -91,16 +92,14 @@ exports.editColumn = async (req, res, next) => {
     const { id, columnTitle, showRecipeCount, recipeList } = req.body
     const recipeListStr = sortAndFormatRecipeListToStr(recipeList)
     const d = new Date()
-    const {
-      changedRows
-    } = await meishijieDb.query(
+    const { changedRows } = await meishijieDb.query(
       'update home_recommend_column_list set column_title=?,show_recipe_count=?,recipe_list_str=?,update_time=? where id=?',
       [columnTitle, showRecipeCount, recipeListStr, d, id]
     )
     if (changedRows < 1) {
-      res.json({ code: '-1', message: '修改推荐栏目失败' })
+      res.json({ code: -1, message: '修改推荐栏目失败' })
     }
-    res.json({ code: '200', message: '修改推荐栏目成功', data: { id } })
+    res.json({ code: 0, message: '修改推荐栏目成功', data: { id } })
   } catch (err) {
     next(err)
   }
@@ -114,9 +113,9 @@ exports.deleteColumn = async (req, res, next) => {
       id
     )
     if (affectedRows < 1) {
-      return res.json({ code: '-1', message: '删除推荐栏目失败' })
+      return res.json({ code: -1, message: '删除推荐栏目失败' })
     }
-    res.json({ code: '200', message: '删除推荐栏目成功' })
+    res.json({ code: 0, message: '删除推荐栏目成功' })
   } catch (err) {
     next(err)
   }

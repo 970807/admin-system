@@ -34,7 +34,7 @@ exports.addAccount = async (req, res, next) => {
       }
     )
     res.json({
-      code: '200',
+      code: 0,
       message: '添加账号成功',
       data: {
         id: insertId,
@@ -56,7 +56,7 @@ exports.editAccount = async (req, res, next) => {
       [account, phone, nickname, avatar, new Date(), id]
     )
     res.json({
-      code: '200',
+      code: 0,
       message: '修改账号成功',
       data: {
         id,
@@ -74,20 +74,18 @@ exports.editAccount = async (req, res, next) => {
 exports.editAccountPassword = async (req, res, next) => {
   try {
     const { id, password } = req.body
-    const {
-      changedRows
-    } = await meishijieDb.query(
+    const { changedRows } = await meishijieDb.query(
       'update user_list set password=?,update_time=? where id=?',
       [md5(password, meishijieMd5Salt), new Date(), id]
     )
     if (changedRows > 0) {
       res.json({
-        code: '200',
+        code: 0,
         message: '修改密码成功',
         data: { id }
       })
     } else {
-      res.json({ code: '-1', message: '修改密码失败' })
+      res.json({ code: -1, message: '修改密码失败' })
     }
   } catch (err) {
     next(err)
@@ -99,7 +97,7 @@ exports.deleteAccountById = async (req, res, next) => {
     const id = req.body.id
     await meishijieDb.query('delete from user_list where id = ?', id)
     res.json({
-      code: '200',
+      code: 0,
       message: '删除成功'
     })
   } catch (err) {
