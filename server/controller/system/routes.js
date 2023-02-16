@@ -33,8 +33,38 @@ exports.getAsyncRoutes = (req, res) => {
     ]
   }
 
+  const meishijieRouter = {
+    path: '/meishijie',
+    redirect: '/meishijie/account-list',
+    name: 'meishijie',
+    meta: {
+      title: '美食杰',
+      icon: 'mdi:food'
+    },
+    children: [
+      {
+        path: '/meishijie/account-list',
+        name: 'MeishijieAccountList',
+        meta: {
+          title: '账号列表',
+          roles: ['admin']
+        },
+        component: '/src/views/meishijie/accountList'
+      },
+      {
+        path: '/meishijie/ingredient-management',
+        name: 'MeishijieIngredientManagement',
+        meta: {
+          title: '食材管理',
+          roles: ['admin']
+        },
+        component: '/src/views/meishijie/ingredientManagement'
+      }
+    ]
+  }
+
   res.json({
     code: 0,
-    data: [permissionRouter]
+    data: [meishijieRouter, permissionRouter]
   })
 }

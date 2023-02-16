@@ -42,6 +42,12 @@ export default class PureHttp {
   get<T, P>(url: string, params?: T, config?: PureHttpRequestConfig): Promise<P>
 }
 
+export type responseType<T> = {
+  code: number
+  data: T
+  message?: string
+}
+
 // 请求状态码
 export enum requestCode {
   SUCCESS = 0,

@@ -9,6 +9,7 @@ import {
   RequestMethods,
   PureHttpResponse,
   PureHttpRequestConfig,
+  responseType,
   requestCode
 } from './types.d'
 import { stringify } from 'qs'
@@ -158,7 +159,7 @@ class PureHttp {
     url: string,
     param?: AxiosRequestConfig,
     axiosConfig?: PureHttpRequestConfig
-  ): Promise<T> {
+  ): Promise<responseType<T>> {
     const config = {
       method,
       url,
@@ -184,7 +185,7 @@ class PureHttp {
     url: string,
     params?: AxiosRequestConfig<T>,
     config?: PureHttpRequestConfig
-  ): Promise<P> {
+  ): Promise<responseType<P>> {
     return this.request<P>('post', url, params, config)
   }
 
@@ -193,7 +194,7 @@ class PureHttp {
     url: string,
     params?: AxiosRequestConfig<T>,
     config?: PureHttpRequestConfig
-  ): Promise<P> {
+  ): Promise<responseType<P>> {
     return this.request<P>('get', url, params, config)
   }
 }

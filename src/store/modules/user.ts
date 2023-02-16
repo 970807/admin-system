@@ -8,6 +8,7 @@ import { getLogin, refreshTokenApi } from '@/api/system/user'
 import { GetLoginResult, RefreshTokenResult } from '@/api/system/user'
 import { useMultiTagsStoreHook } from '@/store/modules/multiTags'
 import { type DataInfo, setToken, removeToken, sessionKey } from '@/utils/auth'
+import type { responseType } from '@/utils/http/types.d'
 
 export const useUserStore = defineStore({
   id: 'pure-user',
@@ -29,7 +30,7 @@ export const useUserStore = defineStore({
     },
     /** 登入 */
     async loginByUsername(data) {
-      return new Promise<GetLoginResult>((resolve, reject) => {
+      return new Promise<responseType<GetLoginResult>>((resolve, reject) => {
         getLogin(data)
           .then(data => {
             if (data) {
@@ -53,18 +54,20 @@ export const useUserStore = defineStore({
     },
     /** 刷新`token` */
     async handRefreshToken(data) {
-      return new Promise<RefreshTokenResult>((resolve, reject) => {
-        refreshTokenApi(data)
-          .then(data => {
-            if (data) {
-              setToken(data.data)
-              resolve(data)
-            }
-          })
-          .catch(error => {
-            reject(error)
-          })
-      })
+      return new Promise<responseType<RefreshTokenResult>>(
+        (resolve, reject) => {
+          refreshTokenApi(data)
+            .then(data => {
+              if (data) {
+                setToken(data.data)
+                resolve(data)
+              }
+            })
+            .catch(error => {
+              reject(error)
+            })
+        }
+      )
     }
   }
 })
