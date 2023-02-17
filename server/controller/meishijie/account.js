@@ -40,6 +40,7 @@ exports.addAccount = async (req, res, next) => {
         id: insertId,
         account,
         phone,
+        nickname,
         avatar
       }
     })

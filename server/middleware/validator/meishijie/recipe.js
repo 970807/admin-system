@@ -37,8 +37,8 @@ const validateAuthorId = async authorId => {
 }
 
 exports.getRecipeList = (req, res, next) => {
-  const { page, pageSize } = req.query
-  if (!page) {
+  const { pageNo, pageSize } = req.query
+  if (!pageNo) {
     return res.json({ code: -1, message: 'page字段为必须' })
   }
   if (!pageSize) {

@@ -10,7 +10,7 @@ module.exports = async ({
   likeSearchFieldArr = []
 }) => {
   try {
-    const { page, pageSize } = req.query
+    const { pageNo, pageSize } = req.query
     let condition = ''
     const data = []
     for (const item of likeSearchFieldArr) {
@@ -25,7 +25,7 @@ module.exports = async ({
       }
       data.push(`%${fieldValue}%`)
     }
-    data.push(parseInt((page - 1) * pageSize))
+    data.push(parseInt((pageNo - 1) * pageSize))
     data.push(parseInt(pageSize))
 
     const [list, [{ total: totalCount }]] = await Promise.all([

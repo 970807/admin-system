@@ -1,8 +1,8 @@
 const meishijieDb = require('../../../db/meishijie')
 
 exports.getCategoryList = (req, res, next) => {
-  const { page, pageSize } = req.query
-  if (!page) {
+  const { pageNo, pageSize } = req.query
+  if (!pageNo) {
     return res.json({ code: -1, message: '参数page错误' })
   }
   if (!pageSize) {
@@ -51,8 +51,8 @@ exports.batchDeleteCategory = (req, res, next) => {
 }
 
 exports.getIngredientList = (req, res, next) => {
-  const { page, pageSize } = req.query
-  if (!page) {
+  const { pageNo, pageSize } = req.query
+  if (!pageNo) {
     return res.json({ code: -1, message: '参数page错误' })
   }
   if (!pageSize) {

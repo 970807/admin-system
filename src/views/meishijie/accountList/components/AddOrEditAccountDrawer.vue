@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { ref, reactive, toRefs, computed, defineExpose } from 'vue'
 import { Picture } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import ImageViewer from '@/components/ImageViewer/index.vue'
+import { addAccount, editAccount } from '@/api/meishijie/accountList'
 import type { FormInstance, FormItemInstance, FormRules } from 'element-plus'
 import type { listItemType } from '@/api/meishijie/model/accountListModel'
 
@@ -9,6 +11,10 @@ const formRef = ref<FormInstance>()
 const accountRef = ref<FormItemInstance>()
 const phoneRef = ref<FormItemInstance>()
 const avatarViewRef = ref<any>()
+
+const emit = defineEmits<{
+  (e: 'refresh', params?: { pageNo: number } | null): void
+}>()
 
 const getDefaultFormData = () => ({
   id: undefined,
@@ -21,10 +27,11 @@ const getDefaultFormData = () => ({
 
 const state = reactive({
   visible: false,
-  formData: getDefaultFormData()
+  formData: getDefaultFormData(),
+  btnLoading: false
 })
 
-const { visible, formData } = toRefs(state)
+const { visible, formData, btnLoading } = toRefs(state)
 
 const accountAndPhoneValidator = (rule, value, callback) => {
   if (!formData.value.account && !formData.value.phone) {
@@ -82,6 +89,21 @@ const onClose = () => {
 // 保存
 const save = async () => {
   await formRef.value.validate()
+  if (btnLoading.value) return
+  btnLoading.value = true
+  let fn!: Promise<any>
+  if (isEdit.value) {
+    // 编辑账号
+    fn = editAccount(formData.value)
+  } else {
+    // 添加账号
+    fn = addAccount(formData.value)
+  }
+  fn.then(res => {
+    ElMessage.success(res.message)
+    onClose()
+    emit('refresh', isEdit.value ? null : { pageNo: 1 })
+  }).finally(() => (btnLoading.value = false))
 }
 
 defineExpose({ show })
@@ -150,7 +172,9 @@ defineExpose({ show })
     </el-form>
     <template #footer>
       <el-button @click="onClose">取消</el-button>
-      <el-button type="primary" @click="save">保存</el-button>
+      <el-button :loading="btnLoading" type="primary" @click="save"
+        >保存</el-button
+      >
     </template>
   </el-drawer>
 </template>

@@ -5,10 +5,15 @@ export default defineComponent({ name: 'meishijie_accountList' })
 
 <script lang="ts" setup>
 import { ref, reactive, toRefs, onMounted } from 'vue'
-import { Plus, Edit } from '@element-plus/icons-vue'
+import { ElMessageBox, ElMessage } from 'element-plus'
+import { Plus, Edit, Unlock, Delete } from '@element-plus/icons-vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import { Searchs, SearchsItem } from '@/components/Searchs/index'
-import { getList } from '@/api/meishijie/accountList'
+import {
+  getList,
+  editAccountPassword,
+  deleteAccount
+} from '@/api/meishijie/accountList'
 import AddOrEditAccountDrawer from './components/AddOrEditAccountDrawer.vue'
 import type {
   listItemType,
@@ -26,7 +31,7 @@ const state = reactive<{
 }>({
   tableData: [],
   listQuery: {
-    page: 1,
+    pageNo: 1,
     pageSize: 10,
     account: '',
     nickname: ''
@@ -37,9 +42,9 @@ const state = reactive<{
 
 const { tableData, listQuery, listLoading, total } = toRefs(state)
 
-const fetchData = (pageInfo?: { page?: number; pageSize?: number }) => {
+const fetchData = (pageInfo?: { pageNo?: number; pageSize?: number }) => {
   if (pageInfo) {
-    pageInfo.page && (listQuery.value.page = pageInfo.page)
+    pageInfo.pageNo && (listQuery.value.pageNo = pageInfo.pageNo)
     pageInfo.pageSize && (listQuery.value.pageSize = pageInfo.pageSize)
   }
   listLoading.value = true
@@ -56,6 +61,37 @@ const onAddOrEdit = (row?: listItemType) => {
   addOrEditAccountDrawerRef.value.show(row)
 }
 
+// 修改密码
+const onEditPassword = (id: listItemType['id']) => {
+  ElMessageBox.prompt('请输入新密码', '修改密码', {
+    inputPattern: /^.+$/,
+    inputErrorMessage: '密码不能为空'
+  })
+    .then(async ({ value: password }) => {
+      const res = await editAccountPassword({ id, password })
+      ElMessage.success(res.message)
+    })
+    .catch(() => {
+      ElMessage.info('已取消')
+    })
+}
+
+// 删除账号
+const onDeleteAccount = async (id: listItemType['id']) => {
+  ElMessageBox.confirm('删除后将无法恢复，是否继续？', '提示', {
+    type: 'warning'
+  })
+    .then(() => {
+      deleteAccount({ id }).then(res => {
+        ElMessage.success(res.message)
+        fetchData()
+      })
+    })
+    .catch(() => {
+      ElMessage.info('已取消')
+    })
+}
+
 onMounted(() => {
   fetchData()
 })
@@ -64,11 +100,14 @@ onMounted(() => {
 <template>
   <div class="account-list">
     <!-- 添加/编辑账号drawer -->
-    <AddOrEditAccountDrawer ref="addOrEditAccountDrawerRef" />
+    <AddOrEditAccountDrawer
+      ref="addOrEditAccountDrawerRef"
+      @refresh="fetchData"
+    />
 
     <PageContainer>
       <template #header>
-        <Searchs @submit="fetchData({ page: 1 })">
+        <Searchs @submit="fetchData({ pageNo: 1 })">
           <SearchsItem>
             <el-input
               placeholder="请输入账号"
@@ -121,11 +160,26 @@ onMounted(() => {
           </el-table-column>
           <el-table-column align="center" label="操作">
             <template #default="{ row }">
+              <!-- 修改密码 -->
+              <el-button
+                type="success"
+                :icon="Unlock"
+                circle
+                @click="onEditPassword(row.id)"
+              />
+              <!-- 编辑账号 -->
               <el-button
                 type="primary"
                 :icon="Edit"
                 circle
                 @click="onAddOrEdit(row)"
+              />
+              <!-- 删除账号 -->
+              <el-button
+                type="danger"
+                :icon="Delete"
+                circle
+                @click="onDeleteAccount(row.id)"
               />
             </template>
           </el-table-column>
@@ -134,11 +188,11 @@ onMounted(() => {
       <template #footer>
         <el-pagination
           layout="total,sizes,prev,pager,next,jumper"
-          v-model:current-page="listQuery.page"
+          v-model:current-page="listQuery.pageNo"
           v-model:page-size="listQuery.pageSize"
           :total="total"
           @size-change="fetchData({ pageSize: $event })"
-          @current-change="fetchData({ page: $event })"
+          @current-change="fetchData({ pageNo: $event })"
         />
       </template>
     </PageContainer>
