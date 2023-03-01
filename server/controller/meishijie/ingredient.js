@@ -4,11 +4,17 @@ const getList = require('../../utils/getList')
 exports.getCategoryList = async (req, res, next) => {
   getList({
     req,
-    res,
-    next,
     db: meishijieDb,
     dbTable: 'recipe_ingredient_category_list',
-    likeSearchFieldArr: [{ reqField: 'categoryName', dbField: 'category_name' }]
+    likeSearchFieldArr: [
+      { reqField: 'categoryName', dbField: 'category_name' }
+    ],
+    onSuccess: function (data) {
+      res.json({ code: 0, data })
+    },
+    onError: function (err) {
+      next(err)
+    }
   })
 }
 
@@ -83,13 +89,17 @@ exports.batchDeleteCategory = async (req, res, next) => {
 exports.getIngredientList = async (req, res, next) => {
   getList({
     req,
-    res,
-    next,
     db: meishijieDb,
     dbTable: 'recipe_ingredient_list',
     likeSearchFieldArr: [
       { reqField: 'ingredientName', dbField: 'ingredient_name' }
-    ]
+    ],
+    onSuccess: function (data) {
+      res.json({ code: 0, data })
+    },
+    onError: function (err) {
+      next(err)
+    }
   })
 }
 

@@ -10,7 +10,7 @@ exports.getAsyncRoutes = (req, res) => {
     meta: {
       title: '权限管理',
       icon: 'lollipop',
-      rank: 10
+      rank: 999
     },
     children: [
       {
@@ -39,7 +39,8 @@ exports.getAsyncRoutes = (req, res) => {
     name: 'meishijie',
     meta: {
       title: '美食杰',
-      icon: 'mdi:food'
+      icon: 'mdi:food',
+      rank: 10
     },
     children: [
       {
@@ -63,8 +64,39 @@ exports.getAsyncRoutes = (req, res) => {
     ]
   }
 
+  const systemRouter = {
+    path: '/system',
+    redirect: '/system/account-list',
+    name: 'system',
+    meta: {
+      title: '系统管理',
+      icon: 'eos-icons:system-ok',
+      rank: 100
+    },
+    children: [
+      {
+        path: '/system/account-list',
+        name: 'SystemAccountList',
+        meta: {
+          title: '账号列表',
+          roles: ['admin']
+        },
+        component: '/src/views/system/accountList'
+      },
+      {
+        path: '/system/role-list',
+        name: 'SystemRoleList',
+        meta: {
+          title: '角色列表',
+          roles: ['admin']
+        },
+        component: '/src/views/system/roleList'
+      }
+    ]
+  }
+
   res.json({
     code: 0,
-    data: [meishijieRouter, permissionRouter]
+    data: [meishijieRouter, permissionRouter, systemRouter]
   })
 }

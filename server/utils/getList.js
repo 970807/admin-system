@@ -3,14 +3,14 @@
 */
 module.exports = async ({
   req,
-  res,
-  next,
   db,
   dbTable,
-  likeSearchFieldArr = []
+  likeSearchFieldArr = [],
+  onSuccess,
+  onError
 }) => {
   try {
-    const { pageNo, pageSize } = req.query
+    const { pageNo = 1, pageSize = 10 } = req.query
     let condition = ''
     const data = []
     for (const item of likeSearchFieldArr) {
@@ -38,11 +38,9 @@ module.exports = async ({
         data.slice(0, -2)
       )
     ])
-    res.json({
-      code: 0,
-      data: { list, totalCount }
-    })
+
+    onSuccess?.({ list, totalCount })
   } catch (err) {
-    next(err)
+    onError?.(err)
   }
 }

@@ -10,7 +10,7 @@ import {
   IEditAccountPasswordResult,
   IDeleteAccountData,
   IDeleteAccountResult
-} from './model/accountListModel'
+} from './model/accountModel'
 
 /**
  * @description: 获取账号列表

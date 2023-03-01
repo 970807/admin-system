@@ -6,14 +6,18 @@ const { meishijieMd5Salt } = require('../../config/default.config')
 exports.getList = async (req, res, next) => {
   getList({
     req,
-    res,
-    next,
     db: meishijieDb,
     dbTable: 'user_list',
     likeSearchFieldArr: [
       { reqField: 'account', dbField: 'account' },
       { reqField: 'nickname', dbField: 'nickname' }
-    ]
+    ],
+    onSuccess: function (data) {
+      res.json({ code: 0, data })
+    },
+    onError: function (err) {
+      next(err)
+    }
   })
 }
 

@@ -3,9 +3,9 @@ import { ref, reactive, toRefs, computed, defineExpose } from 'vue'
 import { Picture } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import ImageViewer from '@/components/ImageViewer/index.vue'
-import { addAccount, editAccount } from '@/api/meishijie/accountList'
+import { addAccount, editAccount } from '@/api/meishijie/account'
 import type { FormInstance, FormItemInstance, FormRules } from 'element-plus'
-import type { listItemType } from '@/api/meishijie/model/accountListModel'
+import type { listItemType } from '@/api/meishijie/model/accountModel'
 
 const formRef = ref<FormInstance>()
 const accountRef = ref<FormItemInstance>()

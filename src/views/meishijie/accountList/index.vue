@@ -13,12 +13,12 @@ import {
   getList,
   editAccountPassword,
   deleteAccount
-} from '@/api/meishijie/accountList'
+} from '@/api/meishijie/account'
 import AddOrEditAccountDrawer from './components/AddOrEditAccountDrawer.vue'
 import type {
   listItemType,
   IGetListParams
-} from '@/api/meishijie/model/accountListModel'
+} from '@/api/meishijie/model/accountModel'
 
 const addOrEditAccountDrawerRef =
   ref<InstanceType<typeof AddOrEditAccountDrawer>>()

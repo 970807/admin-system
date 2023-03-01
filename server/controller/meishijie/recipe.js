@@ -42,11 +42,15 @@ const formatStepStrToList = str => {
 exports.getRecipeList = (req, res, next) => {
   getList({
     req,
-    res,
-    next,
     db: meishijieDb,
     dbTable: 'recipe_detail_list',
-    likeSearchFieldArr: [{ reqField: 'recipeName', dbField: 'recipe_name' }]
+    likeSearchFieldArr: [{ reqField: 'recipeName', dbField: 'recipe_name' }],
+    onSuccess: function (data) {
+      res.json({ code: 0, data })
+    },
+    onError: function (err) {
+      next(err)
+    }
   })
 }
 

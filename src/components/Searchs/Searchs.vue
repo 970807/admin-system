@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, defineProps } from 'vue'
 export default defineComponent({ name: 'Searchs' })
 </script>
 
@@ -10,6 +10,13 @@ import SearchsItem from './SearchsItem.vue'
 
 const slots = useSlots()
 
+const props = withDefaults(
+  defineProps<{
+    showSearchBtn?: boolean
+  }>(),
+  { showSearchBtn: true }
+)
+
 const emits = defineEmits<{
   (e: 'submit'): void
 }>()
@@ -19,7 +26,7 @@ const emits = defineEmits<{
   <div class="searchs">
     <el-form inline>
       <slot />
-      <slot name="submit-btn">
+      <slot v-if="props.showSearchBtn" name="submit-btn">
         <SearchsItem>
           <el-button type="primary" :icon="Search" @click="emits('submit')"
             >搜索</el-button
