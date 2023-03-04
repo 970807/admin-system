@@ -17,4 +17,9 @@ export type IExistRoleNameResult = boolean
 export interface IAddOrEditRoleData {
   roleName: string
   enable: 0 | 1
+  sort: number
+}
+
+export interface IBatchDelData {
+  idList: Array<listItemType['id']>
 }

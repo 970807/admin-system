@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : MySql
+ Source Server         : mysql
  Source Server Type    : MySQL
- Source Server Version : 80023
+ Source Server Version : 80032
  Source Host           : localhost:3306
  Source Schema         : admin_system
 
  Target Server Type    : MySQL
- Target Server Version : 80023
+ Target Server Version : 80032
  File Encoding         : 65001
 
- Date: 25/02/2023 10:17:26
+ Date: 05/03/2023 01:18:31
 */
 
 SET NAMES utf8mb4;
@@ -22,20 +22,23 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `role_list`;
 CREATE TABLE `role_list`  (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `role_name` varchar(10) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `create_time` datetime NOT NULL,
-  `update_time` datetime NOT NULL,
-  PRIMARY KEY (`id`, `role_name`) USING BTREE,
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `role_name` varchar(10) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '角色名',
+  `enable` tinyint(1) NOT NULL COMMENT '是否启用：1启用 0禁用',
+  `sort` tinyint NOT NULL COMMENT '排序值',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `role_name`(`role_name`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of role_list
 -- ----------------------------
-INSERT INTO `role_list` VALUES (1, '测试角色', '2023-02-18 18:17:10', '2023-02-18 18:17:14');
-INSERT INTO `role_list` VALUES (2, 'john', '2023-02-22 21:44:27', '2023-02-22 21:44:27');
-INSERT INTO `role_list` VALUES (7, 'angel', '2023-02-22 21:54:28', '2023-02-22 21:54:28');
+INSERT INTO `role_list` VALUES (1, '测试角色', 1, 6, '2023-02-18 18:17:10', '2023-03-05 01:05:08');
+INSERT INTO `role_list` VALUES (2, 'john', 1, 1, '2023-02-22 21:44:27', '2023-02-22 21:44:27');
+INSERT INTO `role_list` VALUES (7, 'angel', 0, 0, '2023-02-22 21:54:28', '2023-03-02 22:16:23');
+INSERT INTO `role_list` VALUES (13, '学员', 0, 1, '2023-03-02 00:02:11', '2023-03-02 00:02:11');
 
 -- ----------------------------
 -- Table structure for user_list
@@ -43,16 +46,27 @@ INSERT INTO `role_list` VALUES (7, 'angel', '2023-02-22 21:54:28', '2023-02-22 2
 DROP TABLE IF EXISTS `user_list`;
 CREATE TABLE `user_list`  (
   `id` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `password` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `avatar` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
-  `roleId` tinyint NULL DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+  `username` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '账号',
+  `password` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '密码',
+  `avatar` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NULL DEFAULT NULL COMMENT '头像url',
+  `role_id` tinyint NOT NULL COMMENT '角色id',
+  `enable` tinyint(1) NOT NULL COMMENT '是否启用：1启用 0禁用',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `username`(`username`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_list
 -- ----------------------------
-INSERT INTO `user_list` VALUES (1, 'admin', '123456', 'https://s1.st.meishij.net/user/152/221/t9805402_149181424048398.jpg', 0);
+INSERT INTO `user_list` VALUES (1, 'admin', '123456', 'https://s1.st.meishij.net/user/152/221/t9805402_149181424048398.jpg', 2, 1, '2023-03-04 15:27:56', '2023-03-04 16:39:26');
+INSERT INTO `user_list` VALUES (3, 'a012', 'frferf', NULL, 13, 0, '2023-03-04 15:41:57', '2023-03-04 17:57:55');
+INSERT INTO `user_list` VALUES (4, 'fref', 'erfffrer', NULL, 2, 1, '2023-03-04 18:36:52', '2023-03-04 18:36:55');
+INSERT INTO `user_list` VALUES (5, 'gtggg', 'rrrr', NULL, 2, 1, '2023-03-04 18:37:04', '2023-03-04 18:37:07');
+INSERT INTO `user_list` VALUES (6, 'cc', 'eddd', NULL, 2, 1, '2023-03-04 18:37:23', '2023-03-04 18:37:26');
+INSERT INTO `user_list` VALUES (7, 'a212', 'frf', NULL, 3, 1, '2023-03-04 18:37:36', '2023-03-04 18:37:39');
+INSERT INTO `user_list` VALUES (9, 'fr12222', 'rfff', NULL, 15, 1, '2023-03-04 18:38:09', '2023-03-04 19:27:49');
+INSERT INTO `user_list` VALUES (11, 'dddddd', '886', NULL, 1, 1, '2023-03-04 18:38:36', '2023-03-04 19:06:29');
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -10,9 +10,9 @@ import {
 import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Searchs } from '@/components/Searchs/index'
-import { Plus } from '@element-plus/icons-vue'
+import { Plus, Delete } from '@element-plus/icons-vue'
 import PageContainer from '@/components/PageContainer/index.vue'
-import { getList, changeRoleStatus } from '@/api/system/role'
+import { getList, changeRoleStatus, batchDel, delRole } from '@/api/system/role'
 import { formatTime } from '@/utils/time'
 import AddOrEditRoleDrawer from './components/AddOrEditRoleDrawer.vue'
 import type { TableInstance } from 'element-plus'
@@ -31,9 +31,11 @@ export default defineComponent({
     const state = reactive<{
       listLoading: boolean
       tableData: listItemType[]
+      selectedRow: listItemType[]
     }>({
       listLoading: false,
-      tableData: []
+      tableData: [],
+      selectedRow: []
     })
 
     const fetchData = () => {
@@ -89,6 +91,27 @@ export default defineComponent({
       }
     }
 
+    // 批量删除
+    const onBatchDel = async () => {
+      const idList = state.selectedRow.map(item => item.id)
+      if (idList.length < 1) {
+        ElMessage.error('请先选择要删除的角色！')
+        return
+      }
+      await ElMessageBox.confirm(`删除数据后将无法恢复，是否继续？`, '提示')
+      const { message } = await batchDel({ idList })
+      ElMessage.success(message)
+      fetchData()
+    }
+
+    // 删除
+    const onDel = async (id: listItemType['id']) => {
+      await ElMessageBox.confirm(`删除数据后将无法恢复，是否继续？`, '提示')
+      const { message } = await delRole(id)
+      ElMessage.success(message)
+      fetchData()
+    }
+
     onMounted(() => {
       fetchData()
     })
@@ -102,7 +125,10 @@ export default defineComponent({
       onEnableChange,
       formatTime,
       tableRowClassName,
-      Plus
+      onBatchDel,
+      onDel,
+      Plus,
+      Delete
     }
   }
 })
@@ -118,6 +144,9 @@ export default defineComponent({
             <el-button type="primary" :icon="Plus" @click="onAddOrEdit()"
               >添加角色</el-button
             >
+            <el-button type="danger" :icon="Delete" @click="onBatchDel"
+              >批量删除</el-button
+            >
           </template>
         </Searchs>
       </template>
@@ -130,7 +159,9 @@ export default defineComponent({
           :row-class-name="tableRowClassName"
           height="100%"
           border
+          @selection-change="val => (selectedRow = val)"
         >
+          <el-table-column align="center" type="selection" width="55" />
           <el-table-column
             align="center"
             type="index"
@@ -148,6 +179,12 @@ export default defineComponent({
               />
             </template>
           </el-table-column>
+          <el-table-column
+            align="center"
+            label="排序值"
+            prop="sort"
+            width="120"
+          />
           <el-table-column align="center" label="创建时间" width="180">
             <template #default="{ row }">{{
               formatTime(row.createTime)
@@ -162,6 +199,9 @@ export default defineComponent({
             <template #default="{ row }">
               <el-button type="primary" link @click="onAddOrEdit(row)"
                 >编辑</el-button
+              >
+              <el-button type="danger" link @click="onDel(row.id)"
+                >删除</el-button
               >
             </template>
           </el-table-column>

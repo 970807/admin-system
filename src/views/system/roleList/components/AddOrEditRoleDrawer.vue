@@ -9,14 +9,19 @@ import type { FormInstance, FormRules } from 'element-plus'
 interface IFormData {
   roleName: string
   enable: 0 | 1
+  sort: number
 }
 
 export default defineComponent({
   emits: ['refresh'],
   setup(props, ctx) {
     const getDefaultFormData = (): IFormData => ({
+      // 角色名
       roleName: '',
-      enable: 1
+      // 是否启用： 1启用 0禁用
+      enable: 1,
+      // 排序值
+      sort: 1
     })
 
     // 编辑回显的角色名，用于校验角色名是否重复
@@ -66,6 +71,14 @@ export default defineComponent({
                 callback(new Error('角色名校验失败'))
               })
           }, 500)
+        }
+      ],
+      sort: [
+        {
+          required: true,
+          type: 'integer',
+          message: '请输入排序值',
+          trigger: ['blur', 'change']
         }
       ]
     })
@@ -148,6 +161,9 @@ export default defineComponent({
           show-word-limit
           clearable
         />
+      </el-form-item>
+      <el-form-item label="排序值" prop="sort">
+        <el-input-number v-model="formData.sort" :min="1" :max="999" />
       </el-form-item>
       <el-form-item label="是否启用" required>
         <el-switch

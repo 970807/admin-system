@@ -79,7 +79,7 @@ export default defineComponent({
     }
 
     // 表格排序
-    const onSortChange = ({ column, prop, order }) => {
+    const onSortChange = ({ prop, order }) => {
       if (!order) {
         // 取消排序
         state.listQuery.orderProp = ''
@@ -96,7 +96,6 @@ export default defineComponent({
         state.listQuery.orderSeq = 'desc'
       }
       fetchData({ pageNo: 1 })
-      console.log({ column, prop, order })
     }
 
     const onEnableChange = async (row: listItemType) => {

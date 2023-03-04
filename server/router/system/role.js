@@ -23,4 +23,10 @@ router.post(
   systemCtrl.role.changeRoleStatus
 )
 
+// 批量删除角色
+router.delete('/batchDel', auth, systemCtrl.role.batchDel)
+
+// 删除角色
+router.delete('/del/:id', auth, systemCtrl.role.del)
+
 module.exports = router

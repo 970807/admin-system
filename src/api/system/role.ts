@@ -1,9 +1,11 @@
 import { http } from '@/utils/http'
 import {
+  listItemType,
   IGetListResult,
   IExistRoleNameParams,
   IExistRoleNameResult,
-  IAddOrEditRoleData
+  IAddOrEditRoleData,
+  IBatchDelData
 } from './model/role'
 
 /**
@@ -34,7 +36,7 @@ export const addRole = (data: IAddOrEditRoleData) => {
 /**
  * @description 编辑角色
  */
-export const editRole = (id: number, data: IAddOrEditRoleData) => {
+export const editRole = (id: listItemType['id'], data: IAddOrEditRoleData) => {
   return http.request<null>('post', `/api/system/role/editRole/${id}`, { data })
 }
 
@@ -43,9 +45,23 @@ export const editRole = (id: number, data: IAddOrEditRoleData) => {
  * @param id 角色id
  * @param enable 是否启用：1启用 0禁用
  */
-export const changeRoleStatus = (id: number, enable: 0 | 1) => {
+export const changeRoleStatus = (id: listItemType['id'], enable: 0 | 1) => {
   return http.request<null>(
     'post',
     `/api/system/role/changeRoleStatus/${id}/${enable}`
   )
+}
+
+/**
+ * @description 批量删除角色
+ */
+export const batchDel = (data: IBatchDelData) => {
+  return http.request<null>('delete', '/api/system/role/batchDel', { data })
+}
+
+/**
+ * @description 删除角色
+ */
+export const delRole = (id: listItemType['id']) => {
+  return http.request<null>('delete', `/api/system/role/del/${id}`)
 }
