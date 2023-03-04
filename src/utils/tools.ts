@@ -8,7 +8,7 @@ export function debounce(fn: Function, space: number) {
     if (task) {
       clearTimeout(task)
     }
-    task = setTimeout(fn.bind(this, args), space)
+    task = setTimeout(fn.bind(this, ...args), space)
   }
 }
 

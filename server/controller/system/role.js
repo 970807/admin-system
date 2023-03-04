@@ -91,3 +91,23 @@ exports.editRole = async (req, res, next) => {
     next(err)
   }
 }
+
+exports.changeRoleStatus = async (req, res, next) => {
+  try {
+    let { id, enable } = req.params
+    if (!id) return res.json({ code: -1, message: '未知的角色id' })
+    if (!enable) return res.json({ code: -1, message: 'enable字段不能为空' })
+    enable = enable === '0' ? 0 : 1
+    await adminDb.query(
+      'UPDATE role_list set enable=?,update_time=? where id=?',
+      [enable, new Date(), id]
+    )
+    res.json({
+      code: 0,
+      data: null,
+      message: `${enable ? '启用成功' : '禁用成功'}`
+    })
+  } catch (err) {
+    next(err)
+  }
+}

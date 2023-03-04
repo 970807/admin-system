@@ -37,3 +37,15 @@ export const addRole = (data: IAddOrEditRoleData) => {
 export const editRole = (id: number, data: IAddOrEditRoleData) => {
   return http.request<null>('post', `/api/system/role/editRole/${id}`, { data })
 }
+
+/**
+ * @description 启用/禁用角色
+ * @param id 角色id
+ * @param enable 是否启用：1启用 0禁用
+ */
+export const changeRoleStatus = (id: number, enable: 0 | 1) => {
+  return http.request<null>(
+    'post',
+    `/api/system/role/changeRoleStatus/${id}/${enable}`
+  )
+}

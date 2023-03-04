@@ -1,32 +1,46 @@
 <script lang="ts">
-import { defineComponent, reactive, toRefs, onMounted } from 'vue'
+import { defineComponent, ref, reactive, toRef, toRefs, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import { Searchs, SearchsItem } from '@/components/Searchs/index'
-import { getList } from '@/api/system/account'
+import AddOrEditAccountDrawer from './components/AddOrEditAccountDrawer.vue'
+import { getList, changeStatus } from '@/api/system/account'
+import { getList as fetchRoleList } from '@/api/system/role'
+import { formatTime } from '@/utils/time'
 import type {
   listItemType,
   IGetListParams
 } from '@/api/system/model/accountModel'
+import { useRole } from './hooks/useRole'
+import type { listItemType as roleItemType } from '@/api/system/model/role'
 
 export default defineComponent({
   name: 'system_accountList',
-  components: { PageContainer, Searchs, SearchsItem },
+  components: { PageContainer, Searchs, SearchsItem, AddOrEditAccountDrawer },
   setup() {
+    const addOrEditAccountDrawerRef =
+      ref<InstanceType<typeof AddOrEditAccountDrawer>>()
+
     const state = reactive<{
       listQuery: IGetListParams
       total: number
       listLoading: boolean
       tableData: listItemType[]
+      roleList: roleItemType[]
     }>({
       listQuery: {
         pageNo: 1,
         pageSize: 10,
-        username: ''
+        username: '',
+        roleId: undefined,
+        orderProp: '',
+        orderSeq: ''
       },
       total: 0,
       listLoading: false,
-      tableData: []
+      tableData: [],
+      roleList: []
     })
 
     const fetchData = (pageInfo?: { pageNo?: number; pageSize?: number }) => {
@@ -43,17 +57,66 @@ export default defineComponent({
         .finally(() => (state.listLoading = false))
     }
 
+    // 获取角色列表
+    const getRoleList = async () => {
+      const { data } = await fetchRoleList()
+      state.roleList = data
+    }
+
+    const { getRoleInfoByRoleId } = useRole(toRef(state, 'roleList'))
+
     // 添加/编辑账号
-    const onAddOrEdit = () => {}
+    const onAddOrEdit = (row?: listItemType) => {
+      addOrEditAccountDrawerRef.value.show(row)
+    }
+
+    // 表格排序
+    const onSortChange = ({ column, prop, order }) => {
+      if (!order) {
+        // 取消排序
+        state.listQuery.orderProp = ''
+        state.listQuery.orderSeq = ''
+      }
+      if (order === 'ascending') {
+        // 升序
+        state.listQuery.orderProp = prop
+        state.listQuery.orderSeq = 'asc'
+      }
+      if (order === 'descending') {
+        // 降序
+        state.listQuery.orderProp = prop
+        state.listQuery.orderSeq = 'desc'
+      }
+      fetchData({ pageNo: 1 })
+      console.log({ column, prop, order })
+    }
+
+    const onEnableChange = async (row: listItemType) => {
+      const enable = row.enable
+      const curEnable = enable ? 0 : 1
+      await ElMessageBox.confirm(
+        `是否确定${curEnable ? '启用' : '禁用'}该账号？`,
+        '提示'
+      )
+      const { message } = await changeStatus(row.id, curEnable)
+      row.enable = curEnable
+      ElMessage.success(message)
+    }
 
     onMounted(() => {
       fetchData()
+      getRoleList()
     })
 
     return {
       ...toRefs(state),
+      addOrEditAccountDrawerRef,
       fetchData,
       onAddOrEdit,
+      getRoleInfoByRoleId,
+      formatTime,
+      onSortChange,
+      onEnableChange,
       Plus
     }
   }
@@ -62,15 +125,36 @@ export default defineComponent({
 
 <template>
   <div class="account-list">
+    <AddOrEditAccountDrawer
+      ref="addOrEditAccountDrawerRef"
+      :roleList="roleList"
+      @refresh="fetchData"
+    />
+
     <PageContainer>
       <template #header>
         <Searchs @submit="fetchData({ pageNo: 1 })">
-          <SearchsItem>
+          <SearchsItem label="账号：">
             <el-input
               placeholder="请输入账号"
               v-model="listQuery.username"
               clearable
             />
+          </SearchsItem>
+          <SearchsItem label="角色：">
+            <el-select
+              v-model="listQuery.roleId"
+              filterable
+              clearable
+              @clear="listQuery.roleId = undefined"
+            >
+              <el-option
+                v-for="item in roleList"
+                :key="item.id"
+                :value="item.id"
+                :label="item.roleName"
+              />
+            </el-select>
           </SearchsItem>
           <template #btns>
             <el-button type="primary" :icon="Plus" @click="onAddOrEdit()"
@@ -86,6 +170,7 @@ export default defineComponent({
           :data="tableData"
           height="100%"
           border
+          @sort-change="onSortChange"
         >
           <el-table-column
             align="center"
@@ -105,8 +190,48 @@ export default defineComponent({
               />
             </template>
           </el-table-column>
-          <el-table-column align="center" prop="roleId" label="角色" />
-          <el-table-column align="center" label="操作" />
+          <el-table-column align="center" label="角色">
+            <template #default="{ row }">
+              <span>{{ getRoleInfoByRoleId(row.roleId)?.roleName }}</span>
+              <el-tag
+                v-if="getRoleInfoByRoleId(row.roleId)?.enable === 0"
+                style="margin-left: 6px"
+                type="danger"
+                >已禁用</el-tag
+              >
+            </template>
+          </el-table-column>
+          <el-table-column align="center" label="是否启用">
+            <template #default="{ row }">
+              <el-switch
+                :model-value="row.enable"
+                :active-value="1"
+                :inactive-value="0"
+                @change="onEnableChange(row)"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column
+            align="center"
+            label="创建时间"
+            sortable="custom"
+            prop="createTime"
+            :formatter="row => formatTime(row.createTime)"
+          />
+          <el-table-column
+            align="center"
+            label="更新时间"
+            sortable="custom"
+            prop="updateTime"
+            :formatter="row => formatTime(row.updateTime)"
+          />
+          <el-table-column align="center" label="操作">
+            <template #default="{ row }">
+              <el-button type="primary" link @click="onAddOrEdit(row)"
+                >编辑</el-button
+              >
+            </template>
+          </el-table-column>
         </el-table>
       </template>
       <template #footer>

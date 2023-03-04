@@ -1,9 +1,10 @@
 <script lang="ts">
 import { defineComponent, ref, reactive, toRefs, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Searchs } from '@/components/Searchs/index'
 import { Plus } from '@element-plus/icons-vue'
 import PageContainer from '@/components/PageContainer/index.vue'
-import { getList } from '@/api/system/role'
+import { getList, changeRoleStatus } from '@/api/system/role'
 import { formatTime } from '@/utils/time'
 import AddOrEditRoleDrawer from './components/AddOrEditRoleDrawer.vue'
 import type { listItemType } from '@/api/system/model/role'
@@ -37,6 +38,19 @@ export default defineComponent({
       addOrEditRoleDrawerRef.value.show(data)
     }
 
+    // 启用/禁用角色
+    const onEnableChange = async (data: listItemType) => {
+      const enable = data.enable
+      const curEnable = enable ? 0 : 1
+      await ElMessageBox.confirm(
+        `是否确定${curEnable ? '启用' : '禁用'}该角色？`,
+        '提示'
+      )
+      const { message } = await changeRoleStatus(data.id, curEnable)
+      data.enable = curEnable
+      ElMessage.success(message)
+    }
+
     onMounted(() => {
       fetchData()
     })
@@ -46,6 +60,7 @@ export default defineComponent({
       fetchData,
       addOrEditRoleDrawerRef,
       onAddOrEdit,
+      onEnableChange,
       formatTime,
       Plus
     }
@@ -87,6 +102,7 @@ export default defineComponent({
                 :model-value="row.enable"
                 :active-value="1"
                 :inactive-value="0"
+                @change="onEnableChange(row)"
               />
             </template>
           </el-table-column>

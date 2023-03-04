@@ -16,4 +16,11 @@ router.put('/addRole', auth, systemCtrl.role.addRole)
 // 编辑角色
 router.post('/editRole/:id', auth, systemCtrl.role.editRole)
 
+// 启用/禁用角色 enable：传1启用 传0禁用
+router.post(
+  '/changeRoleStatus/:id/:enable',
+  auth,
+  systemCtrl.role.changeRoleStatus
+)
+
 module.exports = router

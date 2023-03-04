@@ -29,8 +29,16 @@ function underlinetoCamelCase(target) {
   驼峰转下划线
 */
 function camelCasetoUnderline(target) {
-  if (typeof target !== 'object' || target === null) {
+  const toUnderLine = str => str.replace(/[A-Z]+/g, v => '_' + v.toLowerCase(v))
+
+  if (
+    typeof target !== 'string' &&
+    (typeof target !== 'object' || target === null)
+  ) {
     return target
+  }
+  if (typeof target === 'string') {
+    return toUnderLine(target)
   }
   if (target instanceof Date) {
     return target
@@ -43,7 +51,7 @@ function camelCasetoUnderline(target) {
   }
   const obj = {}
   for (const key of Object.keys(target)) {
-    const newKey = key.replace(/[A-Z]+/g, (v) => '_' + v.toLowerCase(v))
+    const newKey = toUnderLine(key)
     obj[newKey] = target[key]
   }
   return obj
