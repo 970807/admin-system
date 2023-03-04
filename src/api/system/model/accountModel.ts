@@ -33,3 +33,12 @@ export interface IAddAccountData {
 }
 
 export type IEditAccountData = Omit<IAddAccountData, 'password'>
+
+export interface IBatchDelData {
+  idList: Array<listItemType['id']>
+}
+
+export interface IResetPasswordData {
+  id: listItemType['id']
+  password: IAddAccountData['password']
+}

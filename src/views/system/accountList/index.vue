@@ -1,11 +1,17 @@
 <script lang="ts">
 import { defineComponent, ref, reactive, toRef, toRefs, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
+import { Plus, Delete } from '@element-plus/icons-vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import { Searchs, SearchsItem } from '@/components/Searchs/index'
 import AddOrEditAccountDrawer from './components/AddOrEditAccountDrawer.vue'
-import { getList, changeStatus } from '@/api/system/account'
+import {
+  getList,
+  changeStatus,
+  batchDel,
+  delAccount,
+  resetPassword
+} from '@/api/system/account'
 import { getList as fetchRoleList } from '@/api/system/role'
 import { formatTime } from '@/utils/time'
 import type {
@@ -27,6 +33,7 @@ export default defineComponent({
       total: number
       listLoading: boolean
       tableData: listItemType[]
+      selectedRow: listItemType[]
       roleList: roleItemType[]
     }>({
       listQuery: {
@@ -40,6 +47,7 @@ export default defineComponent({
       total: 0,
       listLoading: false,
       tableData: [],
+      selectedRow: [],
       roleList: []
     })
 
@@ -103,6 +111,41 @@ export default defineComponent({
       ElMessage.success(message)
     }
 
+    // 批量删除
+    const onBatchDel = async () => {
+      const idList = state.selectedRow.map(item => item.id)
+      if (idList.length < 1) {
+        ElMessage.error('请先选择要删除的账号！')
+        return
+      }
+      await ElMessageBox.confirm(`删除数据后将无法恢复，是否继续？`, '提示')
+      const { message } = await batchDel({ idList })
+      ElMessage.success(message)
+      fetchData()
+    }
+
+    // 删除
+    const onDel = async (id: listItemType['id']) => {
+      await ElMessageBox.confirm(`删除数据后将无法恢复，是否继续？`, '提示')
+      const { message } = await delAccount(id)
+      ElMessage.success(message)
+      fetchData()
+    }
+
+    // 修改密码
+    const onResetPassword = async (id: listItemType['id']) => {
+      const { value: password } = await ElMessageBox.prompt(
+        '请输入新密码：',
+        '提示',
+        {
+          inputPattern: /.+/,
+          inputErrorMessage: '密码不能为空'
+        }
+      )
+      const { message } = await resetPassword({ id, password })
+      ElMessage.success(message)
+    }
+
     onMounted(() => {
       fetchData()
       getRoleList()
@@ -117,7 +160,11 @@ export default defineComponent({
       formatTime,
       onSortChange,
       onEnableChange,
-      Plus
+      onBatchDel,
+      onDel,
+      onResetPassword,
+      Plus,
+      Delete
     }
   }
 })
@@ -160,6 +207,9 @@ export default defineComponent({
             <el-button type="primary" :icon="Plus" @click="onAddOrEdit()"
               >添加账号</el-button
             >
+            <el-button type="danger" :icon="Delete" @click="onBatchDel"
+              >批量删除</el-button
+            >
           </template>
         </Searchs>
       </template>
@@ -171,7 +221,9 @@ export default defineComponent({
           height="100%"
           border
           @sort-change="onSortChange"
+          @selection-change="val => (selectedRow = val)"
         >
+          <el-table-column align="center" type="selection" width="55" />
           <el-table-column
             align="center"
             type="index"
@@ -192,7 +244,17 @@ export default defineComponent({
           </el-table-column>
           <el-table-column align="center" label="角色">
             <template #default="{ row }">
-              <span>{{ getRoleInfoByRoleId(row.roleId)?.roleName }}</span>
+              <router-link
+                v-if="getRoleInfoByRoleId(row.roleId)?.roleName"
+                :to="{
+                  path: '/system/role-list',
+                  query: { 'active-id': row.roleId }
+                }"
+              >
+                <el-link type="primary" :underline="false">{{
+                  getRoleInfoByRoleId(row.roleId)?.roleName
+                }}</el-link>
+              </router-link>
               <el-tag
                 v-if="getRoleInfoByRoleId(row.roleId)?.enable === 0"
                 style="margin-left: 6px"
@@ -201,7 +263,7 @@ export default defineComponent({
               >
             </template>
           </el-table-column>
-          <el-table-column align="center" label="是否启用">
+          <el-table-column align="center" label="是否启用" width="120">
             <template #default="{ row }">
               <el-switch
                 :model-value="row.enable"
@@ -216,6 +278,7 @@ export default defineComponent({
             label="创建时间"
             sortable="custom"
             prop="createTime"
+            width="180"
             :formatter="row => formatTime(row.createTime)"
           />
           <el-table-column
@@ -223,12 +286,19 @@ export default defineComponent({
             label="更新时间"
             sortable="custom"
             prop="updateTime"
+            width="180"
             :formatter="row => formatTime(row.updateTime)"
           />
-          <el-table-column align="center" label="操作">
+          <el-table-column align="center" label="操作" width="200">
             <template #default="{ row }">
               <el-button type="primary" link @click="onAddOrEdit(row)"
                 >编辑</el-button
+              >
+              <el-button type="primary" link @click="onResetPassword(row.id)"
+                >修改密码</el-button
+              >
+              <el-button type="danger" link @click="onDel(row.id)"
+                >删除</el-button
               >
             </template>
           </el-table-column>

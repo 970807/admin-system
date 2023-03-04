@@ -1,5 +1,13 @@
 <script lang="ts">
-import { defineComponent, ref, reactive, toRefs, onMounted } from 'vue'
+import {
+  defineComponent,
+  ref,
+  reactive,
+  toRefs,
+  onMounted,
+  nextTick
+} from 'vue'
+import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Searchs } from '@/components/Searchs/index'
 import { Plus } from '@element-plus/icons-vue'
@@ -7,12 +15,16 @@ import PageContainer from '@/components/PageContainer/index.vue'
 import { getList, changeRoleStatus } from '@/api/system/role'
 import { formatTime } from '@/utils/time'
 import AddOrEditRoleDrawer from './components/AddOrEditRoleDrawer.vue'
+import type { TableInstance } from 'element-plus'
 import type { listItemType } from '@/api/system/model/role'
 
 export default defineComponent({
   name: 'system_roleList',
   components: { PageContainer, Searchs, AddOrEditRoleDrawer },
   setup() {
+    const route = useRoute()
+
+    const tableRef = ref<TableInstance>()
     const addOrEditRoleDrawerRef =
       ref<InstanceType<typeof AddOrEditRoleDrawer>>()
 
@@ -51,17 +63,45 @@ export default defineComponent({
       ElMessage.success(message)
     }
 
+    // 滚动到表格的某一行
+    const tableScrollToRow = (rowIndex: number) => {
+      const tableEl = tableRef.value.$el as HTMLElement
+      const tableRowEls = tableEl.querySelectorAll('.el-table__row')
+      const scrollY = Array.from(tableRowEls)
+        .slice(0, rowIndex)
+        .reduce((pre, cur) => pre + cur.clientHeight, 0)
+      tableRef.value.scrollTo(0, scrollY)
+    }
+
+    // 表格行高亮
+    const tableRowClassName = ({
+      row,
+      rowIndex
+    }: {
+      row: listItemType
+      rowIndex: number
+    }) => {
+      const activeId = route.query['active-id']
+      if (!activeId) return
+      if (row.id === +activeId) {
+        if (rowIndex > 0) nextTick(() => tableScrollToRow(rowIndex))
+        return 'active-row'
+      }
+    }
+
     onMounted(() => {
       fetchData()
     })
 
     return {
       ...toRefs(state),
+      tableRef,
       fetchData,
       addOrEditRoleDrawerRef,
       onAddOrEdit,
       onEnableChange,
       formatTime,
+      tableRowClassName,
       Plus
     }
   }
@@ -83,9 +123,11 @@ export default defineComponent({
       </template>
       <template #default>
         <el-table
+          ref="tableRef"
           v-loading="listLoading"
           element-loading-text="加载中..."
           :data="tableData"
+          :row-class-name="tableRowClassName"
           height="100%"
           border
         >
@@ -96,7 +138,7 @@ export default defineComponent({
             width="70"
           />
           <el-table-column align="center" prop="roleName" label="角色名" />
-          <el-table-column align="center" label="是否启用">
+          <el-table-column align="center" label="是否启用" width="120">
             <template #default="{ row }">
               <el-switch
                 :model-value="row.enable"
@@ -106,17 +148,17 @@ export default defineComponent({
               />
             </template>
           </el-table-column>
-          <el-table-column align="center" label="创建时间">
+          <el-table-column align="center" label="创建时间" width="180">
             <template #default="{ row }">{{
               formatTime(row.createTime)
             }}</template>
           </el-table-column>
-          <el-table-column align="center" label="更新时间">
+          <el-table-column align="center" label="更新时间" width="180">
             <template #default="{ row }">{{
               formatTime(row.updateTime)
             }}</template>
           </el-table-column>
-          <el-table-column align="center" label="操作">
+          <el-table-column align="center" label="操作" width="160">
             <template #default="{ row }">
               <el-button type="primary" link @click="onAddOrEdit(row)"
                 >编辑</el-button
@@ -128,3 +170,11 @@ export default defineComponent({
     </PageContainer>
   </div>
 </template>
+
+<style lang="scss" scoped>
+:deep(.el-table) {
+  .active-row {
+    --el-table-tr-bg-color: var(--el-color-success-light-5);
+  }
+}
+</style>

@@ -76,7 +76,7 @@ exports.editAccount = async (req, res, next) => {
   try {
     const id = req.params.id
     if (!id) return res.json({ code: -1, message: '账号id不能为空' })
-    const { username, avatar, roleId } = req.body
+    const { username, avatar, roleId, enable } = req.body
     if (!username) return res.json({ code: -1, message: '账号不能为空' })
     if (!roleId) return res.json({ code: -1, message: '角色不能为空' })
     if (typeof enable !== 'number')
@@ -111,6 +111,50 @@ exports.changeStatus = async (req, res, next) => {
       data: null,
       message: `${enable ? '启用成功' : '禁用成功'}`
     })
+  } catch (err) {
+    next(err)
+  }
+}
+
+exports.batchDel = async (req, res, next) => {
+  try {
+    const idList = req.body.idList
+    if (!Array.isArray(idList)) {
+      res.json({ code: -1, message: 'idList不能为空' })
+      return
+    }
+    if (idList.length < 1) {
+      res.json({ code: 0, data: null, message: '批量删除成功' })
+      return
+    }
+    await adminDb.query('DELETE FROM user_list WHERE id in (?)', [idList])
+    res.json({ code: 0, data: null, message: '批量删除成功' })
+  } catch (err) {
+    next(err)
+  }
+}
+
+exports.del = async (req, res, next) => {
+  try {
+    const id = req.params.id
+    if (!id) return res.json({ code: -1, message: 'id不能为空' })
+    await adminDb.query('DELETE FROM user_list WHERE id = ?', [id])
+    res.json({ code: 0, data: null, message: '删除成功' })
+  } catch (err) {
+    next(err)
+  }
+}
+
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const { id, password } = req.body
+    if (!id) return res.json({ code: -1, message: 'id不能为空' })
+    if (!password) return res.json({ code: -1, message: '密码不能为空' })
+    await adminDb.query(
+      'UPDATE user_list SET password=?,update_time=? WHERE id=?',
+      [password, new Date(), id]
+    )
+    res.json({ code: 0, data: null, message: '修改密码成功' })
   } catch (err) {
     next(err)
   }
