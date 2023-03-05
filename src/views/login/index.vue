@@ -13,6 +13,7 @@ import { useRenderIcon } from '@/components/ReIcon/src/hooks'
 import { ref, reactive, toRaw, onMounted, onBeforeUnmount } from 'vue'
 import { useDataThemeChange } from '@/layout/hooks/useDataThemeChange'
 import { getRsaPublicKey, encrypt } from '@/utils/encrypt'
+import { getCaptcha } from '@/api/system/common'
 import dayIcon from '@/assets/svg/day.svg?component'
 import darkIcon from '@/assets/svg/dark.svg?component'
 import Lock from '@iconify-icons/ri/lock-fill'
@@ -32,9 +33,15 @@ const { dataTheme, dataThemeChange } = useDataThemeChange()
 dataThemeChange()
 const { title } = useNav()
 
+// 验证码ref
+const captchaRef = ref<HTMLDivElement>()
+
 const ruleForm = reactive({
   username: import.meta.env.DEV ? 'admin' : '',
-  password: import.meta.env.DEV ? '123456' : ''
+  password: import.meta.env.DEV ? '123456' : '',
+  captchaText: '',
+  // 接收的服务器captchaCode字段，再回传给服务器即可
+  captchaCode: ''
 })
 
 const onLogin = async (formEl: FormInstance | undefined) => {
@@ -65,8 +72,18 @@ function onkeypress({ code }: KeyboardEvent) {
   }
 }
 
+// 获取验证码
+const fetchCaptcha = async () => {
+  const {
+    data: { captchaSvg, captchaCode }
+  } = await getCaptcha()
+  captchaRef.value.innerHTML = captchaSvg
+  ruleForm.captchaCode = captchaCode
+}
+
 onMounted(() => {
   getRsaPublicKey()
+  fetchCaptcha()
   window.document.addEventListener('keypress', onkeypress)
 })
 
@@ -134,6 +151,29 @@ onBeforeUnmount(() => {
                   placeholder="密码"
                   :prefix-icon="useRenderIcon(Lock)"
                 />
+              </el-form-item>
+            </Motion>
+
+            <Motion :delay="200">
+              <el-form-item prop="captcha">
+                <div style="display: flex; align-items: flex-end">
+                  <el-input
+                    v-model="ruleForm.captchaText"
+                    maxlength="4"
+                    clearable
+                    placeholder="验证码"
+                  />
+                  <div
+                    @click="fetchCaptcha"
+                    ref="captchaRef"
+                    style="
+                      margin-left: 20px;
+                      width: 150px;
+                      height: 50px;
+                      cursor: pointer;
+                    "
+                  />
+                </div>
               </el-form-item>
             </Motion>
 
