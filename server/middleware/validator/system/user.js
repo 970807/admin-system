@@ -1,4 +1,5 @@
 const adminDb = require('../../../db/admin.js')
+const { decrypt } = require('../../../utils/encrypt')
 
 exports.login = async (req, res, next) => {
   try {
@@ -21,7 +22,7 @@ exports.login = async (req, res, next) => {
       })
     }
     const userInfo = r[0]
-    if (userInfo.password !== password) {
+    if (userInfo.password !== decrypt(password)) {
       return res.json({
         code: -1,
         message: '登录失败，密码错误'

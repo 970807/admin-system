@@ -12,7 +12,7 @@ import { bg, avatar, illustration } from './utils/static'
 import { useRenderIcon } from '@/components/ReIcon/src/hooks'
 import { ref, reactive, toRaw, onMounted, onBeforeUnmount } from 'vue'
 import { useDataThemeChange } from '@/layout/hooks/useDataThemeChange'
-
+import { getRsaPublicKey, encrypt } from '@/utils/encrypt'
 import dayIcon from '@/assets/svg/day.svg?component'
 import darkIcon from '@/assets/svg/dark.svg?component'
 import Lock from '@iconify-icons/ri/lock-fill'
@@ -41,9 +41,13 @@ const onLogin = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate()
 
+  const params = { ...ruleForm }
+  // 密码使用rsa加密
+  params.password = await encrypt(params.password)
+
   loading.value = true
   useUserStoreHook()
-    .loginByUsername(ruleForm)
+    .loginByUsername(params)
     .then(() => {
       // 获取后端路由
       initRouter().then(() => {
@@ -62,6 +66,7 @@ function onkeypress({ code }: KeyboardEvent) {
 }
 
 onMounted(() => {
+  getRsaPublicKey()
   window.document.addEventListener('keypress', onkeypress)
 })
 
