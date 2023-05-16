@@ -12,7 +12,7 @@ const loginRules = reactive(<FormRules>{
           callback()
         }
       },
-      trigger: 'blur'
+      trigger: ['blur', 'change']
     }
   ]
 })

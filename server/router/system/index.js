@@ -3,6 +3,7 @@ const express = require('express')
 const router = express.Router()
 
 router.use('/account', require('./account'))
+router.use('/auth', require('./auth'))
 router.use('/common', require('./common'))
 router.use('/role', require('./role'))
 router.use('/routes', require('./routes'))

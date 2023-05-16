@@ -82,8 +82,8 @@ const fetchCaptcha = async () => {
 }
 
 onMounted(() => {
-  getRsaPublicKey()
   fetchCaptcha()
+  getRsaPublicKey()
   window.document.addEventListener('keypress', onkeypress)
 })
 
@@ -128,7 +128,7 @@ onBeforeUnmount(() => {
                   {
                     required: true,
                     message: '请输入账号',
-                    trigger: 'blur'
+                    trigger: ['blur', 'change']
                   }
                 ]"
                 prop="username"
@@ -155,7 +155,16 @@ onBeforeUnmount(() => {
             </Motion>
 
             <Motion :delay="200">
-              <el-form-item prop="captcha">
+              <el-form-item
+                :rules="[
+                  {
+                    required: true,
+                    message: '请输入验证码',
+                    trigger: ['blur', 'change']
+                  }
+                ]"
+                prop="captchaText"
+              >
                 <div style="display: flex; align-items: flex-end">
                   <el-input
                     v-model="ruleForm.captchaText"

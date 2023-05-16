@@ -91,6 +91,15 @@ exports.getAsyncRoutes = (req, res) => {
           roles: ['admin']
         },
         component: '/src/views/system/roleList'
+      },
+      {
+        path: '/system/auth-list',
+        name: 'SystemAuthList',
+        meta: {
+          title: '权限列表',
+          roles: ['admin']
+        },
+        component: '/src/views/system/authList'
       }
     ]
   }

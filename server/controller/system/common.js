@@ -16,7 +16,7 @@ exports.getCaptcha = (req, res, next) => {
       size: 4,
       noise: 1,
       color: true,
-      background: '#cc9966'
+      background: '#F8DF72'
     })
     const curDate = new Date()
     // 过期时间(默认2分钟)
