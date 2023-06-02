@@ -1,5 +1,12 @@
+const fs = require('fs')
+const path = require('path')
 const adminDb = require('../../db/admin')
-const authData = require('../../data/system/auth')
+
+// 系统权限文件路径
+const SYSTEM_AUTH_FILE_PATH = path.join(
+  __dirname,
+  '../../data/system/systemAuthList.json'
+)
 
 // 权限类型
 const AUTH_TYPE_EM = {
@@ -16,7 +23,23 @@ exports.getList = async (req, res, next) => {
         auth_list
       ORDER BY sort_no`
     )
-    res.json({ code: 0, data: [...authData.SYSTEM_AUTH_LIST, ...resList] })
+
+    fs.readFile(SYSTEM_AUTH_FILE_PATH, 'utf8', (err, data) => {
+      if (err) {
+        // 读取文件出错，直接返回非系统权限
+        res.json({ code: 0, data: resList })
+        return
+      }
+      // 系统权限
+      const systemAuthList = JSON.parse(data)
+      // 返回系统权限+非系统权限
+      res.json({
+        code: 0,
+        data: [...systemAuthList, ...resList].sort(
+          (a, b) => a.sortNo - b.sortNo
+        )
+      })
+    })
   } catch (err) {
     next(err)
   }
@@ -205,4 +228,59 @@ async function deleteAllNeedDelIds(initIds) {
   // 删除
   await adminDb.query('DELETE FROM auth_list WHERE id in (?)', [needDelIds])
   return needDelIds
+}
+
+exports.updateSortNo = async (req, res, next) => {
+  const numberable = val => !isNaN(Number(val))
+
+  try {
+    const id = req.params.id
+    const sortNo = Number(req.params.sortNo)
+    if (isNaN(sortNo))
+      return res.json({ code: -1, message: '请输入正确的排序值' })
+
+    // 查询是否是系统权限
+    try {
+      const systemAuthList = JSON.parse(
+        fs.readFileSync(SYSTEM_AUTH_FILE_PATH, 'utf8')
+      )
+      const findRes = systemAuthList.find(item => item.id === id)
+      if (findRes) {
+        // 查到了对应的系统权限
+        findRes.sortNo = sortNo
+        // 保存回去
+        fs.writeFileSync(
+          SYSTEM_AUTH_FILE_PATH,
+          JSON.stringify(systemAuthList, null, 2),
+          'utf8'
+        )
+        res.json({ code: 0, data: { id, sortNo }, message: '操作成功' })
+        return
+      }
+    } catch {
+      // 文件读取出错
+      if (!numberable(id)) {
+        // id不是数值类型只能是系统权限
+        return res.json({
+          code: -1,
+          message: '更新系统权限的排序值失败，读取或写入系统权限文件出错'
+        })
+      }
+    }
+
+    if (numberable(id)) {
+      await adminDb.query('UPDATE auth_list SET sort_no=? WHERE id=?', [
+        sortNo,
+        id
+      ])
+      res.json({ code: 0, data: { id, sortNo }, message: '操作成功' })
+    } else {
+      res.json({
+        code: -1,
+        message: '更新权限的排序值失败，错误的系统权限id'
+      })
+    }
+  } catch (err) {
+    next(err)
+  }
 }

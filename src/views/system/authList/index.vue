@@ -6,7 +6,7 @@ export default defineComponent({ name: 'system_authList' })
 <script lang="ts" setup>
 import { reactive, toRefs, ref, onMounted } from 'vue'
 import { ElMessageBox, ElMessage, ElTable } from 'element-plus'
-import { getList, delAuth, batchDelAuth } from '@/api/system/auth'
+import { getList, delAuth, batchDelAuth, updateSortNo } from '@/api/system/auth'
 import PageContainer from '@/components/PageContainer/index.vue'
 import { Searchs } from '@/components/Searchs/index'
 import { Plus, Download, Upload, Delete } from '@element-plus/icons-vue'
@@ -122,7 +122,7 @@ const fetchData = () => {
 }
 
 const onSelectionChange = (val: Row[]) => {
-  // 过滤掉系统权限(系统权限只能查看，不能有其它操作)
+  // 过滤掉系统权限(系统权限只能查看，不能编辑)
   state.multipleSelection = val.filter(item => !item.systemAuth)
   if (state.multipleSelection.length !== val.length) {
     // 取消选中系统权限
@@ -162,6 +162,12 @@ const handleBatchDel = async () => {
   const { message } = await batchDelAuth({ idList })
   ElMessage.success(message)
   fetchData()
+}
+
+// 更新排序值
+const handleUpdateSortNo = async (row: Row) => {
+  const { message } = await updateSortNo(row.id, row.sortNo)
+  ElMessage.success(message)
 }
 
 onMounted(() => {
@@ -224,7 +230,15 @@ onMounted(() => {
             label="系统权限"
             :formatter="row => ['否', '是'][row.systemAuth]"
           />
-          <el-table-column align="center" prop="sortNo" label="排序值" />
+          <el-table-column align="center" label="排序值" min-width="150">
+            <template #default="{ row }">
+              <el-input-number
+                v-model="row.sortNo"
+                :min="0"
+                :max="999"
+                @change="handleUpdateSortNo(row)"
+            /></template>
+          </el-table-column>
           <el-table-column align="center" prop="remark" label="备注" />
           <el-table-column
             align="center"

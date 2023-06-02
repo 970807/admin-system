@@ -32,3 +32,16 @@ export const delAuth = (id: IAuthListItem['id']) => {
 export const batchDelAuth = (data: IBatchDelAuthData) => {
   return http.request<null>('delete', '/api/system/auth/batchDel', { data })
 }
+
+/**
+ * @description 更新排序值
+ */
+export const updateSortNo = (
+  id: IAuthListItem['id'],
+  sortNo: IAuthListItem['sortNo']
+) => {
+  return http.request<null>(
+    'post',
+    `/api/system/auth/updateSortNo/${id}/${sortNo}`
+  )
+}

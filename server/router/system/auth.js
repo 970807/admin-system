@@ -16,4 +16,7 @@ router.delete('/del/:id', auth, systemCtrl.auth.del)
 // 批量删除权限
 router.delete('/batchDel', auth, systemCtrl.auth.batchDel)
 
+// 更新排序值
+router.post('/updateSortNo/:id/:sortNo', auth, systemCtrl.auth.updateSortNo)
+
 module.exports = router
