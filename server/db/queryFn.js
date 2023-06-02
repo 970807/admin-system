@@ -3,7 +3,7 @@
  */
 const { underlinetoCamelCase, camelCasetoUnderline } = require('../utils/tools')
 
-module.exports = (pool) => {
+module.exports = pool => {
   return (sql, data) => {
     return new Promise((resolve, reject) => {
       pool.getConnection((err, connection) => {

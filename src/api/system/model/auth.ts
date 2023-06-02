@@ -8,6 +8,7 @@ export interface IAuthListItem {
   redirect: string | null
   cpnPath: string | null
   authType: 0 | 1
+  systemAuth: 0 | 1
   sortNo: number
   remark: string | null
 }
@@ -24,4 +25,8 @@ export interface IAddOrEditAuthData {
   authType: 0 | 1
   sortNo: number
   remark?: string
+}
+
+export interface IBatchDelAuthData {
+  idList: Array<IAuthListItem['id']>
 }

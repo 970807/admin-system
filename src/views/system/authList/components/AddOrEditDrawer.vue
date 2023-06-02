@@ -26,6 +26,7 @@ interface Options {
   disableMenuAuthType: boolean
   disableButtonAuthType: boolean
   buttonAuthTypeSelectTip?: string
+  readMode?: boolean
 }
 
 const emit = defineEmits<{
@@ -65,7 +66,9 @@ const getDefaultOptions = (): Options => ({
   // 是否禁用按钮类型
   disableButtonAuthType: false,
   // 选择按钮权限类型弹出的提示
-  buttonAuthTypeSelectTip: ''
+  buttonAuthTypeSelectTip: '',
+  // true：查看(只能看，不能修改) fale：编辑
+  readMode: false
 })
 
 const state = reactive<{
@@ -109,10 +112,11 @@ const setOptions = (options: Partial<Options>) => {
   })
 }
 
-const show = (row: any, options?: Partial<Options>) => {
-  Object.keys(state.formData).forEach(key => {
-    if (key in row) state.formData[key] = row[key]
-  })
+const show = (row?: any, options?: Partial<Options>) => {
+  if (row)
+    Object.keys(state.formData).forEach(key => {
+      if (key in row) state.formData[key] = row[key]
+    })
   state.visible = true
   if (options) setOptions(options)
 }
@@ -262,10 +266,15 @@ defineExpose({ show })
       </el-form>
     </template>
     <template #footer>
-      <el-button @click="onClose">取消</el-button>
-      <el-button :loading="btnLoading" type="primary" @click="save"
-        >保存</el-button
-      >
+      <template v-if="options.readMode">
+        <el-button @click="onClose">关闭</el-button>
+      </template>
+      <template v-else>
+        <el-button @click="onClose">取消</el-button>
+        <el-button :loading="btnLoading" type="primary" @click="save"
+          >保存</el-button
+        >
+      </template>
     </template>
   </el-drawer>
 </template>

@@ -11,11 +11,39 @@
  Target Server Version : 80032
  File Encoding         : 65001
 
- Date: 05/03/2023 01:18:31
+ Date: 31/05/2023 02:26:19
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for auth_list
+-- ----------------------------
+DROP TABLE IF EXISTS `auth_list`;
+CREATE TABLE `auth_list`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `parent_id` int NULL DEFAULT NULL,
+  `name` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '权限名称',
+  `auth_marker` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '权限标识',
+  `menu_path` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '菜单路径',
+  `menu_icon` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '菜单icon',
+  `redirect` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '重定向',
+  `cpn_path` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '组件路径',
+  `auth_type` tinyint(1) NOT NULL COMMENT '权限类型 0菜单 1按钮',
+  `sort_no` int NOT NULL COMMENT '排序值',
+  `remark` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL,
+  `update_time` datetime NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of auth_list
+-- ----------------------------
+INSERT INTO `auth_list` VALUES (1, 2, 'ccc', 'aaa', '/books/index', 'icon_01', '/books/list', '@/views/ccc', 1, 3, 'showmaker', '2023-03-23 23:32:29', '2023-03-27 20:48:15');
+INSERT INTO `auth_list` VALUES (2, NULL, '理查德', 'cccccccccc', '/hnd', NULL, NULL, '@/views/chales', 0, 1, NULL, '2023-03-23 23:46:55', '2023-03-23 23:47:00');
+INSERT INTO `auth_list` VALUES (3, NULL, '得到的', 'dccsds', NULL, NULL, NULL, NULL, 1, 1, NULL, '2023-03-23 23:47:29', '2023-03-23 23:47:35');
 
 -- ----------------------------
 -- Table structure for role_list
@@ -30,7 +58,7 @@ CREATE TABLE `role_list`  (
   `update_time` datetime NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `role_name`(`role_name`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of role_list
@@ -55,7 +83,7 @@ CREATE TABLE `user_list`  (
   `update_time` datetime NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `username`(`username`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_list
@@ -65,7 +93,7 @@ INSERT INTO `user_list` VALUES (3, 'a012', 'frferf', NULL, 13, 0, '2023-03-04 15
 INSERT INTO `user_list` VALUES (4, 'fref', 'erfffrer', NULL, 2, 1, '2023-03-04 18:36:52', '2023-03-04 18:36:55');
 INSERT INTO `user_list` VALUES (5, 'gtggg', 'rrrr', NULL, 2, 1, '2023-03-04 18:37:04', '2023-03-04 18:37:07');
 INSERT INTO `user_list` VALUES (6, 'cc', 'eddd', NULL, 2, 1, '2023-03-04 18:37:23', '2023-03-04 18:37:26');
-INSERT INTO `user_list` VALUES (7, 'a212', 'frf', NULL, 3, 1, '2023-03-04 18:37:36', '2023-03-04 18:37:39');
+INSERT INTO `user_list` VALUES (7, 'a212', 'frf', NULL, 3, 0, '2023-03-04 18:37:36', '2023-03-05 19:29:47');
 INSERT INTO `user_list` VALUES (9, 'fr12222', 'rfff', NULL, 15, 1, '2023-03-04 18:38:09', '2023-03-04 19:27:49');
 INSERT INTO `user_list` VALUES (11, 'dddddd', '886', NULL, 1, 1, '2023-03-04 18:38:36', '2023-03-04 19:06:29');
 

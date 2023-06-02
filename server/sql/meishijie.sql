@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : MySql
+ Source Server         : mysql
  Source Server Type    : MySQL
- Source Server Version : 80023
+ Source Server Version : 80032
  Source Host           : localhost:3306
  Source Schema         : meishijie
 
  Target Server Type    : MySQL
- Target Server Version : 80023
+ Target Server Version : 80032
  File Encoding         : 65001
 
- Date: 16/01/2023 00:05:15
+ Date: 31/05/2023 02:26:43
 */
 
 SET NAMES utf8mb4;
@@ -23,14 +23,14 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `home_recommend_column_list`;
 CREATE TABLE `home_recommend_column_list`  (
   `id` int NOT NULL AUTO_INCREMENT,
-  `column_title` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `column_title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `show_recipe_count` int NOT NULL,
   `sort` int NOT NULL,
-  `recipe_list_str` varchar(1000) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '菜谱id,排序值;菜谱id,排序值;菜谱id,排序值;',
+  `recipe_list_str` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '菜谱id,排序值;菜谱id,排序值;菜谱id,排序值;',
   `create_time` datetime NOT NULL,
   `update_time` datetime NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of home_recommend_column_list
@@ -46,10 +46,10 @@ INSERT INTO `home_recommend_column_list` VALUES (4, '烘焙', 5, 3, 'a53c66db-98
 DROP TABLE IF EXISTS `hot_today_search_list`;
 CREATE TABLE `hot_today_search_list`  (
   `id` int NOT NULL AUTO_INCREMENT,
-  `label` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `label` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NULL DEFAULT NULL,
   `isHot` tinyint(1) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of hot_today_search_list
@@ -70,14 +70,14 @@ INSERT INTO `hot_today_search_list` VALUES (9, '可乐鸡翅', 0);
 DROP TABLE IF EXISTS `hot_today_video_list`;
 CREATE TABLE `hot_today_video_list`  (
   `id` int NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
-  `username` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
-  `userAvatar` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
-  `linkUrl` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
-  `coverUrl` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
-  `videoUrl` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NULL DEFAULT NULL,
+  `username` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NULL DEFAULT NULL,
+  `userAvatar` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NULL DEFAULT NULL,
+  `linkUrl` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NULL DEFAULT NULL,
+  `coverUrl` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NULL DEFAULT NULL,
+  `videoUrl` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of hot_today_video_list
@@ -92,31 +92,31 @@ INSERT INTO `hot_today_video_list` VALUES (4, '茄子豆角', '新东方小食�
 -- ----------------------------
 DROP TABLE IF EXISTS `recipe_detail_list`;
 CREATE TABLE `recipe_detail_list`  (
-  `id` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `id` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `is_video` tinyint UNSIGNED NOT NULL COMMENT '是否是视频菜谱 1 => 是 0 => 否',
-  `cover_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '菜谱封面地址',
-  `video_url` varchar(1500) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '菜谱视频地址',
-  `recipe_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '菜谱名称',
+  `cover_url` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '菜谱封面地址',
+  `video_url` varchar(1500) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NULL DEFAULT NULL COMMENT '菜谱视频地址',
+  `recipe_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '菜谱名称',
   `fav_count` int NOT NULL COMMENT '收藏数',
   `brower_count` int NOT NULL COMMENT '浏览数',
-  `simple_introduction_technology` varchar(6) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '工艺',
-  `simple_introduction_taste` varchar(6) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '口味',
-  `simple_introduction_time` varchar(6) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '时间',
-  `simple_introduction_difficulty` varchar(6) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '难度',
-  `recipe_qrcode` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '菜谱二维码',
-  `main_ingredients_str` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '主料',
-  `sub_ingredients_str` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '辅料',
+  `simple_introduction_technology` varchar(6) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '工艺',
+  `simple_introduction_taste` varchar(6) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '口味',
+  `simple_introduction_time` varchar(6) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '时间',
+  `simple_introduction_difficulty` varchar(6) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '难度',
+  `recipe_qrcode` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '菜谱二维码',
+  `main_ingredients_str` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '主料',
+  `sub_ingredients_str` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '辅料',
   `people_count` int NOT NULL COMMENT '例：3人份',
   `author_id` int NOT NULL COMMENT '作者用户id',
-  `author_words` varchar(1000) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `finish_food_imgs_str` varchar(1000) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `steps_str` varchar(5000) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '菜谱步骤：格式 =>  步骤图片,步骤内容;步骤图片,步骤内容;',
-  `recipe_tips` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
-  `origin_web_link` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '美食杰官方对应的链接',
+  `author_words` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
+  `finish_food_imgs_str` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
+  `steps_str` varchar(5000) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '菜谱步骤：格式 =>  步骤图片,步骤内容;步骤图片,步骤内容;',
+  `recipe_tips` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NULL DEFAULT NULL,
+  `origin_web_link` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NULL DEFAULT NULL COMMENT '美食杰官方对应的链接',
   `create_time` datetime NOT NULL,
   `update_time` datetime NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of recipe_detail_list
@@ -165,14 +165,14 @@ INSERT INTO `recipe_detail_list` VALUES ('ff5a0564-6447-4896-b11d-54704b8f4a96',
 DROP TABLE IF EXISTS `today_three_meals_list`;
 CREATE TABLE `today_three_meals_list`  (
   `id` int NOT NULL AUTO_INCREMENT,
-  `column_title` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `column_title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `show_recipe_count` int NOT NULL,
-  `recipe_list_str` varchar(1000) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `recipe_list_str` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `sort` int NULL DEFAULT NULL,
   `create_time` datetime NOT NULL,
   `update_time` datetime NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of today_three_meals_list
@@ -189,16 +189,16 @@ INSERT INTO `today_three_meals_list` VALUES (5, '夜宵', 3, '468911e0-9788-49e1
 DROP TABLE IF EXISTS `user_list`;
 CREATE TABLE `user_list`  (
   `id` int NOT NULL AUTO_INCREMENT,
-  `phone` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
-  `account` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
-  `password` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `nickname` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
-  `avatar` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `phone` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NULL DEFAULT NULL,
+  `account` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NULL DEFAULT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
+  `nickname` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NULL DEFAULT NULL,
+  `avatar` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NULL DEFAULT NULL,
   `fan_count` int NULL DEFAULT 0,
   `create_time` datetime NOT NULL,
   `update_time` datetime NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 32 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_list
