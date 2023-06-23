@@ -3,6 +3,7 @@ export interface IAuthListItem {
   parentId: number | null
   name: string
   authMarker: string
+  menuName: string | null
   menuPath: string | null
   menuIcon: string | null
   redirect: string | null
@@ -18,6 +19,7 @@ export interface IAddOrEditAuthData {
   parentId: number | null
   name: string
   authMarker: string
+  menuName?: string
   menuPath?: string
   menuIcon?: string
   redirect?: string

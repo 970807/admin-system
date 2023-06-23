@@ -88,9 +88,14 @@ const fetchData = () => {
   getList().then(res => {
     const list = []
     while (res?.data?.length) {
+      // 有parentId但是还没插入到children的节点
+      const noInsertToParentList = []
       for (let i = 0; i < res.data.length; i++) {
         const cur = res.data[i]
-        if (typeof cur.parentId !== 'number') {
+        if (
+          typeof cur.parentId !== 'number' &&
+          typeof cur.parentId !== 'string'
+        ) {
           list.push(cur)
           res.data.splice(i, 1)
           i--
@@ -99,6 +104,13 @@ const fetchData = () => {
         if (cur.id === cur.parentId) {
           res.data.splice(i, 1)
           i--
+          continue
+        }
+        if (
+          noInsertToParentList.map(item => item.parentId).includes(cur.parentId)
+        ) {
+          // 为了保证顺序，下一轮再添加到children中
+          noInsertToParentList.push(cur)
           continue
         }
         const parent = findParent(cur, list)
@@ -115,6 +127,7 @@ const fetchData = () => {
           i--
           continue
         }
+        noInsertToParentList.push(cur)
       }
     }
     state.tableData = list
@@ -210,15 +223,50 @@ onMounted(() => {
             align="center"
             prop="name"
             label="名称"
+            min-width="170"
+            show-overflow-tooltip
             fixed="left"
           />
-          <el-table-column align="center" prop="authMarker" label="权限标识" />
-          <el-table-column align="center" prop="menuPath" label="菜单路径" />
-          <el-table-column align="center" prop="redirect" label="重定向" />
-          <el-table-column align="center" prop="cpnPath" label="组件路径" />
+          <el-table-column
+            align="center"
+            min-width="170"
+            prop="authMarker"
+            label="权限标识"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            align="center"
+            min-width="170"
+            prop="menuName"
+            label="菜单name"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            align="center"
+            min-width="170"
+            prop="menuPath"
+            show-overflow-tooltip
+            label="菜单路径"
+          />
+          <el-table-column
+            align="center"
+            min-width="170"
+            prop="redirect"
+            show-overflow-tooltip
+            label="重定向"
+          />
+          <el-table-column
+            align="center"
+            min-width="170"
+            prop="cpnPath"
+            show-overflow-tooltip
+            label="组件路径"
+          />
           <el-table-column
             align="center"
             label="权限类型"
+            min-width="170"
+            show-overflow-tooltip
             :formatter="
               row =>
                 AUTH_TYPE_ARR.find(item => item.value === row.authType)?.name
@@ -226,20 +274,34 @@ onMounted(() => {
           />
           <el-table-column
             align="center"
+            min-width="170"
+            show-overflow-tooltip
             prop="systemAuth"
             label="系统权限"
             :formatter="row => ['否', '是'][row.systemAuth]"
           />
-          <el-table-column align="center" label="排序值" min-width="150">
+          <el-table-column
+            align="center"
+            label="排序值"
+            show-overflow-tooltip
+            min-width="170"
+          >
             <template #default="{ row }">
               <el-input-number
+                style="width: 130px"
                 v-model="row.sortNo"
                 :min="0"
                 :max="999"
                 @change="handleUpdateSortNo(row)"
             /></template>
           </el-table-column>
-          <el-table-column align="center" prop="remark" label="备注" />
+          <el-table-column
+            align="center"
+            min-width="170"
+            prop="remark"
+            show-overflow-tooltip
+            label="备注"
+          />
           <el-table-column
             align="center"
             label="操作"

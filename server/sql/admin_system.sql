@@ -11,7 +11,7 @@
  Target Server Version : 80032
  File Encoding         : 65001
 
- Date: 31/05/2023 02:26:19
+ Date: 23/06/2023 16:49:43
 */
 
 SET NAMES utf8mb4;
@@ -25,25 +25,26 @@ CREATE TABLE `auth_list`  (
   `id` int NOT NULL AUTO_INCREMENT,
   `parent_id` int NULL DEFAULT NULL,
   `name` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '权限名称',
-  `auth_marker` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '权限标识',
-  `menu_path` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '菜单路径',
+  `auth_marker` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '权限标识',
+  `menu_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '菜单name',
+  `menu_path` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '菜单路径',
   `menu_icon` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '菜单icon',
-  `redirect` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '重定向',
-  `cpn_path` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '组件路径',
+  `redirect` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '重定向',
+  `cpn_path` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '组件路径',
   `auth_type` tinyint(1) NOT NULL COMMENT '权限类型 0菜单 1按钮',
   `sort_no` int NOT NULL COMMENT '排序值',
   `remark` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '备注',
   `create_time` datetime NOT NULL,
   `update_time` datetime NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of auth_list
 -- ----------------------------
-INSERT INTO `auth_list` VALUES (1, 2, 'ccc', 'aaa', '/books/index', 'icon_01', '/books/list', '@/views/ccc', 1, 3, 'showmaker', '2023-03-23 23:32:29', '2023-03-27 20:48:15');
-INSERT INTO `auth_list` VALUES (2, NULL, '理查德', 'cccccccccc', '/hnd', NULL, NULL, '@/views/chales', 0, 1, NULL, '2023-03-23 23:46:55', '2023-03-23 23:47:00');
-INSERT INTO `auth_list` VALUES (3, NULL, '得到的', 'dccsds', NULL, NULL, NULL, NULL, 1, 1, NULL, '2023-03-23 23:47:29', '2023-03-23 23:47:35');
+INSERT INTO `auth_list` VALUES (18, NULL, '美食杰', 'meishijie', 'meishijie', '/meishijie', 'mdi:food', '/meishijie/account-list', '', 0, 10, '', '2023-06-23 16:33:27', '2023-06-23 16:33:27');
+INSERT INTO `auth_list` VALUES (19, 18, '账号列表', 'meishijie:accountlist', 'MeishijieAccountList', '/meishijie/account-list', '', '', '/src/views/meishijie/accountList', 0, 0, '', '2023-06-23 16:41:20', '2023-06-23 16:41:20');
+INSERT INTO `auth_list` VALUES (20, 18, '食材管理', 'meishijie:ingredientmanagement', 'MeishijieIngredientManagement', '/meishijie/ingredient-management', '', '', '/src/views/meishijie/ingredientManagement', 0, 0, '', '2023-06-23 16:42:09', '2023-06-23 16:42:09');
 
 -- ----------------------------
 -- Table structure for role_list

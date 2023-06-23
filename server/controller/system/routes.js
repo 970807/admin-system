@@ -1,111 +1,144 @@
-exports.getAsyncRoutes = (req, res) => {
-  /**
-   * roles：页面级别权限，这里模拟二种 "admin"、"common"
-   * admin：管理员角色
-   * common：普通角色
-   */
+const fs = require('fs')
+const path = require('path')
+const adminDb = require('../../db/admin')
 
-  const permissionRouter = {
-    path: '/permission',
-    meta: {
-      title: '权限管理',
-      icon: 'lollipop',
-      rank: 999
-    },
-    children: [
-      {
-        path: '/permission/page/index',
-        name: 'PermissionPage',
-        meta: {
-          title: '页面权限',
-          roles: ['admin', 'common']
-        }
-      },
-      {
-        path: '/permission/button/index',
-        name: 'PermissionButton',
-        meta: {
-          title: '按钮权限',
-          roles: ['admin', 'common'],
-          auths: ['btn_add', 'btn_edit', 'btn_delete']
-        }
+// 系统权限文件路径
+const SYSTEM_AUTH_FILE_PATH = path.join(
+  __dirname,
+  '../../data/system/systemAuthList.json'
+)
+
+// 把扁平的权限列表格式化为树结构
+const transfromAuthListToTree = data => {
+  const findParent = (row, list) => {
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].id === row.parentId) {
+        return list[i]
       }
-    ]
+      if (list[i].children?.length) {
+        const r = findParent(row, list[i].children)
+        if (r) return r
+      }
+    }
+    return null
   }
 
-  const meishijieRouter = {
-    path: '/meishijie',
-    redirect: '/meishijie/account-list',
-    name: 'meishijie',
-    meta: {
-      title: '美食杰',
-      icon: 'mdi:food',
-      rank: 10
-    },
-    children: [
-      {
-        path: '/meishijie/account-list',
-        name: 'MeishijieAccountList',
-        meta: {
-          title: '账号列表',
-          roles: ['admin']
-        },
-        component: '/src/views/meishijie/accountList'
-      },
-      {
-        path: '/meishijie/ingredient-management',
-        name: 'MeishijieIngredientManagement',
-        meta: {
-          title: '食材管理',
-          roles: ['admin']
-        },
-        component: '/src/views/meishijie/ingredientManagement'
+  const list = []
+  while (data?.length) {
+    // 有parentId但是还没插入到children的节点
+    const noInsertToParentList = []
+    for (let i = 0; i < data.length; i++) {
+      const cur = data[i]
+      if (
+        typeof cur.parentId !== 'number' &&
+        typeof cur.parentId !== 'string'
+      ) {
+        list.push(cur)
+        data.splice(i, 1)
+        i--
+        continue
       }
-    ]
-  }
-
-  const systemRouter = {
-    path: '/system',
-    redirect: '/system/account-list',
-    name: 'system',
-    meta: {
-      title: '系统管理',
-      icon: 'eos-icons:system-ok',
-      rank: 100
-    },
-    children: [
-      {
-        path: '/system/account-list',
-        name: 'SystemAccountList',
-        meta: {
-          title: '账号列表',
-          roles: ['admin']
-        },
-        component: '/src/views/system/accountList'
-      },
-      {
-        path: '/system/role-list',
-        name: 'SystemRoleList',
-        meta: {
-          title: '角色列表',
-          roles: ['admin']
-        },
-        component: '/src/views/system/roleList'
-      },
-      {
-        path: '/system/auth-list',
-        name: 'SystemAuthList',
-        meta: {
-          title: '权限列表',
-          roles: ['admin']
-        },
-        component: '/src/views/system/authList'
+      if (cur.id === cur.parentId) {
+        data.splice(i, 1)
+        i--
+        continue
       }
-    ]
+      if (
+        noInsertToParentList.map(item => item.parentId).includes(cur.parentId)
+      ) {
+        // 为了保证顺序，下一轮再添加到children中
+        noInsertToParentList.push(cur)
+        continue
+      }
+      const parent = findParent(cur, list)
+      if (parent) {
+        parent.children ? parent.children.push(cur) : (parent.children = [cur])
+        data.splice(i, 1)
+        i--
+        continue
+      }
+      if (data.findIndex(item => item.id === cur.parentId) === -1) {
+        data.splice(i, 1)
+        i--
+        continue
+      }
+      noInsertToParentList.push(cur)
+    }
   }
+  return list
+}
 
-  res.json({
-    code: 0,
-    data: [meishijieRouter, permissionRouter, systemRouter]
-  })
+// 转为路由需要的格式的字段
+const formateRouteTree = (tree, isRoot = true) => {
+  for (const item of tree) {
+    if (!item.meta) item.meta = {}
+    if (item.name) {
+      item.meta.title = item.name
+      delete item.name
+    }
+    if (item.menuName) item.name = item.menuName
+    if (item.menuPath) item.path = item.menuPath
+    // 子路由(isRoot === false)不需要'rank'属性，不然页面跳转会不正确
+    if (typeof item.sortNo === 'number' && isRoot) item.meta.rank = item.sortNo
+    if (item.menuIcon) item.meta.icon = item.menuIcon
+    if (item.cpnPath) item.component = item.cpnPath
+    if (!item.redirect) delete item.redirect
+    if (item.children?.length) {
+      formateRouteTree(item.children, false)
+    }
+
+    delete item.parentId
+    delete item.authMarker
+    delete item.menuName
+    delete item.menuPath
+    delete item.menuIcon
+    delete item.cpnPath
+    delete item.authType
+    delete item.systemAuth
+    delete item.sortNo
+    delete item.remark
+    delete item.createTime
+    delete item.updateTime
+  }
+  return tree
+}
+
+exports.getAsyncRoutes = async (req, res, next) => {
+  try {
+    // 查询非系统权限
+    const resList = await adminDb.query(
+      `SELECT
+        id,parent_id,name,auth_marker,menu_name,menu_path,menu_icon,redirect,cpn_path,auth_type,sort_no,remark,create_time,update_time
+      FROM
+        auth_list
+      ORDER BY sort_no`
+    )
+
+    // 查询系统权限
+    fs.readFile(SYSTEM_AUTH_FILE_PATH, 'utf8', (err, data) => {
+      if (err) {
+        // 读取文件出错，直接返回非系统权限
+        res.json({
+          code: 0,
+          data: formateRouteTree(transfromAuthListToTree(resList), true)
+        })
+        return
+      }
+      // 系统权限
+      const systemAuthList = JSON.parse(data)
+
+      // 返回系统权限+非系统权限
+      res.json({
+        code: 0,
+        data: formateRouteTree(
+          transfromAuthListToTree(
+            [...systemAuthList, ...resList].sort((a, b) => a.sortNo - b.sortNo)
+          ),
+          true
+        )
+      })
+    })
+  } catch (err) {
+    next(err)
+  }
 }

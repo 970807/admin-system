@@ -16,14 +16,19 @@ const AUTH_TYPE_EM = {
 
 exports.getList = async (req, res, next) => {
   try {
+    // 查询非系统权限
     const resList = await adminDb.query(
       `SELECT
-        id,parent_id,name,auth_marker,menu_path,menu_icon,redirect,cpn_path,auth_type,system_auth,sort_no,remark,create_time,update_time
+        id,parent_id,name,auth_marker,menu_name,menu_path,menu_icon,redirect,cpn_path,auth_type,sort_no,remark,create_time,update_time
       FROM
         auth_list
       ORDER BY sort_no`
     )
 
+    // 添加非系统权限标识
+    resList.forEach(item => (item.systemAuth = 0))
+
+    // 查询系统权限
     fs.readFile(SYSTEM_AUTH_FILE_PATH, 'utf8', (err, data) => {
       if (err) {
         // 读取文件出错，直接返回非系统权限
@@ -32,6 +37,9 @@ exports.getList = async (req, res, next) => {
       }
       // 系统权限
       const systemAuthList = JSON.parse(data)
+      // 添加系统权限标识
+      systemAuthList.forEach(item => (item.systemAuth = 1))
+
       // 返回系统权限+非系统权限
       res.json({
         code: 0,
@@ -52,6 +60,7 @@ exports.addOrEditAuth = async (req, res, next) => {
       parentId,
       name,
       authMarker,
+      menuName,
       menuPath,
       menuIcon,
       redirect,
@@ -67,29 +76,29 @@ exports.addOrEditAuth = async (req, res, next) => {
       return res.json({ code: -1, message: '权限类型不能为空' })
     if (typeof sortNo !== 'number')
       return res.json({ code: -1, message: '排序值不能为空' })
+    if (authType === 0 && !menuPath)
+      return res.json({ code: -1, message: '菜单路径不能为空' })
+    if (typeof parentId === 'number' && !cpnPath)
+      return res.json({ code: -1, message: '组件路径不能为空' })
+
     const d = new Date()
     if (typeof id === 'number') {
       // 编辑权限
 
       // 查询旧的数据
       const r1 = (
-        await adminDb.query(
-          'SELECT id,auth_type,system_auth FROM auth_list WHERE id=?',
-          [id]
-        )
+        await adminDb.query('SELECT id,auth_type FROM auth_list WHERE id=?', [
+          id
+        ])
       )?.[0]
       // 查询不到旧数据
       if (!r1)
         return res.json({ code: 1, message: `编辑权限失败，id：${id}不存在` })
 
-      // 不能编辑系统权限
-      if (!!r1.systemAuth)
-        return res.json({ code: -1, message: '不能编辑系统权限' })
-
       // 更新数据库
       await adminDb.query(
         `UPDATE auth_list SET 
-        parent_id=?,name=?,auth_marker=?,menu_path=?,menu_icon=?,
+        parent_id=?,name=?,auth_marker=?,menu_name=?,menu_path=?,menu_icon=?,
         redirect=?,cpn_path=?,auth_type=?,sort_no=?,remark=?,update_time=?
           WHERE id=?
         `,
@@ -97,6 +106,7 @@ exports.addOrEditAuth = async (req, res, next) => {
           parentId,
           name,
           authMarker,
+          menuName,
           menuPath,
           menuIcon,
           redirect,
@@ -125,10 +135,7 @@ exports.addOrEditAuth = async (req, res, next) => {
         // 添加子权限
         // 查询旧的数据
         const r1 = (
-          await adminDb.query(
-            'SELECT id,system_auth FROM auth_list WHERE id=?',
-            [parentId]
-          )
+          await adminDb.query('SELECT id FROM auth_list WHERE id=?', [parentId])
         )?.[0]
         // 查询不到旧数据
         if (!r1)
@@ -136,14 +143,13 @@ exports.addOrEditAuth = async (req, res, next) => {
             code: 1,
             message: `添加子权限失败，parentId：${parentId}不存在`
           })
-        if (!!r1.systemAuth)
-          return res.json({ code: -1, message: '不能在系统权限下添加子权限' })
       }
 
       await adminDb.query('INSERT INTO auth_list SET ?', {
         parentId,
         name,
         authMarker,
+        menuName,
         menuPath,
         menuIcon,
         redirect,
@@ -151,7 +157,6 @@ exports.addOrEditAuth = async (req, res, next) => {
         authType,
         sortNo,
         remark,
-        systemAuth: 0,
         createTime: d,
         updateTime: d
       })
@@ -203,21 +208,13 @@ async function deleteAllNeedDelIds(initIds) {
 
   if (needDelIds.length < 1) return needDelIds
 
-  // 过滤掉系统权限
-  const r1 = await adminDb.query(
-    'SELECT id FROM auth_list WHERE system_auth!=1 and id in (?)',
-    [needDelIds]
-  )
-  needDelIds = r1.map(item => item.id)
-  if (needDelIds.length < 1) return needDelIds
-
   // 下次循环要查询的ids
   let nextQueryIds = [...initIds]
 
   while (nextQueryIds.length) {
-    // 先查出所有要删除的节点id(过滤掉系统权限)
+    // 先查出所有要删除的节点id
     const r1 = await adminDb.query(
-      'SELECT id FROM auth_list WHERE system_auth!=1 and parent_id in (?)',
+      'SELECT id FROM auth_list WHERE parent_id in (?)',
       [nextQueryIds]
     )
     nextQueryIds = r1.map(item => item.id)

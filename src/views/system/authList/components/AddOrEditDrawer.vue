@@ -1,5 +1,13 @@
 <script lang="ts" setup>
-import { ref, reactive, toRefs, defineEmits, defineExpose, watch } from 'vue'
+import {
+  ref,
+  reactive,
+  toRefs,
+  defineEmits,
+  defineExpose,
+  watch,
+  computed
+} from 'vue'
 import { ElMessageBox } from 'element-plus'
 import { addOrEditAuth } from '@/api/system/auth'
 import { AUTH_TYPE_EM, AUTH_TYPE_ARR } from '../dataDict'
@@ -12,6 +20,7 @@ interface FormData {
   parentId: number | null
   name: string
   authMarker: string
+  menuName: string
   menuPath: string
   menuIcon: string
   redirect: string
@@ -42,6 +51,8 @@ const getDefaultFormData = (): FormData => ({
   name: '',
   // 权限标识
   authMarker: '',
+  // 菜单name
+  menuName: '',
   // 菜单路径
   menuPath: '',
   // 菜单icon
@@ -85,7 +96,7 @@ const state = reactive<{
 
 const { visible, formData, btnLoading, options } = toRefs(state)
 
-const rules: FormRules = {
+const rules = computed<FormRules>(() => ({
   name: [
     { required: true, message: '请输入名称', trigger: ['blur', 'change'] }
   ],
@@ -99,12 +110,16 @@ const rules: FormRules = {
     { required: true, message: '请输入菜单路径', trigger: ['blur', 'change'] }
   ],
   cpnPath: [
-    { required: true, message: '请输入组件路径', trigger: ['blur', 'change'] }
+    {
+      required: !!state.formData.parentId,
+      message: '请输入组件路径',
+      trigger: ['blur', 'change']
+    }
   ],
   sortNo: [
     { required: true, message: '请输入排序值', trigger: ['blur', 'change'] }
   ]
-}
+}))
 
 const setOptions = (options: Partial<Options>) => {
   Object.keys(options).forEach(key => {
@@ -196,7 +211,7 @@ defineExpose({ show })
         <el-form-item label="权限标识" prop="authMarker">
           <el-input
             v-model="formData.authMarker"
-            maxlength="10"
+            maxlength="30"
             show-word-limit
             placeholder="请输入权限标识"
             clearable
@@ -214,10 +229,19 @@ defineExpose({ show })
           </el-radio-group>
         </el-form-item>
         <template v-if="formData.authType === AUTH_TYPE_EM.MENU.value">
+          <el-form-item label="菜单name">
+            <el-input
+              v-model="formData.menuName"
+              maxlength="50"
+              show-word-limit
+              placeholder="请输入菜单name"
+              clearable
+            />
+          </el-form-item>
           <el-form-item label="菜单路径" prop="menuPath">
             <el-input
               v-model="formData.menuPath"
-              maxlength="20"
+              maxlength="50"
               show-word-limit
               placeholder="请输入菜单路径"
               clearable
@@ -235,7 +259,7 @@ defineExpose({ show })
           <el-form-item label="重定向" prop="redirect">
             <el-input
               v-model="formData.redirect"
-              maxlength="20"
+              maxlength="50"
               show-word-limit
               placeholder="请输入重定向路径"
               clearable
@@ -244,7 +268,7 @@ defineExpose({ show })
           <el-form-item label="组件路径" prop="cpnPath">
             <el-input
               v-model="formData.cpnPath"
-              maxlength="20"
+              maxlength="50"
               show-word-limit
               placeholder="请输入组件路径"
               clearable
