@@ -51,5 +51,6 @@ export type responseType<T> = {
 // 请求状态码
 export enum requestCode {
   SUCCESS = 0,
-  FAIL = -1
+  FAIL = -1,
+  TOKEN_EXPIRES = 401 // token无效或已过期
 }

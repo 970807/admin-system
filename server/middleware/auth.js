@@ -15,7 +15,11 @@ module.exports = async (req, res, next) => {
     const r = await verify(token, jwtSecret)
     userId = r.userId
   } catch (err) {
-    return res.json({ code: 401, message: 'token已过期' })
+    if (err.name === 'TokenExpiredError')
+      return res.json({ code: 401, message: '登录状态已过期，请重新登录！' })
+    else if (err.name === 'JsonWebTokenError')
+      return res.json({ code: 401, message: 'token解析失败，请重新登录！' })
+    else return res.json({ code: 401, message: '未知错误' })
   }
   try {
     const r = await adminDb.query(

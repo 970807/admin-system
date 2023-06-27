@@ -3,6 +3,7 @@ import Axios, {
   AxiosRequestConfig,
   CustomParamsSerializer
 } from 'axios'
+import { ElMessageBox } from 'element-plus'
 import { message } from '@/utils/message'
 import {
   PureHttpError,
@@ -135,9 +136,17 @@ class PureHttp {
           PureHttp.initConfig.beforeResponseCallback(response)
           return response.data
         }
-        if (response.data.code !== requestCode.SUCCESS) {
+        const code = response.data.code
+        if (code !== requestCode.SUCCESS) {
           // 请求返回了错误
-          message(response.data?.message || '未知错误！', { type: 'error' })
+          if (code === requestCode.TOKEN_EXPIRES) {
+            ElMessageBox.alert(response.data.message, '提示', {
+              type: 'error',
+              callback: useUserStoreHook().logOut
+            })
+          } else {
+            message(response.data?.message || '未知错误！', { type: 'error' })
+          }
           return Promise.reject(response.data)
         }
         return response.data
