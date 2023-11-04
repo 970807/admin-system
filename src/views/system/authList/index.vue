@@ -6,7 +6,13 @@ export default defineComponent({ name: 'system_authList' })
 <script lang="ts" setup>
 import { reactive, toRefs, ref, onMounted } from 'vue'
 import { ElMessageBox, ElMessage, ElTable } from 'element-plus'
-import { getList, delAuth, batchDelAuth, updateSortNo } from '@/api/system/auth'
+import {
+  getList,
+  delAuth,
+  batchDelAuth,
+  updateSortNo,
+  changeStatus
+} from '@/api/system/auth'
 import PageContainer from '@/components/PageContainer/index.vue'
 import { Searchs } from '@/components/Searchs/index'
 import { Plus, Download, Upload, Delete } from '@element-plus/icons-vue'
@@ -148,6 +154,14 @@ const onSelectionChange = (val: Row[]) => {
   }
 }
 
+// 启用/禁用
+const onEnableChange = (id: Row['id'], enable: any) => {
+  changeStatus(id, enable as 0 | 1).then(res => {
+    ElMessage.success(res.message)
+    fetchData()
+  })
+}
+
 // 删除
 const handleDel = (id: Row['id']) => {
   ElMessageBox.confirm('删除后将无法恢复，是否继续？', '提示', {
@@ -227,6 +241,17 @@ onMounted(() => {
             show-overflow-tooltip
             fixed="left"
           />
+          <el-table-column align="center" min-width="170" label="是否启用">
+            <template #default="{ row }">
+              <el-switch
+                :model-value="row.enable"
+                :disabled="row.systemAuth"
+                :active-value="1"
+                :inactive-value="0"
+                @change="onEnableChange(row.id, $event)"
+              />
+            </template>
+          </el-table-column>
           <el-table-column
             align="center"
             min-width="170"

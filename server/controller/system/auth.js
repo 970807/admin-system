@@ -19,7 +19,7 @@ exports.getList = async (req, res, next) => {
     // 查询非系统权限
     const resList = await adminDb.query(
       `SELECT
-        id,parent_id,name,auth_marker,menu_name,menu_path,menu_icon,redirect,cpn_path,auth_type,sort_no,remark,create_time,update_time
+        id,parent_id,name,auth_marker,menu_name,menu_path,menu_icon,redirect,cpn_path,auth_type,sort_no,remark,enable,create_time,update_time
       FROM
         auth_list
       ORDER BY sort_no`
@@ -67,7 +67,8 @@ exports.addOrEditAuth = async (req, res, next) => {
       cpnPath,
       authType,
       sortNo,
-      remark
+      remark,
+      enable
     } = req.body
     // 必填项校验
     if (!name) return res.json({ code: -1, message: '名称不能为空' })
@@ -78,8 +79,10 @@ exports.addOrEditAuth = async (req, res, next) => {
       return res.json({ code: -1, message: '排序值不能为空' })
     if (authType === 0 && !menuPath)
       return res.json({ code: -1, message: '菜单路径不能为空' })
-    if (typeof parentId === 'number' && !cpnPath)
+    if (typeof parentId === 'number' && authType === 0 && !cpnPath)
       return res.json({ code: -1, message: '组件路径不能为空' })
+    if (enable !== 0 && enable !== 1)
+      return res.json({ code: -1, message: '是否启用仅能为0或1' })
 
     const d = new Date()
     if (typeof id === 'number') {
@@ -99,7 +102,7 @@ exports.addOrEditAuth = async (req, res, next) => {
       await adminDb.query(
         `UPDATE auth_list SET 
         parent_id=?,name=?,auth_marker=?,menu_name=?,menu_path=?,menu_icon=?,
-        redirect=?,cpn_path=?,auth_type=?,sort_no=?,remark=?,update_time=?
+        redirect=?,cpn_path=?,auth_type=?,sort_no=?,remark=?,enable=?,update_time=?
           WHERE id=?
         `,
         [
@@ -114,6 +117,7 @@ exports.addOrEditAuth = async (req, res, next) => {
           authType,
           sortNo,
           remark,
+          enable,
           new Date(),
           id
         ]
@@ -157,6 +161,7 @@ exports.addOrEditAuth = async (req, res, next) => {
         authType,
         sortNo,
         remark,
+        enable,
         createTime: d,
         updateTime: d
       })
@@ -236,8 +241,8 @@ exports.updateSortNo = async (req, res, next) => {
     if (isNaN(sortNo))
       return res.json({ code: -1, message: '请输入正确的排序值' })
 
-    // 查询是否是系统权限
     try {
+      // 查询是否是系统权限
       const systemAuthList = JSON.parse(
         fs.readFileSync(SYSTEM_AUTH_FILE_PATH, 'utf8')
       )
@@ -265,6 +270,7 @@ exports.updateSortNo = async (req, res, next) => {
       }
     }
 
+    // 非系统权限
     if (numberable(id)) {
       await adminDb.query('UPDATE auth_list SET sort_no=? WHERE id=?', [
         sortNo,
@@ -277,6 +283,35 @@ exports.updateSortNo = async (req, res, next) => {
         message: '更新权限的排序值失败，错误的系统权限id'
       })
     }
+  } catch (err) {
+    next(err)
+  }
+}
+
+// 启用&禁用
+exports.changeStatus = async (req, res, next) => {
+  try {
+    const id = req.params.id
+    const enable = Number(req.params.isEnable)
+    if (!id) return res.json({ code: -1, message: 'id不能为空' })
+
+    // 查询是否是系统权限
+    const systemAuthList = JSON.parse(
+      fs.readFileSync(SYSTEM_AUTH_FILE_PATH, 'utf8')
+    )
+    const findRes = systemAuthList.find(item => item.id === id)
+    if (findRes) {
+      // 查到了对应的系统权限
+      res.json({ code: -1, message: '系统权限禁止修改' })
+      return
+    }
+
+    // 非系统权限
+    await adminDb.query('UPDATE auth_list SET enable=? WHERE id=?', [
+      enable,
+      id
+    ])
+    res.json({ code: 0, data: { id, enable }, message: '操作成功' })
   } catch (err) {
     next(err)
   }

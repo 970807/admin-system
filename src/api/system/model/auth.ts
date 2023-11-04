@@ -12,6 +12,7 @@ export interface IAuthListItem {
   systemAuth: 0 | 1
   sortNo: number
   remark: string | null
+  enable: 0 | 1
 }
 
 export interface IAddOrEditAuthData {
@@ -27,6 +28,7 @@ export interface IAddOrEditAuthData {
   authType: 0 | 1
   sortNo: number
   remark?: string
+  enable: 0 | 1
 }
 
 export interface IBatchDelAuthData {

@@ -11,7 +11,8 @@
     "authType": 0,
     "systemAuth": 1,
     "sortNo": 999,
-    "remark": ""
+    "remark": "",
+    "enable": 1
   },
   {
     "id": "system_accountlist",
@@ -26,7 +27,8 @@
     "authType": 0,
     "systemAuth": 1,
     "sortNo": 0,
-    "remark": ""
+    "remark": "",
+    "enable": 1
   },
   {
     "id": "system_rolelist",
@@ -41,7 +43,8 @@
     "authType": 0,
     "systemAuth": 1,
     "sortNo": 0,
-    "remark": ""
+    "remark": "",
+    "enable": 1
   },
   {
     "id": "system_authlist",
@@ -56,6 +59,7 @@
     "authType": 0,
     "systemAuth": 1,
     "sortNo": 0,
-    "remark": ""
+    "remark": "",
+    "enable": 1
   }
 ]

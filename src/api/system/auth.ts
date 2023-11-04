@@ -45,3 +45,16 @@ export const updateSortNo = (
     `/api/system/auth/updateSortNo/${id}/${sortNo}`
   )
 }
+
+/**
+ * @description 启用&禁用
+ */
+export const changeStatus = (
+  id: IAuthListItem['id'],
+  enable: IAuthListItem['enable']
+) => {
+  return http.request<null>(
+    'post',
+    `/api/system/auth/changeStatus/${id}/${enable}`
+  )
+}

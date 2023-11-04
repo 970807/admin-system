@@ -108,9 +108,10 @@ exports.getAsyncRoutes = async (req, res, next) => {
     // 查询非系统权限
     const resList = await adminDb.query(
       `SELECT
-        id,parent_id,name,auth_marker,menu_name,menu_path,menu_icon,redirect,cpn_path,auth_type,sort_no,remark,create_time,update_time
+        id,parent_id,name,auth_marker,menu_name,menu_path,menu_icon,redirect,cpn_path,auth_type,sort_no,remark,enable,create_time,update_time
       FROM
         auth_list
+      WHERE enable = 1
       ORDER BY sort_no`
     )
 
@@ -125,7 +126,7 @@ exports.getAsyncRoutes = async (req, res, next) => {
         return
       }
       // 系统权限
-      const systemAuthList = JSON.parse(data)
+      const systemAuthList = JSON.parse(data).filter(item => item.enable === 1)
 
       // 返回系统权限+非系统权限
       res.json({

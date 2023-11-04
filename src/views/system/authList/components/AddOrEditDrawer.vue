@@ -28,6 +28,7 @@ interface FormData {
   authType: 0 | 1
   sortNo: number
   remark: string
+  enable: 0 | 1
 }
 
 interface Options {
@@ -66,7 +67,9 @@ const getDefaultFormData = (): FormData => ({
   // 排序值
   sortNo: 0,
   // 备注
-  remark: ''
+  remark: '',
+  // 是否启用
+  enable: 1
 })
 
 const getDefaultOptions = (): Options => ({
@@ -285,6 +288,13 @@ defineExpose({ show })
             maxlength="50"
             show-word-limit
             placeholder="请输入备注"
+          />
+        </el-form-item>
+        <el-form-item label="是否启用" prop="enable">
+          <el-switch
+            v-model="formData.enable"
+            :active-value="1"
+            :inactive-value="0"
           />
         </el-form-item>
       </el-form>

@@ -19,4 +19,7 @@ router.delete('/batchDel', auth, systemCtrl.auth.batchDel)
 // 更新排序值
 router.post('/updateSortNo/:id/:sortNo', auth, systemCtrl.auth.updateSortNo)
 
+// 启用/禁用
+router.post('/changeStatus/:id/:isEnable', auth, systemCtrl.auth.changeStatus)
+
 module.exports = router
