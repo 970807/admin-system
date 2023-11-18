@@ -1,3 +1,5 @@
+import type { IAuthListItem } from './auth'
+
 export type listItemType = {
   id: number
   roleName: string
@@ -22,4 +24,8 @@ export interface IAddOrEditRoleData {
 
 export interface IBatchDelData {
   idList: Array<listItemType['id']>
+}
+
+export interface IRoleAuthData {
+  authIds: Array<IAuthListItem['id']>
 }

@@ -111,7 +111,7 @@ exports.getAsyncRoutes = async (req, res, next) => {
         id,parent_id,name,auth_marker,menu_name,menu_path,menu_icon,redirect,cpn_path,auth_type,sort_no,remark,enable,create_time,update_time
       FROM
         auth_list
-      WHERE enable = 1
+      WHERE enable = 1 AND auth_type = 0
       ORDER BY sort_no`
     )
 

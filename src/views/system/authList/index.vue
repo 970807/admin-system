@@ -6,6 +6,7 @@ export default defineComponent({ name: 'system_authList' })
 <script lang="ts" setup>
 import { reactive, toRefs, ref, onMounted } from 'vue'
 import { ElMessageBox, ElMessage, ElTable } from 'element-plus'
+import { transformAuthListToTree } from '@/utils/auth'
 import {
   getList,
   delAuth,
@@ -15,16 +16,18 @@ import {
 } from '@/api/system/auth'
 import PageContainer from '@/components/PageContainer/index.vue'
 import { Searchs } from '@/components/Searchs/index'
-import { Plus, Download, Upload, Delete } from '@element-plus/icons-vue'
+import {
+  Refresh,
+  Plus,
+  Download,
+  Upload,
+  Delete
+} from '@element-plus/icons-vue'
 import AddOrEditDrawer from './components/AddOrEditDrawer.vue'
 import { AUTH_TYPE_EM, AUTH_TYPE_ARR } from './dataDict'
-import type { IAuthListItem } from '@/api/system/model/auth'
+import type { IAuthTreeItem } from '@/utils/auth'
 
-type Row = {
-  id: IAuthListItem['id']
-  [key: string]: any
-}
-
+type Row = IAuthTreeItem
 const tableRef = ref<InstanceType<typeof ElTable>>()
 const addOrEditDrawerRef = ref<InstanceType<typeof AddOrEditDrawer>>()
 
@@ -78,66 +81,12 @@ const handleAddSubauth = (row?: Row) => {
 }
 
 const fetchData = () => {
-  const findParent = (row: any, list: any[]) => {
-    for (let i = 0; i < list.length; i++) {
-      if (list[i].id === row.parentId) {
-        return list[i]
-      }
-      if (list[i].children?.length) {
-        const r = findParent(row, list[i].children)
-        if (r) return r
-      }
-    }
-    return null
-  }
-
-  getList().then(res => {
-    const list = []
-    while (res?.data?.length) {
-      // 有parentId但是还没插入到children的节点
-      const noInsertToParentList = []
-      for (let i = 0; i < res.data.length; i++) {
-        const cur = res.data[i]
-        if (
-          typeof cur.parentId !== 'number' &&
-          typeof cur.parentId !== 'string'
-        ) {
-          list.push(cur)
-          res.data.splice(i, 1)
-          i--
-          continue
-        }
-        if (cur.id === cur.parentId) {
-          res.data.splice(i, 1)
-          i--
-          continue
-        }
-        if (
-          noInsertToParentList.map(item => item.parentId).includes(cur.parentId)
-        ) {
-          // 为了保证顺序，下一轮再添加到children中
-          noInsertToParentList.push(cur)
-          continue
-        }
-        const parent = findParent(cur, list)
-        if (parent) {
-          parent.children
-            ? parent.children.push(cur)
-            : (parent.children = [cur])
-          res.data.splice(i, 1)
-          i--
-          continue
-        }
-        if (res.data.findIndex(item => item.id === cur.parentId) === -1) {
-          res.data.splice(i, 1)
-          i--
-          continue
-        }
-        noInsertToParentList.push(cur)
-      }
-    }
-    state.tableData = list
-  })
+  state.listLoading = true
+  getList()
+    .then(res => {
+      state.tableData = transformAuthListToTree(res?.data)
+    })
+    .finally(() => (state.listLoading = false))
 }
 
 const onSelectionChange = (val: Row[]) => {
@@ -211,6 +160,9 @@ onMounted(() => {
       <template #header>
         <Searchs :showSearchBtn="false">
           <template #btns>
+            <el-button type="primary" :icon="Refresh" @click="fetchData"
+              >刷新列表</el-button
+            >
             <el-button type="primary" :icon="Plus" @click="handleAddFirstLevel"
               >添加一级菜单</el-button
             >
@@ -245,7 +197,7 @@ onMounted(() => {
             <template #default="{ row }">
               <el-switch
                 :model-value="row.enable"
-                :disabled="row.systemAuth"
+                :disabled="!!row.systemAuth"
                 :active-value="1"
                 :inactive-value="0"
                 @change="onEnableChange(row.id, $event)"

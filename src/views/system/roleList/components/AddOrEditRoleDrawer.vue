@@ -146,6 +146,7 @@ export default defineComponent({
     v-model="visible"
     destroy-on-close
     :title="`${isEdit ? '编辑角色' : '添加角色'}`"
+    @closed="onClose"
   >
     <el-form
       :model="formData"

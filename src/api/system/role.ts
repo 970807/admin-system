@@ -5,8 +5,10 @@ import {
   IExistRoleNameParams,
   IExistRoleNameResult,
   IAddOrEditRoleData,
-  IBatchDelData
+  IBatchDelData,
+  IRoleAuthData
 } from './model/role'
+import { IAuthListItem } from './model/auth'
 
 /**
  * @description 获取角色列表
@@ -64,4 +66,23 @@ export const batchDel = (data: IBatchDelData) => {
  */
 export const delRole = (id: listItemType['id']) => {
   return http.request<null>('delete', `/api/system/role/del/${id}`)
+}
+
+/**
+ * @description 角色授权
+ */
+export const roleAuth = (roleId: listItemType['id'], data: IRoleAuthData) => {
+  return http.request<null>('post', `/api/system/role/roleAuth/${roleId}`, {
+    data
+  })
+}
+
+/**
+ * @description 获取角色拥有的权限id列表
+ */
+export const getAuthIdsByRoleId = (roleId: listItemType['id']) => {
+  return http.request<Array<IAuthListItem['id']>>(
+    'get',
+    `/api/system/role/getAuthIdsByRoleId/${roleId}`
+  )
 }

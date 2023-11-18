@@ -173,6 +173,7 @@ export default defineComponent({
     v-model="visible"
     destroy-on-close
     :title="`${isEdit ? '编辑账号' : '添加账号'}`"
+    @closed="onClose"
   >
     <el-form :model="formData" :rules="rules" ref="formRef" label-width="auto">
       <el-form-item label="账号" prop="username">

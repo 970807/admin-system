@@ -11,7 +11,7 @@
  Target Server Version : 80032
  File Encoding         : 65001
 
- Date: 23/06/2023 16:49:43
+ Date: 18/11/2023 18:42:53
 */
 
 SET NAMES utf8mb4;
@@ -22,8 +22,8 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `auth_list`;
 CREATE TABLE `auth_list`  (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `parent_id` int NULL DEFAULT NULL,
+  `id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `parent_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
   `name` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '权限名称',
   `auth_marker` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '权限标识',
   `menu_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '菜单name',
@@ -34,17 +34,40 @@ CREATE TABLE `auth_list`  (
   `auth_type` tinyint(1) NOT NULL COMMENT '权限类型 0菜单 1按钮',
   `sort_no` int NOT NULL COMMENT '排序值',
   `remark` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '备注',
+  `enable` tinyint(1) NOT NULL COMMENT '是否启用 0：否 1：是',
   `create_time` datetime NOT NULL,
   `update_time` datetime NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 24 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of auth_list
 -- ----------------------------
-INSERT INTO `auth_list` VALUES (18, NULL, '美食杰', 'meishijie', 'meishijie', '/meishijie', 'mdi:food', '/meishijie/account-list', '', 0, 10, '', '2023-06-23 16:33:27', '2023-06-23 16:33:27');
-INSERT INTO `auth_list` VALUES (19, 18, '账号列表', 'meishijie:accountlist', 'MeishijieAccountList', '/meishijie/account-list', '', '', '/src/views/meishijie/accountList', 0, 0, '', '2023-06-23 16:41:20', '2023-06-23 16:41:20');
-INSERT INTO `auth_list` VALUES (20, 18, '食材管理', 'meishijie:ingredientmanagement', 'MeishijieIngredientManagement', '/meishijie/ingredient-management', '', '', '/src/views/meishijie/ingredientManagement', 0, 0, '', '2023-06-23 16:42:09', '2023-06-23 16:42:09');
+INSERT INTO `auth_list` VALUES ('9fdac25d-63b5-5540-33ce-9d44aad86e9f', 'a9fed9a5-bacd-4325-a765-278039dc0431', '账号列表', 'meishijie:accountlist', 'meishijie_account_list', '/meishijie/account-list', '', '', '/src/views/meishijie/account_list', 0, 0, '', 1, '2023-06-23 16:41:20', '2023-11-18 15:41:15');
+INSERT INTO `auth_list` VALUES ('a9fed9a5-bacd-4325-a765-278039dc0431', NULL, '美食杰', 'meishijie', 'meishijie', '/meishijie', 'mdi:food', '/meishijie/account-list', '', 0, 10, '', 1, '2023-06-23 16:33:27', '2023-11-18 15:32:00');
+INSERT INTO `auth_list` VALUES ('bcb9d763-b870-8d01-3987-1ea121f65859', '9fdac25d-63b5-5540-33ce-9d44aad86e9f', '添加账号', 'meishijie:accountlist:add', '', '', '', '', '', 1, 0, '', 1, '2023-11-18 06:47:17', '2023-11-18 15:25:08');
+INSERT INTO `auth_list` VALUES ('cf1778b2-e10c-0e1a-5651-41715f861913', 'a9fed9a5-bacd-4325-a765-278039dc0431', '食材管理', 'meishijie:ingredientmanagement', 'MeishijieIngredientManagement', '/meishijie/ingredient-management', '', '', '/src/views/meishijie/ingredientManagement', 0, 1, '', 1, '2023-06-23 16:42:09', '2023-06-23 16:42:09');
+
+-- ----------------------------
+-- Table structure for role_auth_list
+-- ----------------------------
+DROP TABLE IF EXISTS `role_auth_list`;
+CREATE TABLE `role_auth_list`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `role_id` int NOT NULL COMMENT '角色id',
+  `auth_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '权限id',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of role_auth_list
+-- ----------------------------
+INSERT INTO `role_auth_list` VALUES (4, 7, 'a9fed9a5-bacd-4325-a765-278039dc0431', '2023-11-18 18:39:26', '2023-11-18 18:39:26');
+INSERT INTO `role_auth_list` VALUES (5, 7, '9fdac25d-63b5-5540-33ce-9d44aad86e9f', '2023-11-18 18:39:26', '2023-11-18 18:39:26');
+INSERT INTO `role_auth_list` VALUES (6, 7, 'bcb9d763-b870-8d01-3987-1ea121f65859', '2023-11-18 18:39:26', '2023-11-18 18:39:26');
+INSERT INTO `role_auth_list` VALUES (7, 7, 'cf1778b2-e10c-0e1a-5651-41715f861913', '2023-11-18 18:39:26', '2023-11-18 18:39:26');
 
 -- ----------------------------
 -- Table structure for role_list

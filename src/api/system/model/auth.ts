@@ -1,5 +1,5 @@
 export interface IAuthListItem {
-  id: number
+  id: string
   parentId: number | null
   name: string
   authMarker: string
@@ -16,7 +16,7 @@ export interface IAuthListItem {
 }
 
 export interface IAddOrEditAuthData {
-  id?: number
+  id?: string
   parentId: number | null
   name: string
   authMarker: string

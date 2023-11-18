@@ -29,4 +29,14 @@ router.delete('/batchDel', auth, systemCtrl.role.batchDel)
 // 删除角色
 router.delete('/del/:id', auth, systemCtrl.role.del)
 
+// 角色授权
+router.post('/roleAuth/:roleId', auth, systemCtrl.role.roleAuth)
+
+// 获取角色拥有的权限id列表
+router.get(
+  '/getAuthIdsByRoleId/:roleId',
+  auth,
+  systemCtrl.role.getAuthIdsByRoleId
+)
+
 module.exports = router

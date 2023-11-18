@@ -1,6 +1,7 @@
 import Cookies from 'js-cookie'
 import { storageSession } from '@pureadmin/utils'
 import { useUserStoreHook } from '@/store/modules/user'
+import type { IAuthListItem } from '@/api/system/model/auth'
 
 export interface DataInfo<T> {
   /** token */
@@ -76,4 +77,69 @@ export function removeToken() {
 /** 格式化token（jwt格式） */
 export const formatToken = (token: string): string => {
   return 'Bearer ' + token
+}
+
+// 权限树结构
+export interface IAuthTreeItem extends IAuthListItem {
+  children: IAuthTreeItem[]
+}
+// 把接口返回的权限列表转成树结构
+export const transformAuthListToTree = (list: any[] = []): IAuthTreeItem[] => {
+  const findParent = (row: any, list: any[]) => {
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].id === row.parentId) {
+        return list[i]
+      }
+      if (list[i].children?.length) {
+        const r = findParent(row, list[i].children)
+        if (r) return r
+      }
+    }
+    return null
+  }
+
+  const copyList = JSON.parse(JSON.stringify(list))
+  const resList = []
+  while (copyList.length) {
+    // 有parentId但是还没插入到children的节点
+    const noInsertToParentList = []
+    for (let i = 0; i < copyList.length; i++) {
+      const cur = copyList[i]
+      if (
+        typeof cur.parentId !== 'number' &&
+        typeof cur.parentId !== 'string'
+      ) {
+        resList.push(cur)
+        copyList.splice(i, 1)
+        i--
+        continue
+      }
+      if (cur.id === cur.parentId) {
+        copyList.splice(i, 1)
+        i--
+        continue
+      }
+      if (
+        noInsertToParentList.map(item => item.parentId).includes(cur.parentId)
+      ) {
+        // 为了保证顺序，下一轮再添加到children中
+        noInsertToParentList.push(cur)
+        continue
+      }
+      const parent = findParent(cur, resList)
+      if (parent) {
+        parent.children ? parent.children.push(cur) : (parent.children = [cur])
+        copyList.splice(i, 1)
+        i--
+        continue
+      }
+      if (copyList.findIndex(item => item.id === cur.parentId) === -1) {
+        copyList.splice(i, 1)
+        i--
+        continue
+      }
+      noInsertToParentList.push(cur)
+    }
+  }
+  return resList
 }

@@ -15,18 +15,20 @@ import PageContainer from '@/components/PageContainer/index.vue'
 import { getList, changeRoleStatus, batchDel, delRole } from '@/api/system/role'
 import { formatTime } from '@/utils/time'
 import AddOrEditRoleDrawer from './components/AddOrEditRoleDrawer.vue'
+import AuthDialog from './components/AuthDialog.vue'
 import type { TableInstance } from 'element-plus'
 import type { listItemType } from '@/api/system/model/role'
 
 export default defineComponent({
   name: 'system_roleList',
-  components: { PageContainer, Searchs, AddOrEditRoleDrawer },
+  components: { PageContainer, Searchs, AddOrEditRoleDrawer, AuthDialog },
   setup() {
     const route = useRoute()
 
     const tableRef = ref<TableInstance>()
     const addOrEditRoleDrawerRef =
       ref<InstanceType<typeof AddOrEditRoleDrawer>>()
+    const authDialogRef = ref<InstanceType<typeof AuthDialog>>()
 
     const state = reactive<{
       listLoading: boolean
@@ -50,6 +52,11 @@ export default defineComponent({
     // 添加/编辑角色
     const onAddOrEdit = (data?: listItemType) => {
       addOrEditRoleDrawerRef.value.show(data)
+    }
+
+    // 授权
+    const onAuth = (data: listItemType) => {
+      authDialogRef.value.show(data.id)
     }
 
     // 启用/禁用角色
@@ -121,7 +128,9 @@ export default defineComponent({
       tableRef,
       fetchData,
       addOrEditRoleDrawerRef,
+      authDialogRef,
       onAddOrEdit,
+      onAuth,
       onEnableChange,
       formatTime,
       tableRowClassName,
@@ -137,6 +146,7 @@ export default defineComponent({
 <template>
   <div class="role-list">
     <AddOrEditRoleDrawer ref="addOrEditRoleDrawerRef" @refresh="fetchData" />
+    <AuthDialog ref="authDialogRef" />
     <PageContainer>
       <template #header>
         <Searchs :showSearchBtn="false">
@@ -199,6 +209,9 @@ export default defineComponent({
             <template #default="{ row }">
               <el-button type="primary" link @click="onAddOrEdit(row)"
                 >编辑</el-button
+              >
+              <el-button type="primary" link @click="onAuth(row)"
+                >授权</el-button
               >
               <el-button type="danger" link @click="onDel(row.id)"
                 >删除</el-button

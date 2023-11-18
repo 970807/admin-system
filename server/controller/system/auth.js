@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const { v4: uuidv4 } = require('uuid')
 const adminDb = require('../../db/admin')
 
 // 系统权限文件路径
@@ -79,13 +80,13 @@ exports.addOrEditAuth = async (req, res, next) => {
       return res.json({ code: -1, message: '排序值不能为空' })
     if (authType === 0 && !menuPath)
       return res.json({ code: -1, message: '菜单路径不能为空' })
-    if (typeof parentId === 'number' && authType === 0 && !cpnPath)
+    if (parentId && authType === 0 && !cpnPath)
       return res.json({ code: -1, message: '组件路径不能为空' })
     if (enable !== 0 && enable !== 1)
       return res.json({ code: -1, message: '是否启用仅能为0或1' })
 
     const d = new Date()
-    if (typeof id === 'number') {
+    if (id) {
       // 编辑权限
 
       // 查询旧的数据
@@ -135,7 +136,7 @@ exports.addOrEditAuth = async (req, res, next) => {
     } else {
       // 新增权限
 
-      if (typeof parentId === 'number') {
+      if (parentId) {
         // 添加子权限
         // 查询旧的数据
         const r1 = (
@@ -150,6 +151,7 @@ exports.addOrEditAuth = async (req, res, next) => {
       }
 
       await adminDb.query('INSERT INTO auth_list SET ?', {
+        id: uuidv4(),
         parentId,
         name,
         authMarker,
@@ -174,7 +176,7 @@ exports.addOrEditAuth = async (req, res, next) => {
 
 exports.del = async (req, res, next) => {
   try {
-    const id = Number(req.params.id)
+    const id = req.params.id
 
     // 要删除的节点和其后代节点
     const needDelIds = await deleteAllNeedDelIds([id])
@@ -233,56 +235,38 @@ async function deleteAllNeedDelIds(initIds) {
 }
 
 exports.updateSortNo = async (req, res, next) => {
-  const numberable = val => !isNaN(Number(val))
-
   try {
     const id = req.params.id
     const sortNo = Number(req.params.sortNo)
     if (isNaN(sortNo))
       return res.json({ code: -1, message: '请输入正确的排序值' })
 
-    try {
-      // 查询是否是系统权限
-      const systemAuthList = JSON.parse(
-        fs.readFileSync(SYSTEM_AUTH_FILE_PATH, 'utf8')
+    // 查询是否是系统权限
+    const systemAuthList = JSON.parse(
+      fs.readFileSync(SYSTEM_AUTH_FILE_PATH, 'utf8')
+    )
+    const findRes = systemAuthList.find(item => item.id === id)
+    if (findRes) {
+      // 查到了对应的系统权限
+      findRes.sortNo = sortNo
+      // 保存回去
+      fs.writeFileSync(
+        SYSTEM_AUTH_FILE_PATH,
+        JSON.stringify(systemAuthList, null, 2),
+        'utf8'
       )
-      const findRes = systemAuthList.find(item => item.id === id)
-      if (findRes) {
-        // 查到了对应的系统权限
-        findRes.sortNo = sortNo
-        // 保存回去
-        fs.writeFileSync(
-          SYSTEM_AUTH_FILE_PATH,
-          JSON.stringify(systemAuthList, null, 2),
-          'utf8'
-        )
-        res.json({ code: 0, data: { id, sortNo }, message: '操作成功' })
-        return
-      }
-    } catch {
-      // 文件读取出错
-      if (!numberable(id)) {
-        // id不是数值类型只能是系统权限
-        return res.json({
-          code: -1,
-          message: '更新系统权限的排序值失败，读取或写入系统权限文件出错'
-        })
-      }
+      res.json({ code: 0, data: { id, sortNo }, message: '操作成功' })
+      return
     }
 
+    // 找不到系统权限，继续寻找是否是非系统权限
+
     // 非系统权限
-    if (numberable(id)) {
-      await adminDb.query('UPDATE auth_list SET sort_no=? WHERE id=?', [
-        sortNo,
-        id
-      ])
-      res.json({ code: 0, data: { id, sortNo }, message: '操作成功' })
-    } else {
-      res.json({
-        code: -1,
-        message: '更新权限的排序值失败，错误的系统权限id'
-      })
-    }
+    await adminDb.query('UPDATE auth_list SET sort_no=? WHERE id=?', [
+      sortNo,
+      id
+    ])
+    res.json({ code: 0, data: { id, sortNo }, message: '操作成功' })
   } catch (err) {
     next(err)
   }

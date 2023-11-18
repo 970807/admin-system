@@ -31,6 +31,14 @@ pnpm serve
 pnpm build
 ```
 
+## todolist
+
+- 滚动条样式美化
+- 多语言国际化
+- 自定义主题色
+- 操作日志
+- websocket 实时通信
+
 ## Git 贡献提交规范
 
 - 参考 [vue](https://github.com/vuejs/vue/blob/dev/.github/COMMIT_CONVENTION.md) 规范 ([Angular](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular))

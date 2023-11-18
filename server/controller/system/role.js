@@ -149,3 +149,86 @@ exports.del = async (req, res, next) => {
     next(err)
   }
 }
+
+exports.roleAuth = async (req, res, next) => {
+  try {
+    const roleId = req.params.roleId
+    let authIds = req.body.authIds
+    if (!roleId) return res.json({ code: -1, message: '未知的角色id' })
+    if (!Array.isArray(authIds)) {
+      res.json({ code: -1, message: 'authIds不能为空' })
+      return
+    }
+
+    // 先查询数据库里该角色拥有的权限
+    let dbAuthList = await adminDb.query(
+      'SELECT id,role_id,auth_id FROM role_auth_list WHERE role_id=?',
+      [roleId]
+    )
+
+    // 去掉相同的权限
+    const newAuthIds = authIds.filter(
+      authId => !dbAuthList.find(dbAuth => dbAuth.authId === authId)
+    ) // 过滤后的都是需要添加进数据库的权限
+    const newDbAuthList = dbAuthList.filter(
+      dbAuth => !authIds.includes(dbAuth.authId)
+    ) // 过滤后的都是需要从数据库删除的权限
+    authIds = newAuthIds
+    dbAuthList = newDbAuthList
+
+    const promiseList = []
+    // 循环接口传过来的权限，对比进行修改(增/删)
+    authIds.forEach(authId => {
+      // authId：需要添加进数据库的权限
+      if (dbAuthList.length) {
+        // 如果数据库有需要删除的权限，就直接更新这一条数据就行
+        const oneDbAuth = dbAuthList.shift() // 取一条数据
+        promiseList.push(
+          adminDb.query(
+            'UPDATE role_auth_list SET auth_id=?,update_time=? WHERE id=?',
+            [authId, new Date(), oneDbAuth.id]
+          )
+        )
+      } else {
+        // 如果数据库没有需要删除的权限，就增加一条数据
+        const d = new Date()
+        promiseList.push(
+          adminDb.query('INSERT INTO role_auth_list SET ?', {
+            roleId,
+            authId,
+            createTime: d,
+            updateTime: d
+          })
+        )
+      }
+    })
+
+    if (dbAuthList.length) {
+      // 删除还剩的需要删除数据库的权限
+      promiseList.push(
+        adminDb.query('DELETE FROM role_auth_list WHERE id in (?)', [
+          dbAuthList.map(authItem => authItem.id)
+        ])
+      )
+    }
+
+    await Promise.all(promiseList)
+    res.json({ code: 0, data: null, message: '操作成功' })
+  } catch (err) {
+    next(err)
+  }
+}
+
+exports.getAuthIdsByRoleId = async (req, res, next) => {
+  try {
+    const roleId = req.params.roleId
+    if (!roleId) return res.json({ code: -1, message: '未知的角色id' })
+    const list = await adminDb.query(
+      'SELECT auth_id FROM role_auth_list WHERE role_id=?',
+      [roleId]
+    )
+    res.json({ code: 0, data: list.map(item => item.authId) })
+  } catch (err) {
+    next(err)
+  }
+}

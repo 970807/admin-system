@@ -194,7 +194,12 @@ defineExpose({ show })
 </script>
 
 <template>
-  <el-drawer v-model="visible" destroy-on-close :title="options.drawerTitle">
+  <el-drawer
+    v-model="visible"
+    destroy-on-close
+    :title="options.drawerTitle"
+    @closed="onClose"
+  >
     <template #default>
       <el-form
         :model="formData"
