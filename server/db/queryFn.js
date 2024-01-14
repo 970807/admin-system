@@ -16,7 +16,8 @@ module.exports = pool => {
           )
         }
         // 操作数据库
-        data = camelCasetoUnderline(data) // 驼峰转下划线
+        if (typeof data === 'object' && !Array.isArray(data))
+          data = camelCasetoUnderline(data) // 驼峰转下划线
         connection.query(sql, data, (err, results) => {
           connection.release()
           if (err) {

@@ -11,6 +11,9 @@ import EpArrowDown from '@iconify-icons/ep/arrow-down'
 import ArrowLeft from '@iconify-icons/ep/arrow-left'
 import ArrowRight from '@iconify-icons/ep/arrow-right'
 
+// 仅有一个子菜单时也展示父级
+const SHOW_PARENT_ONLY_HAS_ONE_CHILD = true
+
 const { layout, isCollapse, tooltipEffect } = useNav()
 
 const props = defineProps({
@@ -127,7 +130,7 @@ function hasOneShowingChild(
     return false
   }
 
-  if (showingChildren.length === 1) {
+  if (showingChildren.length === 1 && !SHOW_PARENT_ONLY_HAS_ONE_CHILD) {
     return true
   }
 
