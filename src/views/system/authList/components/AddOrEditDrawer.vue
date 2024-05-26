@@ -16,13 +16,14 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { ValueOf } from 'type-fest'
 
 interface FormData {
-  id?: number
+  id?: string
   parentId: number | null
   name: string
   authMarker: string
   menuName: string
   menuPath: string
   menuIcon: string
+  menuHidden: 0 | 1
   redirect: string
   cpnPath: string
   authType: 0 | 1
@@ -58,6 +59,8 @@ const getDefaultFormData = (): FormData => ({
   menuPath: '',
   // 菜单icon
   menuIcon: '',
+  // 菜单是否隐藏
+  menuHidden: 0,
   // 重定向路径
   redirect: '',
   // 组件路径
@@ -135,6 +138,7 @@ const show = (row?: any, options?: Partial<Options>) => {
     Object.keys(state.formData).forEach(key => {
       if (key in row) state.formData[key] = row[key]
     })
+  console.log('是啥呢', row, state.formData)
   state.visible = true
   if (options) setOptions(options)
 }
@@ -262,6 +266,15 @@ defineExpose({ show })
               show-word-limit
               placeholder="请输入菜单icon"
               clearable
+            />
+          </el-form-item>
+          <el-form-item label="菜单隐藏" prop="menuHidden">
+            <el-switch
+              v-model="formData.menuHidden"
+              :active-value="1"
+              :inactive-value="0"
+              active-text="是"
+              inactive-text="否"
             />
           </el-form-item>
           <el-form-item label="重定向" prop="redirect">

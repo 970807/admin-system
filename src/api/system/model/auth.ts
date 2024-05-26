@@ -6,6 +6,7 @@ export interface IAuthListItem {
   menuName: string | null
   menuPath: string | null
   menuIcon: string | null
+  menuHidden: 0 | 1
   redirect: string | null
   cpnPath: string | null
   authType: 0 | 1
@@ -23,6 +24,7 @@ export interface IAddOrEditAuthData {
   menuName?: string
   menuPath?: string
   menuIcon?: string
+  menuHidden: 0 | 1
   redirect?: string
   cpnPath?: string
   authType: 0 | 1

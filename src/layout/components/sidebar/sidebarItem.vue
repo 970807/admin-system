@@ -274,7 +274,7 @@ function resolvePath(routePath) {
       />
     </template>
     <sidebar-item
-      v-for="child in props.item.children"
+      v-for="child in props.item.children.filter(item => !item.menuHidden)"
       :key="child.path"
       :is-nest="true"
       :item="child"

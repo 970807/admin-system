@@ -60,6 +60,7 @@ export interface setType {
 
 export type childrenType = {
   path?: string
+  menuHidden?: 0 | 1
   noShowingChildren?: boolean
   children?: childrenType[]
   value: unknown

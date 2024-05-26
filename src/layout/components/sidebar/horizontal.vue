@@ -52,7 +52,9 @@ watch(
       @select="indexPath => menuSelect(indexPath, routers)"
     >
       <sidebar-item
-        v-for="route in usePermissionStoreHook().wholeMenus"
+        v-for="route in usePermissionStoreHook().wholeMenus.filter(
+          item => !item.menuHidden
+        )"
         :key="route.path"
         :item="route"
         :base-path="route.path"

@@ -80,7 +80,7 @@ watch(
         @select="indexPath => menuSelect(indexPath, routers)"
       >
         <sidebar-item
-          v-for="routes in menuData"
+          v-for="routes in menuData.filter(item => !item.menuHidden)"
           :key="routes.path"
           :item="routes"
           :base-path="routes.path"

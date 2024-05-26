@@ -65,7 +65,9 @@ watch(
       @select="indexPath => menuSelect(indexPath, routers)"
     >
       <el-menu-item
-        v-for="route in usePermissionStoreHook().wholeMenus"
+        v-for="route in usePermissionStoreHook().wholeMenus.filter(
+          item => !item.menuHidden
+        )"
         :key="route.path"
         :index="resolvePath(route) || route.redirect"
       >

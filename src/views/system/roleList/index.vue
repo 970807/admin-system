@@ -7,7 +7,7 @@ import {
   onMounted,
   nextTick
 } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Searchs } from '@/components/Searchs/index'
 import { Plus, Delete } from '@element-plus/icons-vue'
@@ -15,20 +15,19 @@ import PageContainer from '@/components/PageContainer/index.vue'
 import { getList, changeRoleStatus, batchDel, delRole } from '@/api/system/role'
 import { formatTime } from '@/utils/time'
 import AddOrEditRoleDrawer from './components/AddOrEditRoleDrawer.vue'
-import AuthDialog from './components/AuthDialog.vue'
 import type { TableInstance } from 'element-plus'
 import type { listItemType } from '@/api/system/model/role'
 
 export default defineComponent({
   name: 'system_roleList',
-  components: { PageContainer, Searchs, AddOrEditRoleDrawer, AuthDialog },
+  components: { PageContainer, Searchs, AddOrEditRoleDrawer },
   setup() {
+    const router = useRouter()
     const route = useRoute()
 
     const tableRef = ref<TableInstance>()
     const addOrEditRoleDrawerRef =
       ref<InstanceType<typeof AddOrEditRoleDrawer>>()
-    const authDialogRef = ref<InstanceType<typeof AuthDialog>>()
 
     const state = reactive<{
       listLoading: boolean
@@ -56,7 +55,10 @@ export default defineComponent({
 
     // 授权
     const onAuth = (data: listItemType) => {
-      authDialogRef.value.show(data.id)
+      router.push({
+        name: 'system_roleAuth',
+        query: { roleId: data.id, roleName: data.roleName }
+      })
     }
 
     // 启用/禁用角色
@@ -128,7 +130,6 @@ export default defineComponent({
       tableRef,
       fetchData,
       addOrEditRoleDrawerRef,
-      authDialogRef,
       onAddOrEdit,
       onAuth,
       onEnableChange,
@@ -146,7 +147,6 @@ export default defineComponent({
 <template>
   <div class="role-list">
     <AddOrEditRoleDrawer ref="addOrEditRoleDrawerRef" @refresh="fetchData" />
-    <AuthDialog ref="authDialogRef" />
     <PageContainer>
       <template #header>
         <Searchs :showSearchBtn="false">

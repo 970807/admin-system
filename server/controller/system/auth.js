@@ -20,7 +20,7 @@ exports.getList = async (req, res, next) => {
     // 查询非系统权限
     const resList = await adminDb.query(
       `SELECT
-        id,parent_id,name,auth_marker,menu_name,menu_path,menu_icon,redirect,cpn_path,auth_type,sort_no,remark,enable,create_time,update_time
+        id,parent_id,name,auth_marker,menu_name,menu_path,menu_icon,menu_hidden,redirect,cpn_path,auth_type,sort_no,remark,enable,create_time,update_time
       FROM
         auth_list
       ORDER BY sort_no`
@@ -64,6 +64,7 @@ exports.addOrEditAuth = async (req, res, next) => {
       menuName,
       menuPath,
       menuIcon,
+      menuHidden,
       redirect,
       cpnPath,
       authType,
@@ -103,7 +104,7 @@ exports.addOrEditAuth = async (req, res, next) => {
       await adminDb.query(
         `UPDATE auth_list SET 
         parent_id=?,name=?,auth_marker=?,menu_name=?,menu_path=?,menu_icon=?,
-        redirect=?,cpn_path=?,auth_type=?,sort_no=?,remark=?,enable=?,update_time=?
+        menu_hidden=?,redirect=?,cpn_path=?,auth_type=?,sort_no=?,remark=?,enable=?,update_time=?
           WHERE id=?
         `,
         [
@@ -113,6 +114,7 @@ exports.addOrEditAuth = async (req, res, next) => {
           menuName,
           menuPath,
           menuIcon,
+          menuHidden,
           redirect,
           cpnPath,
           authType,
@@ -158,6 +160,7 @@ exports.addOrEditAuth = async (req, res, next) => {
         menuName,
         menuPath,
         menuIcon,
+        menuHidden,
         redirect,
         cpnPath,
         authType,

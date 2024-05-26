@@ -108,7 +108,7 @@ exports.getAsyncRoutes = async (req, res, next) => {
     // 查询非系统权限
     const resList = await adminDb.query(
       `SELECT
-        id,parent_id,name,auth_marker,menu_name,menu_path,menu_icon,redirect,cpn_path,auth_type,sort_no,remark,enable,create_time,update_time
+        id,parent_id,name,auth_marker,menu_name,menu_path,menu_icon,menu_hidden,redirect,cpn_path,auth_type,sort_no,remark,enable,create_time,update_time
       FROM
         auth_list
       WHERE enable = 1 AND auth_type = 0

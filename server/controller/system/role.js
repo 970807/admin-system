@@ -133,6 +133,8 @@ exports.batchDel = async (req, res, next) => {
       return
     }
     await adminDb.query('DELETE FROM role_list WHERE id in (?)', [idList])
+   // 把角色拥有的权限也删除
+    await adminDb.query('DELETE FROM role_auth_list WHERE role_id in (?)', [idList])
     res.json({ code: 0, data: null, message: '批量删除成功' })
   } catch (err) {
     next(err)
@@ -144,6 +146,9 @@ exports.del = async (req, res, next) => {
     const id = req.params.id
     if (!id) return res.json({ code: -1, message: 'id不能为空' })
     await adminDb.query('DELETE FROM role_list WHERE id = ?', [id])
+    
+    // 把角色拥有的权限也删除
+    await adminDb.query('DELETE FROM role_auth_list WHERE role_id = ?', [id])
     res.json({ code: 0, data: null, message: '删除成功' })
   } catch (err) {
     next(err)
@@ -160,7 +165,14 @@ exports.roleAuth = async (req, res, next) => {
       return
     }
 
-    // 先查询数据库里该角色拥有的权限
+    // 先查一下角色id是否存在
+    const [{ count }] = await adminDb.query('SELECT count(*) as count FROM role_list WHERE id=?', [roleId])
+    if (count < 1) {
+       return res.json({ code: -1, message: '角色不存在' })
+    }
+   
+
+    // 查询数据库里该角色拥有的权限
     let dbAuthList = await adminDb.query(
       'SELECT id,role_id,auth_id FROM role_auth_list WHERE role_id=?',
       [roleId]
@@ -170,28 +182,31 @@ exports.roleAuth = async (req, res, next) => {
     const newAuthIds = authIds.filter(
       authId => !dbAuthList.find(dbAuth => dbAuth.authId === authId)
     ) // 过滤后的都是需要添加进数据库的权限
+
     const newDbAuthList = dbAuthList.filter(
       dbAuth => !authIds.includes(dbAuth.authId)
     ) // 过滤后的都是需要从数据库删除的权限
-    authIds = newAuthIds
-    dbAuthList = newDbAuthList
+
+    
+    authIds = newAuthIds // 现在存的都是需要添加进数据库的权限
+    dbAuthList = newDbAuthList // 现在存的都是需要从数据库删除的权限
 
     const promiseList = []
     // 循环接口传过来的权限，对比进行修改(增/删)
     authIds.forEach(authId => {
-      // authId：需要添加进数据库的权限
+      // authId：需要添加进数据库的权限id
+      const d = new Date()
       if (dbAuthList.length) {
         // 如果数据库有需要删除的权限，就直接更新这一条数据就行
         const oneDbAuth = dbAuthList.shift() // 取一条数据
         promiseList.push(
           adminDb.query(
-            'UPDATE role_auth_list SET auth_id=?,update_time=? WHERE id=?',
-            [authId, new Date(), oneDbAuth.id]
+            'UPDATE role_auth_list SET auth_id=?,create_time=?,update_time=? WHERE id=?',
+            [authId, d, d, oneDbAuth.id]
           )
         )
       } else {
         // 如果数据库没有需要删除的权限，就增加一条数据
-        const d = new Date()
         promiseList.push(
           adminDb.query('INSERT INTO role_auth_list SET ?', {
             roleId,
@@ -223,6 +238,13 @@ exports.getAuthIdsByRoleId = async (req, res, next) => {
   try {
     const roleId = req.params.roleId
     if (!roleId) return res.json({ code: -1, message: '未知的角色id' })
+
+    // 先查一下角色id是否存在
+    const [{ count }] = await adminDb.query('SELECT count(*) as count FROM role_list WHERE id=?', [roleId])
+    if (count < 1) {
+       return res.json({ code: -1, message: '角色不存在' })
+    }
+    
     const list = await adminDb.query(
       'SELECT auth_id FROM role_auth_list WHERE role_id=?',
       [roleId]

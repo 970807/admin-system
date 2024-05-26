@@ -228,6 +228,13 @@ onMounted(() => {
           <el-table-column
             align="center"
             min-width="170"
+            show-overflow-tooltip
+            :formatter="row => (row.menuHidden === 1 ? '是' : '否')"
+            label="菜单隐藏"
+          />
+          <el-table-column
+            align="center"
+            min-width="170"
             prop="redirect"
             show-overflow-tooltip
             label="重定向"
