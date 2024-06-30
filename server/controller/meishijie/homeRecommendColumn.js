@@ -49,7 +49,7 @@ exports.getColumnDetail = async (req, res, next) => {
       })
     delete detail.recipeListStr
     const recipeMap = await meishijieDb.query(
-      'select id,recipe_name from recipe_detail_list where id in (?)',
+      'select id,recipe_name from recipe_list where id in (?)',
       [recipeIds]
     )
     detail.recipeList.forEach(item => {

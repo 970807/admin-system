@@ -108,14 +108,14 @@ onMounted(() => {
     <PageContainer>
       <template #header>
         <Searchs @submit="fetchData({ pageNo: 1 })">
-          <SearchsItem>
+          <SearchsItem label="账号：">
             <el-input
               placeholder="请输入账号"
               v-model="listQuery.account"
               clearable
             />
           </SearchsItem>
-          <SearchsItem>
+          <SearchsItem label="昵称：">
             <el-input
               placeholder="请输入昵称"
               v-model="listQuery.nickname"
@@ -143,10 +143,25 @@ onMounted(() => {
             label="序号"
             width="70"
           />
-          <el-table-column align="center" prop="account" label="账号" />
-          <el-table-column align="center" prop="phone" label="手机号" />
-          <el-table-column align="center" prop="nickname" label="昵称" />
-          <el-table-column align="center" label="头像">
+          <el-table-column
+            align="center"
+            prop="account"
+            label="账号"
+            min-width="120"
+          />
+          <el-table-column
+            align="center"
+            prop="phone"
+            label="手机号"
+            min-width="120"
+          />
+          <el-table-column
+            align="center"
+            prop="nickname"
+            label="昵称"
+            min-width="120"
+          />
+          <el-table-column align="center" label="头像" min-width="120">
             <template #default="{ row }">
               <el-image
                 v-if="row.avatar"
@@ -158,7 +173,12 @@ onMounted(() => {
               />
             </template>
           </el-table-column>
-          <el-table-column align="center" label="操作">
+          <el-table-column
+            fixed="right"
+            align="center"
+            label="操作"
+            width="220"
+          >
             <template #default="{ row }">
               <!-- 修改密码 -->
               <el-button

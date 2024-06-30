@@ -6,6 +6,7 @@ const validator = require('../../middleware/validator')
 
 const router = express.Router()
 
+// 获取菜谱列表
 router.get(
   '/getRecipeList',
   auth,
@@ -13,6 +14,7 @@ router.get(
   meishijieCtrl.recipe.getRecipeList
 )
 
+// 添加菜谱
 router.post(
   '/addRecipe',
   auth,
@@ -20,6 +22,7 @@ router.post(
   meishijieCtrl.recipe.addRecipe
 )
 
+// 编辑菜谱
 router.put(
   '/editRecipe',
   auth,
@@ -27,6 +30,7 @@ router.put(
   meishijieCtrl.recipe.editRecipe
 )
 
+// 批量删除菜谱
 router.delete(
   '/batchDeleteRecipe',
   auth,
@@ -34,6 +38,7 @@ router.delete(
   meishijieCtrl.recipe.batchDeleteRecipe
 )
 
+// 获取菜谱详情
 router.get(
   '/getRecipeDetailById',
   auth,
@@ -41,6 +46,7 @@ router.get(
   meishijieCtrl.recipe.getRecipeDetailById
 )
 
+// html导入菜谱
 router.post(
   '/importFromHtmlStr',
   auth,

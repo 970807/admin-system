@@ -117,8 +117,8 @@ defineExpose({ show })
     destroy-on-close
     @closed="onClose"
   >
-    <el-form ref="formRef" :model="formData" :rules="rules" label-width="70px">
-      <el-form-item ref="accountRef" label="账号" prop="account">
+    <el-form ref="formRef" :model="formData" :rules="rules" label-width="auto">
+      <el-form-item ref="accountRef" label="账号：" prop="account">
         <el-input
           v-model="formData.account"
           clearable
@@ -126,7 +126,7 @@ defineExpose({ show })
           maxlength="255"
         />
       </el-form-item>
-      <el-form-item ref="phoneRef" label="手机号" prop="phone">
+      <el-form-item ref="phoneRef" label="手机号：" prop="phone">
         <el-input
           v-model="formData.phone"
           clearable
@@ -134,7 +134,7 @@ defineExpose({ show })
           maxlength="255"
         />
       </el-form-item>
-      <el-form-item label="密码" prop="password">
+      <el-form-item label="密码：" prop="password">
         <el-input
           v-model="formData.password"
           clearable
@@ -142,7 +142,7 @@ defineExpose({ show })
           maxlength="255"
         />
       </el-form-item>
-      <el-form-item label="昵称" prop="nickname">
+      <el-form-item label="昵称：" prop="nickname">
         <el-input
           v-model="formData.nickname"
           clearable
@@ -150,7 +150,7 @@ defineExpose({ show })
           maxlength="255"
         />
       </el-form-item>
-      <el-form-item label="头像链接" prop="avatar">
+      <el-form-item label="头像链接：" prop="avatar">
         <ImageViewer ref="avatarViewRef" :url-list="[formData.avatar]" />
         <el-input
           v-model="formData.avatar"

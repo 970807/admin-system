@@ -43,7 +43,8 @@ exports.getRecipeList = (req, res, next) => {
   getList({
     req,
     db: meishijieDb,
-    dbTable: 'recipe_detail_list',
+    dbTable: 'recipe_list',
+    orderProp: 'update_time',
     likeSearchFieldArr: [{ reqField: 'recipeName', dbField: 'recipe_name' }],
     onSuccess: function (data) {
       res.json({ code: 0, data })
@@ -80,7 +81,7 @@ exports.addRecipe = async (req, res, next) => {
     } = req.body
     const d = new Date()
     const id = uuidv4()
-    const r = await meishijieDb.query('insert into recipe_detail_list set ?', {
+    const r = await meishijieDb.query('insert into recipe_list set ?', {
       id,
       recipeName,
       isVideo,
@@ -140,7 +141,7 @@ exports.editRecipe = async (req, res, next) => {
       originWebLink
     } = req.body
     const r = await meishijieDb.query(
-      'update recipe_detail_list set recipe_name=?,is_video=?,cover_url=?,video_url=?,recipe_qrcode=?,simple_introduction_technology=?,simple_introduction_taste=?,simple_introduction_time=?,simple_introduction_difficulty=?,main_ingredients_str=?,sub_ingredients_str=?,people_count=?,fav_count=?,brower_count=?,author_words=?,finish_food_imgs_str=?,steps_str=?,recipe_tips=?,author_id=?,origin_web_link=?,update_time=? where id=?',
+      'update recipe_list set recipe_name=?,is_video=?,cover_url=?,video_url=?,recipe_qrcode=?,simple_introduction_technology=?,simple_introduction_taste=?,simple_introduction_time=?,simple_introduction_difficulty=?,main_ingredients_str=?,sub_ingredients_str=?,people_count=?,fav_count=?,brower_count=?,author_words=?,finish_food_imgs_str=?,steps_str=?,recipe_tips=?,author_id=?,origin_web_link=?,update_time=? where id=?',
       [
         recipeName,
         isVideo,
@@ -179,7 +180,7 @@ exports.batchDeleteRecipe = async (req, res, next) => {
   try {
     const { idList } = req.body
     const { affectedRows } = await meishijieDb.query(
-      'delete from recipe_detail_list where id in ?',
+      'delete from recipe_list where id in ?',
       [[idList]]
     )
     if (affectedRows < 1) {
@@ -195,7 +196,7 @@ exports.getRecipeDetailById = async (req, res, next) => {
   try {
     const { id } = req.query
     const [detail] = await meishijieDb.query(
-      'select * from recipe_detail_list where id=?',
+      'select * from recipe_list where id=?',
       id
     )
     if (!detail) {
@@ -216,73 +217,74 @@ exports.getRecipeDetailById = async (req, res, next) => {
 }
 
 exports.importFromHtmlStr = async (req, res, next) => {
-  const { htmlStr } = req.body
-  const $ = cheerio.load(htmlStr)
-  const recipeName = $('.recipe_header_info .recipe_title').text()
-  const isVideo = $('.recipe_header_c .recipe_topvideow').length > 0
-  let coverUrl
-  let videoUrl
-  if (isVideo) {
-    coverUrl = $('.recipe_header_c .recipe_topvideow .recipe_topvideo_bg').attr(
-      'src'
-    )
-    videoUrl = $('.recipe_header_c .recipe_topvideow .recipe_topvideo').attr(
-      'src'
-    )
-  }
-  const simpleIntroductionTechnology = $(
-    '.recipe_header_info .info2 .info2_item1 strong'
-  ).text()
-  const simpleIntroductionTaste = $(
-    '.recipe_header_info .info2 .info2_item2 strong'
-  ).text()
-  const simpleIntroductionTime = $(
-    '.recipe_header_info .info2 .info2_item3 strong'
-  ).text()
-  const simpleIntroductionDifficulty = $(
-    '.recipe_header_info .info2 .info2_item4 strong'
-  ).text()
-  const recipeQrcode = $('.recipe_qrcodebox .qrcode img').attr('src')
-  let mainIngredientsStr = ''
-  $('.recipe_ingredients:first-child .right strong').each((index, item) => {
-    const ingredientName = $(item).find('a').text()
-    const ingredientDose = $(item).text().slice(ingredientName.length)
-    mainIngredientsStr += `${ingredientName}:${ingredientDose};`
-  })
-  let subIngredientsStr = ''
-  $('.recipe_ingredients1 .right strong').each((index, item) => {
-    const ingredientName = $(item).find('a').text()
-    const ingredientDose = $(item).text().slice(ingredientName.length)
-    subIngredientsStr += `${ingredientName}:${ingredientDose};`
-  })
-  const peopleCount = Number($('.rf').text().slice(0, -2))
-  const favRegResult = $('.recipe_header_info .info1')
-    .text()
-    .match(/\·\s+(\d+)\s+收藏/)
-  const favCount = favRegResult && Number(favRegResult[1])
-  const browserRegResult = $('.recipe_header_info .info1')
-    .text()
-    .match(/\·\s+(\d+)\s+浏览/)
-  const browerCount = browserRegResult && Number(browserRegResult[1])
-  const authorName = $('.recipe_header_info .info1 a').text()
-  const authorRegResult = $('.recipe_author .avatarw')
-    .css('background')
-    .match(/url\((.+)\)/)
-  const authorAvatar = authorRegResult && authorRegResult[1]
-  const authorWords = $('.author_words p').text()
-  let stepsStr = ''
-  $('.recipe_step_box .recipe_step .step_content').each((index, item) => {
-    const imgUrl = $(item).find('img.stepimg').attr('src')
-    const content = $(item).find('p').text()
-    stepsStr += `${imgUrl},${content};`
-  })
-  let finishFoodImgsStr = ''
-  $('.recipe_finish_box img').each((index, item) => {
-    finishFoodImgsStr += $(item).attr('src')
-    finishFoodImgsStr += ';'
-  })
-  const recipeTips = $('.recipe_tips .recipe_tips_words p').text()
   try {
+    const { htmlStr } = req.body
+    const $ = cheerio.load(htmlStr)
+    const recipeName = $('.recipe_header_info .recipe_title').text()
+    const isVideo = $('.recipe_header_c .recipe_topvideow').length > 0
+    let coverUrl
+    let videoUrl
+    if (isVideo) {
+      coverUrl = $(
+        '.recipe_header_c .recipe_topvideow .recipe_topvideo_bg'
+      ).attr('src')
+      videoUrl = $('.recipe_header_c .recipe_topvideow .recipe_topvideo').attr(
+        'src'
+      )
+    }
+    const simpleIntroductionTechnology = $(
+      '.recipe_header_info .info2 .info2_item1 strong'
+    ).text()
+    const simpleIntroductionTaste = $(
+      '.recipe_header_info .info2 .info2_item2 strong'
+    ).text()
+    const simpleIntroductionTime = $(
+      '.recipe_header_info .info2 .info2_item3 strong'
+    ).text()
+    const simpleIntroductionDifficulty = $(
+      '.recipe_header_info .info2 .info2_item4 strong'
+    ).text()
+    const recipeQrcode = $('.recipe_qrcodebox .qrcode img').attr('src')
+    let mainIngredientsStr = ''
+    $('.recipe_ingredients:first-child .right strong').each((index, item) => {
+      const ingredientName = $(item).find('a').text()
+      const ingredientDose = $(item).text().slice(ingredientName.length)
+      mainIngredientsStr += `${ingredientName}:${ingredientDose};`
+    })
+    let subIngredientsStr = ''
+    $('.recipe_ingredients1 .right strong').each((index, item) => {
+      const ingredientName = $(item).find('a').text()
+      const ingredientDose = $(item).text().slice(ingredientName.length)
+      subIngredientsStr += `${ingredientName}:${ingredientDose};`
+    })
+    const peopleCount = Number($('.rf').text().slice(0, -2))
+    const favRegResult = $('.recipe_header_info .info1')
+      .text()
+      .match(/\·\s+(\d+)\s+收藏/)
+    const favCount = favRegResult && Number(favRegResult[1])
+    const browserRegResult = $('.recipe_header_info .info1')
+      .text()
+      .match(/\·\s+(\d+)\s+浏览/)
+    const browerCount = browserRegResult && Number(browserRegResult[1])
+    const authorName = $('.recipe_header_info .info1 a').text()
+    const authorRegResult = $('.recipe_author .avatarw')
+      .css('background')
+      .match(/url\((.+)\)/)
+    const authorAvatar = authorRegResult && authorRegResult[1]
+    const authorWords = $('.author_words p').text()
+    let stepsStr = ''
+    $('.recipe_step_box .recipe_step .step_content').each((index, item) => {
+      const imgUrl = $(item).find('img.stepimg').attr('src')
+      const content = $(item).find('p').text()
+      stepsStr += `${imgUrl},${content};`
+    })
+    let finishFoodImgsStr = ''
+    $('.recipe_finish_box img').each((index, item) => {
+      finishFoodImgsStr += $(item).attr('src')
+      finishFoodImgsStr += ';'
+    })
+    const recipeTips = $('.recipe_tips .recipe_tips_words p').text()
+
     const d = new Date()
     // 根据作者名查找该作者是否存在，不存在则创建作者
     const [r] = await meishijieDb.query(
@@ -312,7 +314,7 @@ exports.importFromHtmlStr = async (req, res, next) => {
 
     // 创建菜谱
     const { insertId: recipeId } = await meishijieDb.query(
-      'insert into recipe_detail_list set ?',
+      'insert into recipe_list set ?',
       {
         id: uuidv4(),
         isVideo,
