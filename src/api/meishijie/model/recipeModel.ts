@@ -14,7 +14,8 @@ export type listItemType = {
   mainIngredientsStr: string // 主料
   subIngredientsStr: string // 辅料
   peopleCount: number // 人份 例：3人份
-  authorId: number // 作者用户id
+  authorId: string // 作者用户id
+  authorName: string | null // 作者用户名称
   authorWords: string
   finishFoodImgsStr: string
   stepsStr: string // 菜谱步骤：格式 =>  步骤图片,步骤内容;步骤图片,步骤内容;
@@ -37,20 +38,33 @@ export interface IGetRecipeListResult {
   totalCount: number
 }
 
+export type stepListType = Array<{ imgUrl: string; content: string }>
+
 // 获取菜谱详情响应结果
 export type getRecipeDetailByIdResultType = Omit<
   listItemType,
   'createTime' | 'updateTime'
->
+> & {
+  finishFoodImgUrlList: string[]
+  stepList: stepListType
+}
 
 // 添加菜谱请求体
 export type addRecipeDataType = Omit<
   listItemType,
-  'id' | 'createTime' | 'updateTime'
+  | 'id'
+  | 'finishFoodImgsStr'
+  | 'stepsStr'
+  | 'authorName'
+  | 'createTime'
+  | 'updateTime'
 >
 
 // 编辑菜谱请求体
-export type editRecipeDataType = Omit<listItemType, 'createTime' | 'updateTime'>
+export type editRecipeDataType = Omit<
+  listItemType,
+  'authorName' | 'finishFoodImgsStr' | 'stepsStr' | 'createTime' | 'updateTime'
+>
 
 // html导入菜谱请求体
 export interface IImportFromHtmlStrDataType {

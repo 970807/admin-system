@@ -17,7 +17,7 @@ const emit = defineEmits<{
 }>()
 
 const getDefaultFormData = () => ({
-  id: undefined,
+  id: '',
   account: '',
   phone: '',
   password: '',
@@ -67,7 +67,7 @@ const rules = reactive<FormRules>({
 })
 
 // 是否编辑操作 true: 编辑 false: 新增
-const isEdit = computed(() => typeof formData.value.id !== 'undefined')
+const isEdit = computed(() => !!formData.value.id)
 
 const show = (row?: listItemType) => {
   if (row) {

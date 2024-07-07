@@ -123,23 +123,31 @@ onMounted(() => {
           @selection-change="val => (selectedRow = val)"
         >
           <el-table-column align="center" type="selection" width="55" />
-          <el-table-column
-            align="center"
-            type="index"
-            label="序号"
-            width="70"
-          />
+          <el-table-column align="center" label="序号" width="70">
+            <template #default="{ $index }">
+              {{ (listQuery.pageNo - 1) * listQuery.pageSize + $index + 1 }}
+            </template>
+          </el-table-column>
           <el-table-column
             label="菜谱id"
             align="center"
             prop="id"
             min-width="120"
+            show-overflow-tooltip
           />
           <el-table-column
             label="菜谱名称"
             align="center"
             prop="recipeName"
             min-width="120"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            label="菜谱作者"
+            align="center"
+            prop="authorName"
+            min-width="90"
+            show-overflow-tooltip
           />
           <el-table-column
             fixed="right"

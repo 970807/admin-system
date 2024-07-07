@@ -46,8 +46,34 @@ exports.getRecipeList = (req, res, next) => {
     dbTable: 'recipe_list',
     orderProp: 'update_time',
     likeSearchFieldArr: [{ reqField: 'recipeName', dbField: 'recipe_name' }],
-    onSuccess: function (data) {
-      res.json({ code: 0, data })
+    onSuccess: async function (data) {
+      try {
+        if (data.list?.length) {
+          const promiseArr = []
+          data.list.forEach(item => {
+            if (!item.authorId) {
+              item.authorName = ''
+              return
+            }
+            // 根据authorId查询菜谱作者(authorName)
+            const promise = meishijieDb.query(
+              'select nickname from user_list where id=? limit 1',
+              item.authorId
+            )
+            promise.then(res => {
+              item.authorName = res?.[0]?.nickname ?? ''
+            })
+            promise.catch(() => {
+              item.authorName = null
+            })
+            promiseArr.push(promise)
+          })
+          await Promise.all(promiseArr)
+        }
+        res.json({ code: 0, data })
+      } catch (err) {
+        next(err)
+      }
     },
     onError: function (err) {
       next(err)
@@ -196,11 +222,27 @@ exports.getRecipeDetailById = async (req, res, next) => {
   try {
     const { id } = req.query
     const [detail] = await meishijieDb.query(
-      'select * from recipe_list where id=?',
+      'select * from recipe_list where id=? limit 1',
       id
     )
     if (!detail) {
       res.json({ code: -1, message: '获取详情失败' })
+    }
+    // 根据authorId查询菜谱作者
+    if (detail.authorId) {
+      await meishijieDb
+        .query(
+          'select nickname from user_list where id=? limit 1',
+          detail.authorId
+        )
+        .then(res => {
+          detail.authorName = res?.[0]?.nickname ?? ''
+        })
+        .catch(() => {
+          detail.authorName = null
+        })
+    } else {
+      detail.authorName = ''
     }
     detail.stepList = formatStepStrToList(detail.stepsStr)
     delete detail.stepsStr

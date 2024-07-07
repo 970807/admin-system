@@ -3,6 +3,7 @@ import { ref, reactive, computed, toRefs } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { CircleClose } from '@element-plus/icons-vue'
+import SelectAuthorDialog from './SelectAuthorDialog.vue'
 import {
   getRecipeDetailById,
   addRecipe,
@@ -12,6 +13,7 @@ import {
 const emit = defineEmits(['refresh'])
 
 const formRef = ref<FormInstance>()
+const selectAuthorDialogRef = ref<InstanceType<typeof SelectAuthorDialog>>()
 
 interface IFormData {
   id?: string
@@ -29,7 +31,8 @@ interface IFormData {
   peopleCount: number
   favCount: number
   browerCount: number
-  authorId?: number
+  authorId: string
+  authorName?: string
   authorWords: string
   stepList: Array<{ imgUrl: string; content: string }>
   finishFoodImgUrlList: string[]
@@ -53,7 +56,8 @@ const getDefaultFormData = (): IFormData => ({
   peopleCount: 0, // 份数
   favCount: 0, // 收藏数
   browerCount: 0, // 浏览数
-  authorId: undefined, // 菜谱作者
+  authorId: '', // 菜谱作者id
+  authorName: '', // 菜谱作者
   authorWords: '', // 作者推荐语
   stepList: [], // 做法步骤
   finishFoodImgUrlList: [], // 成品图
@@ -142,7 +146,6 @@ const rules = reactive<FormRules>({
   authorId: [
     {
       required: true,
-      type: 'integer',
       message: '请选择菜谱作者',
       trigger: ['blur', 'change']
     }
@@ -232,7 +235,9 @@ const onSave = () => {
   formRef.value.validate(valid => {
     if (!valid) return
     btnLoading.value = true
-    ;(isEdit.value ? editRecipe : addRecipe)(formData.value)
+    ;(isEdit.value ? editRecipe : addRecipe)(
+      formData.value as Required<IFormData>
+    )
       .then(res => {
         ElMessage.success(res.message)
         emit('refresh')
@@ -240,6 +245,11 @@ const onSave = () => {
       })
       .finally(() => (btnLoading.value = false))
   })
+}
+
+const onAuthorSelect = (row: any) => {
+  state.formData.authorName = row.nickname
+  state.formData.authorId = row.id
 }
 
 defineExpose({ show })
@@ -410,14 +420,11 @@ defineExpose({ show })
           ></el-col>
         </el-row>
         <el-form-item label="菜谱作者：" prop="authorId">
-          <el-select
-            v-model="formData.authorId"
-            placeholder="请选择"
-            filterable
+          <el-input
+            :model-value="formData.authorName"
             clearable
-          >
-            <el-option label="作者1" :value="1" />
-          </el-select>
+            @click="selectAuthorDialogRef.show(formData.authorId)"
+          />
         </el-form-item>
         <el-form-item label="作者推荐语：" prop="authorWords">
           <el-input
@@ -512,6 +519,11 @@ defineExpose({ show })
           />
         </el-form-item>
       </el-form>
+      <!-- 选择菜谱作者dialog -->
+      <SelectAuthorDialog
+        ref="selectAuthorDialogRef"
+        @select-row="onAuthorSelect"
+      />
     </template>
     <template #footer>
       <el-button @click="onClose">取消</el-button>

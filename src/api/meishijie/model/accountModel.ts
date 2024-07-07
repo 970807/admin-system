@@ -1,5 +1,5 @@
 export type listItemType = {
-  id: number
+  id: string
   phone: string | null
   account: string | null
   password: string
@@ -35,7 +35,7 @@ export interface IAddAccountData {
 
 // 添加账号响应结果
 export interface IAddAccountResult {
-  id: number
+  id: string
   account: string
   phone: string
   nickname: string
@@ -44,7 +44,7 @@ export interface IAddAccountResult {
 
 // 编辑账号请求体
 export interface IEditAccountData extends Omit<IAddAccountData, 'password'> {
-  id: number
+  id: string
 }
 
 // 编辑账号响应结果
@@ -52,18 +52,18 @@ export type IEditAccountResult = IAddAccountResult
 
 // 修改密码请求体
 export interface IEditAccountPasswordData {
-  id: number
+  id: string
   password: string
 }
 
 // 修改密码响应结果
 export interface IEditAccountPasswordResult {
-  id: number
+  id: string
 }
 
 // 删除账号请求体
 export interface IDeleteAccountData {
-  id: number
+  id: string
 }
 
 // 删除账号响应结果

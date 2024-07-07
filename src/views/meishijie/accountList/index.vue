@@ -137,29 +137,24 @@ onMounted(() => {
           height="100%"
           border
         >
-          <el-table-column
-            align="center"
-            type="index"
-            label="序号"
-            width="70"
-          />
+          <el-table-column align="center" label="序号" width="70">
+            <template #default="{ $index }">
+              {{ (listQuery.pageNo - 1) * listQuery.pageSize + $index + 1 }}
+            </template>
+          </el-table-column>
           <el-table-column
             align="center"
             prop="account"
             label="账号"
             min-width="120"
-          />
-          <el-table-column
-            align="center"
-            prop="phone"
-            label="手机号"
-            min-width="120"
+            show-overflow-tooltip
           />
           <el-table-column
             align="center"
             prop="nickname"
             label="昵称"
             min-width="120"
+            show-overflow-tooltip
           />
           <el-table-column align="center" label="头像" min-width="120">
             <template #default="{ row }">
@@ -173,6 +168,13 @@ onMounted(() => {
               />
             </template>
           </el-table-column>
+          <el-table-column
+            align="center"
+            prop="phone"
+            label="手机号"
+            min-width="120"
+            show-overflow-tooltip
+          />
           <el-table-column
             fixed="right"
             align="center"

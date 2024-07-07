@@ -1,3 +1,4 @@
+const { v4: uuidv4 } = require('uuid')
 const meishijieDb = require('../../db/meishijie')
 const getList = require('../../utils/getList')
 const md5 = require('../../utils/md5')
@@ -8,6 +9,7 @@ exports.getList = async (req, res, next) => {
     req,
     db: meishijieDb,
     dbTable: 'user_list',
+    orderProp: 'update_time',
     likeSearchFieldArr: [
       { reqField: 'account', dbField: 'account' },
       { reqField: 'nickname', dbField: 'nickname' }
@@ -25,23 +27,22 @@ exports.addAccount = async (req, res, next) => {
   try {
     const { account, phone, password, nickname, avatar } = req.body
     const d = new Date()
-    const { insertId } = await meishijieDb.query(
-      'insert into user_list set ?',
-      {
-        account,
-        phone,
-        password: md5(password, meishijieMd5Salt),
-        nickname,
-        avatar,
-        createTime: d,
-        updateTime: d
-      }
-    )
+    const id = uuidv4()
+    await meishijieDb.query('insert into user_list set ?', {
+      id,
+      account,
+      phone,
+      password: md5(password, meishijieMd5Salt),
+      nickname,
+      avatar,
+      createTime: d,
+      updateTime: d
+    })
     res.json({
       code: 0,
       message: '添加账号成功',
       data: {
-        id: insertId,
+        id,
         account,
         phone,
         nickname,

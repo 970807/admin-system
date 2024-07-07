@@ -24,8 +24,8 @@ const validateFinishFoodImgUrlList = list => {
 }
 
 const validateAuthorId = async authorId => {
-  if (typeof authorId !== 'number') {
-    return 'authorId缺失或错误'
+  if (!authorId) {
+    return 'authorId缺失'
   }
   const [{ count }] = await meishijieDb.query(
     'select count(*) as count from user_list where id=?',
