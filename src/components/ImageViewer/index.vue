@@ -2,6 +2,21 @@
   el-image-viewer
   https://element-plus.gitee.io/zh-CN/component/image.html#imageviewer-%E5%B1%9E%E6%80%A7
 -->
+<template>
+  <el-image-viewer
+    v-if="visible"
+    :url-list="showFnProps.urlList ?? props.urlList"
+    :z-index="showFnProps.zIndex ?? props.zIndex"
+    :initial-index="showFnProps.initialIndex ?? props.initialIndex"
+    :infinite="showFnProps.infinite ?? props.infinite"
+    :hide-on-click-modal="
+      showFnProps.hideOnClickModal ?? props.hideOnClickModal
+    "
+    :teleported="showFnProps.teleported ?? props.teleported"
+    :zoom-rate="showFnProps.zoomRate ?? props.zoomRate"
+    @close="onClose"
+  />
+</template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
@@ -80,19 +95,3 @@ const onClose = () => {
 
 defineExpose({ show })
 </script>
-
-<template>
-  <el-image-viewer
-    v-if="visible"
-    :url-list="showFnProps.urlList ?? props.urlList"
-    :z-index="showFnProps.zIndex ?? props.zIndex"
-    :initial-index="showFnProps.initialIndex ?? props.initialIndex"
-    :infinite="showFnProps.infinite ?? props.infinite"
-    :hide-on-click-modal="
-      showFnProps.hideOnClickModal ?? props.hideOnClickModal
-    "
-    :teleported="showFnProps.teleported ?? props.teleported"
-    :zoom-rate="showFnProps.zoomRate ?? props.zoomRate"
-    @close="onClose"
-  />
-</template>

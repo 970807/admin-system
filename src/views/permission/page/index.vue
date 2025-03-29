@@ -1,3 +1,26 @@
+<template>
+  <el-space direction="vertical" size="large">
+    <el-tag :style="elStyle" size="large" effect="dark">
+      模拟后台根据不同角色返回对应路由（具体参考完整版pure-admin代码）
+    </el-tag>
+    <el-card shadow="never" :style="elStyle">
+      <template #header>
+        <div class="card-header">
+          <span>当前角色：{{ username }}</span>
+        </div>
+      </template>
+      <el-select v-model="username" @change="onChange">
+        <el-option
+          v-for="item in options"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
+    </el-card>
+  </el-space>
+</template>
+
 <script setup lang="ts">
 import { initRouter } from '@/router/utils'
 import { storageSession } from '@pureadmin/utils'
@@ -41,26 +64,3 @@ function onChange() {
     })
 }
 </script>
-
-<template>
-  <el-space direction="vertical" size="large">
-    <el-tag :style="elStyle" size="large" effect="dark">
-      模拟后台根据不同角色返回对应路由（具体参考完整版pure-admin代码）
-    </el-tag>
-    <el-card shadow="never" :style="elStyle">
-      <template #header>
-        <div class="card-header">
-          <span>当前角色：{{ username }}</span>
-        </div>
-      </template>
-      <el-select v-model="username" @change="onChange">
-        <el-option
-          v-for="item in options"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
-      </el-select>
-    </el-card>
-  </el-space>
-</template>

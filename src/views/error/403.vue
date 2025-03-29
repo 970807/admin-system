@@ -1,11 +1,3 @@
-<script setup lang="ts">
-import noAccess from '@/assets/status/403.svg?component'
-
-defineOptions({
-  name: '403'
-})
-</script>
-
 <template>
   <div class="flex justify-center items-center h-[640px]">
     <noAccess />
@@ -65,3 +57,11 @@ defineOptions({
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import noAccess from '@/assets/status/403.svg?component'
+
+defineOptions({
+  name: '403'
+})
+</script>

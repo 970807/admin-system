@@ -1,4 +1,73 @@
 <!-- 添加/编辑账号抽屉 -->
+<template>
+  <el-drawer
+    v-model="visible"
+    destroy-on-close
+    :title="`${isEdit ? '编辑账号' : '添加账号'}`"
+    @closed="onClose"
+  >
+    <el-form :model="formData" :rules="rules" ref="formRef" label-width="auto">
+      <el-form-item label="账号" prop="username">
+        <el-input
+          v-model="formData.username"
+          placeholder="请输入账号"
+          maxlength="20"
+          show-word-limit
+          clearable
+        />
+      </el-form-item>
+      <el-form-item v-if="!isEdit" label="密码" prop="password">
+        <el-input
+          v-model="formData.password"
+          placeholder="请输入密码"
+          maxlength="20"
+          show-word-limit
+          show-password
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="头像url">
+        <el-input
+          v-model="formData.avatar"
+          placeholder="请输入头像url"
+          maxlength="255"
+          show-word-limit
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="角色" prop="roleId">
+        <el-select
+          style="width: 100%"
+          v-model="formData.roleId"
+          filterable
+          clearable
+          @clear="formData.roleId = undefined"
+        >
+          <el-option
+            v-for="item in roleList"
+            :key="item.id"
+            :value="item.id"
+            :label="item.roleName"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="是否启用" required>
+        <el-switch
+          v-model="formData.enable"
+          :active-value="1"
+          :inactive-value="0"
+        />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="onClose">取消</el-button>
+      <el-button :loading="btnLoading" type="primary" @click="save"
+        >保存</el-button
+      >
+    </template>
+  </el-drawer>
+</template>
+
 <script lang="ts">
 import {
   defineComponent,
@@ -167,72 +236,3 @@ export default defineComponent({
   }
 })
 </script>
-
-<template>
-  <el-drawer
-    v-model="visible"
-    destroy-on-close
-    :title="`${isEdit ? '编辑账号' : '添加账号'}`"
-    @closed="onClose"
-  >
-    <el-form :model="formData" :rules="rules" ref="formRef" label-width="auto">
-      <el-form-item label="账号" prop="username">
-        <el-input
-          v-model="formData.username"
-          placeholder="请输入账号"
-          maxlength="20"
-          show-word-limit
-          clearable
-        />
-      </el-form-item>
-      <el-form-item v-if="!isEdit" label="密码" prop="password">
-        <el-input
-          v-model="formData.password"
-          placeholder="请输入密码"
-          maxlength="20"
-          show-word-limit
-          show-password
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="头像url">
-        <el-input
-          v-model="formData.avatar"
-          placeholder="请输入头像url"
-          maxlength="255"
-          show-word-limit
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="角色" prop="roleId">
-        <el-select
-          style="width: 100%"
-          v-model="formData.roleId"
-          filterable
-          clearable
-          @clear="formData.roleId = undefined"
-        >
-          <el-option
-            v-for="item in roleList"
-            :key="item.id"
-            :value="item.id"
-            :label="item.roleName"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="是否启用" required>
-        <el-switch
-          v-model="formData.enable"
-          :active-value="1"
-          :inactive-value="0"
-        />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <el-button @click="onClose">取消</el-button>
-      <el-button :loading="btnLoading" type="primary" @click="save"
-        >保存</el-button
-      >
-    </template>
-  </el-drawer>
-</template>

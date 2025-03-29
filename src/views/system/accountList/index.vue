@@ -1,3 +1,151 @@
+<template>
+  <div class="account-list">
+    <AddOrEditAccountDrawer
+      ref="addOrEditAccountDrawerRef"
+      :roleList="roleList"
+      @refresh="fetchData"
+    />
+
+    <PageContainer>
+      <template #header>
+        <Searchs @submit="fetchData({ pageNo: 1 })">
+          <SearchsItem label="账号：">
+            <el-input
+              placeholder="请输入账号"
+              v-model="listQuery.username"
+              clearable
+            />
+          </SearchsItem>
+          <SearchsItem label="角色：">
+            <el-select
+              v-model="listQuery.roleId"
+              filterable
+              clearable
+              @clear="listQuery.roleId = undefined"
+            >
+              <el-option
+                v-for="item in roleList"
+                :key="item.id"
+                :value="item.id"
+                :label="item.roleName"
+              />
+            </el-select>
+          </SearchsItem>
+          <template #btns>
+            <el-button type="primary" :icon="Plus" @click="onAddOrEdit()"
+              >添加账号</el-button
+            >
+            <el-button type="danger" :icon="Delete" @click="onBatchDel"
+              >批量删除</el-button
+            >
+          </template>
+        </Searchs>
+      </template>
+      <template #default>
+        <el-table
+          v-loading="listLoading"
+          element-loading-text="加载中..."
+          :data="tableData"
+          height="100%"
+          border
+          @sort-change="onSortChange"
+          @selection-change="val => (selectedRow = val)"
+        >
+          <el-table-column align="center" type="selection" width="55" />
+          <el-table-column
+            align="center"
+            type="index"
+            label="序号"
+            width="70"
+          />
+          <el-table-column align="center" prop="username" label="账号" />
+          <el-table-column align="center" label="头像">
+            <template #default="{ row }">
+              <el-image
+                v-if="row.avatar"
+                style="width: 60px; height: 60px"
+                :src="row.avatar"
+                :preview-src-list="[row.avatar]"
+                preview-teleported
+              />
+            </template>
+          </el-table-column>
+          <el-table-column align="center" label="角色">
+            <template #default="{ row }">
+              <router-link
+                v-if="getRoleInfoByRoleId(row.roleId)?.roleName"
+                :to="{
+                  path: '/system/role-list',
+                  query: { 'active-id': row.roleId }
+                }"
+              >
+                <el-link type="primary" :underline="false">{{
+                  getRoleInfoByRoleId(row.roleId)?.roleName
+                }}</el-link>
+              </router-link>
+              <el-tag
+                v-if="getRoleInfoByRoleId(row.roleId)?.enable === 0"
+                style="margin-left: 6px"
+                type="danger"
+                >已禁用</el-tag
+              >
+            </template>
+          </el-table-column>
+          <el-table-column align="center" label="是否启用" width="120">
+            <template #default="{ row }">
+              <el-switch
+                :model-value="row.enable"
+                :active-value="1"
+                :inactive-value="0"
+                @change="onEnableChange(row)"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column
+            align="center"
+            label="创建时间"
+            sortable="custom"
+            prop="createTime"
+            width="180"
+            :formatter="row => formatTime(row.createTime)"
+          />
+          <el-table-column
+            align="center"
+            label="更新时间"
+            sortable="custom"
+            prop="updateTime"
+            width="180"
+            :formatter="row => formatTime(row.updateTime)"
+          />
+          <el-table-column align="center" label="操作" width="200">
+            <template #default="{ row }">
+              <el-button type="primary" link @click="onAddOrEdit(row)"
+                >编辑</el-button
+              >
+              <el-button type="primary" link @click="onResetPassword(row.id)"
+                >修改密码</el-button
+              >
+              <el-button type="danger" link @click="onDel(row.id)"
+                >删除</el-button
+              >
+            </template>
+          </el-table-column>
+        </el-table>
+      </template>
+      <template #footer>
+        <el-pagination
+          layout="total,sizes,prev,pager,next,jumper"
+          v-model:current-page="listQuery.pageNo"
+          v-model:page-size="listQuery.pageSize"
+          :total="total"
+          @size-change="fetchData({ pageSize: $event })"
+          @current-change="fetchData({ pageNo: $event })"
+        />
+      </template>
+    </PageContainer>
+  </div>
+</template>
+
 <script lang="ts">
 import { defineComponent, ref, reactive, toRef, toRefs, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -168,151 +316,3 @@ export default defineComponent({
   }
 })
 </script>
-
-<template>
-  <div class="account-list">
-    <AddOrEditAccountDrawer
-      ref="addOrEditAccountDrawerRef"
-      :roleList="roleList"
-      @refresh="fetchData"
-    />
-
-    <PageContainer>
-      <template #header>
-        <Searchs @submit="fetchData({ pageNo: 1 })">
-          <SearchsItem label="账号：">
-            <el-input
-              placeholder="请输入账号"
-              v-model="listQuery.username"
-              clearable
-            />
-          </SearchsItem>
-          <SearchsItem label="角色：">
-            <el-select
-              v-model="listQuery.roleId"
-              filterable
-              clearable
-              @clear="listQuery.roleId = undefined"
-            >
-              <el-option
-                v-for="item in roleList"
-                :key="item.id"
-                :value="item.id"
-                :label="item.roleName"
-              />
-            </el-select>
-          </SearchsItem>
-          <template #btns>
-            <el-button type="primary" :icon="Plus" @click="onAddOrEdit()"
-              >添加账号</el-button
-            >
-            <el-button type="danger" :icon="Delete" @click="onBatchDel"
-              >批量删除</el-button
-            >
-          </template>
-        </Searchs>
-      </template>
-      <template #default>
-        <el-table
-          v-loading="listLoading"
-          element-loading-text="加载中..."
-          :data="tableData"
-          height="100%"
-          border
-          @sort-change="onSortChange"
-          @selection-change="val => (selectedRow = val)"
-        >
-          <el-table-column align="center" type="selection" width="55" />
-          <el-table-column
-            align="center"
-            type="index"
-            label="序号"
-            width="70"
-          />
-          <el-table-column align="center" prop="username" label="账号" />
-          <el-table-column align="center" label="头像">
-            <template #default="{ row }">
-              <el-image
-                v-if="row.avatar"
-                style="width: 60px; height: 60px"
-                :src="row.avatar"
-                :preview-src-list="[row.avatar]"
-                preview-teleported
-              />
-            </template>
-          </el-table-column>
-          <el-table-column align="center" label="角色">
-            <template #default="{ row }">
-              <router-link
-                v-if="getRoleInfoByRoleId(row.roleId)?.roleName"
-                :to="{
-                  path: '/system/role-list',
-                  query: { 'active-id': row.roleId }
-                }"
-              >
-                <el-link type="primary" :underline="false">{{
-                  getRoleInfoByRoleId(row.roleId)?.roleName
-                }}</el-link>
-              </router-link>
-              <el-tag
-                v-if="getRoleInfoByRoleId(row.roleId)?.enable === 0"
-                style="margin-left: 6px"
-                type="danger"
-                >已禁用</el-tag
-              >
-            </template>
-          </el-table-column>
-          <el-table-column align="center" label="是否启用" width="120">
-            <template #default="{ row }">
-              <el-switch
-                :model-value="row.enable"
-                :active-value="1"
-                :inactive-value="0"
-                @change="onEnableChange(row)"
-              />
-            </template>
-          </el-table-column>
-          <el-table-column
-            align="center"
-            label="创建时间"
-            sortable="custom"
-            prop="createTime"
-            width="180"
-            :formatter="row => formatTime(row.createTime)"
-          />
-          <el-table-column
-            align="center"
-            label="更新时间"
-            sortable="custom"
-            prop="updateTime"
-            width="180"
-            :formatter="row => formatTime(row.updateTime)"
-          />
-          <el-table-column align="center" label="操作" width="200">
-            <template #default="{ row }">
-              <el-button type="primary" link @click="onAddOrEdit(row)"
-                >编辑</el-button
-              >
-              <el-button type="primary" link @click="onResetPassword(row.id)"
-                >修改密码</el-button
-              >
-              <el-button type="danger" link @click="onDel(row.id)"
-                >删除</el-button
-              >
-            </template>
-          </el-table-column>
-        </el-table>
-      </template>
-      <template #footer>
-        <el-pagination
-          layout="total,sizes,prev,pager,next,jumper"
-          v-model:current-page="listQuery.pageNo"
-          v-model:page-size="listQuery.pageSize"
-          :total="total"
-          @size-change="fetchData({ pageSize: $event })"
-          @current-change="fetchData({ pageNo: $event })"
-        />
-      </template>
-    </PageContainer>
-  </div>
-</template>

@@ -1,3 +1,83 @@
+<template>
+  <div class="role-list">
+    <AddOrEditRoleDrawer ref="addOrEditRoleDrawerRef" @refresh="fetchData" />
+    <PageContainer>
+      <template #header>
+        <Searchs :showSearchBtn="false">
+          <template #btns>
+            <el-button type="primary" :icon="Plus" @click="onAddOrEdit()"
+              >添加角色</el-button
+            >
+            <el-button type="danger" :icon="Delete" @click="onBatchDel"
+              >批量删除</el-button
+            >
+          </template>
+        </Searchs>
+      </template>
+      <template #default>
+        <el-table
+          ref="tableRef"
+          v-loading="listLoading"
+          element-loading-text="加载中..."
+          :data="tableData"
+          :row-class-name="tableRowClassName"
+          height="100%"
+          border
+          @selection-change="val => (selectedRow = val)"
+        >
+          <el-table-column align="center" type="selection" width="55" />
+          <el-table-column
+            align="center"
+            type="index"
+            label="序号"
+            width="70"
+          />
+          <el-table-column align="center" prop="roleName" label="角色名" />
+          <el-table-column align="center" label="是否启用" width="120">
+            <template #default="{ row }">
+              <el-switch
+                :model-value="row.enable"
+                :active-value="1"
+                :inactive-value="0"
+                @change="onEnableChange(row)"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column
+            align="center"
+            label="排序值"
+            prop="sort"
+            width="120"
+          />
+          <el-table-column align="center" label="创建时间" width="180">
+            <template #default="{ row }">{{
+              formatTime(row.createTime)
+            }}</template>
+          </el-table-column>
+          <el-table-column align="center" label="更新时间" width="180">
+            <template #default="{ row }">{{
+              formatTime(row.updateTime)
+            }}</template>
+          </el-table-column>
+          <el-table-column align="center" label="操作" width="160">
+            <template #default="{ row }">
+              <el-button type="primary" link @click="onAddOrEdit(row)"
+                >编辑</el-button
+              >
+              <el-button type="primary" link @click="onAuth(row)"
+                >授权</el-button
+              >
+              <el-button type="danger" link @click="onDel(row.id)"
+                >删除</el-button
+              >
+            </template>
+          </el-table-column>
+        </el-table>
+      </template>
+    </PageContainer>
+  </div>
+</template>
+
 <script lang="ts">
 import {
   defineComponent,
@@ -143,86 +223,6 @@ export default defineComponent({
   }
 })
 </script>
-
-<template>
-  <div class="role-list">
-    <AddOrEditRoleDrawer ref="addOrEditRoleDrawerRef" @refresh="fetchData" />
-    <PageContainer>
-      <template #header>
-        <Searchs :showSearchBtn="false">
-          <template #btns>
-            <el-button type="primary" :icon="Plus" @click="onAddOrEdit()"
-              >添加角色</el-button
-            >
-            <el-button type="danger" :icon="Delete" @click="onBatchDel"
-              >批量删除</el-button
-            >
-          </template>
-        </Searchs>
-      </template>
-      <template #default>
-        <el-table
-          ref="tableRef"
-          v-loading="listLoading"
-          element-loading-text="加载中..."
-          :data="tableData"
-          :row-class-name="tableRowClassName"
-          height="100%"
-          border
-          @selection-change="val => (selectedRow = val)"
-        >
-          <el-table-column align="center" type="selection" width="55" />
-          <el-table-column
-            align="center"
-            type="index"
-            label="序号"
-            width="70"
-          />
-          <el-table-column align="center" prop="roleName" label="角色名" />
-          <el-table-column align="center" label="是否启用" width="120">
-            <template #default="{ row }">
-              <el-switch
-                :model-value="row.enable"
-                :active-value="1"
-                :inactive-value="0"
-                @change="onEnableChange(row)"
-              />
-            </template>
-          </el-table-column>
-          <el-table-column
-            align="center"
-            label="排序值"
-            prop="sort"
-            width="120"
-          />
-          <el-table-column align="center" label="创建时间" width="180">
-            <template #default="{ row }">{{
-              formatTime(row.createTime)
-            }}</template>
-          </el-table-column>
-          <el-table-column align="center" label="更新时间" width="180">
-            <template #default="{ row }">{{
-              formatTime(row.updateTime)
-            }}</template>
-          </el-table-column>
-          <el-table-column align="center" label="操作" width="160">
-            <template #default="{ row }">
-              <el-button type="primary" link @click="onAddOrEdit(row)"
-                >编辑</el-button
-              >
-              <el-button type="primary" link @click="onAuth(row)"
-                >授权</el-button
-              >
-              <el-button type="danger" link @click="onDel(row.id)"
-                >删除</el-button
-              >
-            </template>
-          </el-table-column>
-        </el-table>
-      </template>
-    </PageContainer>
-  </div>
-</template>
 
 <style lang="scss" scoped>
 :deep(.el-table) {

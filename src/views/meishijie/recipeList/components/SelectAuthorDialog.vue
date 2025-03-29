@@ -1,4 +1,90 @@
 <!-- 选择菜谱作者dialog -->
+<template>
+  <el-dialog
+    title="请选择"
+    :close-on-click-modal="false"
+    v-model="visible"
+    @closed="onClose"
+  >
+    <template #default>
+      <Searchs @submit="fetchData({ pageNo: 1 })">
+        <SearchsItem label="账号：">
+          <el-input
+            placeholder="请输入账号"
+            v-model="listQuery.account"
+            clearable
+          />
+        </SearchsItem>
+        <SearchsItem label="昵称：">
+          <el-input
+            placeholder="请输入昵称"
+            v-model="listQuery.nickname"
+            clearable
+          />
+        </SearchsItem>
+      </Searchs>
+      <el-table
+        v-loading="listLoading"
+        element-loading-text="加载中..."
+        :data="tableData"
+        height="100%"
+        border
+      >
+        <el-table-column align="center" width="55">
+          <template #default="{ row }">
+            <el-radio
+              v-model="radiov"
+              :label="row.id"
+              @change="onRadioSelect"
+              >{{ '' }}</el-radio
+            >
+          </template>
+        </el-table-column>
+        <el-table-column align="center" label="序号" width="70">
+          <template #default="{ $index }">
+            {{ (listQuery.pageNo - 1) * listQuery.pageSize + $index + 1 }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          prop="account"
+          label="账号"
+          min-width="120"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          align="center"
+          prop="nickname"
+          label="昵称"
+          min-width="120"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          align="center"
+          prop="phone"
+          label="手机号"
+          min-width="120"
+          show-overflow-tooltip
+        />
+      </el-table>
+      <div class="pagination-wrap">
+        <el-pagination
+          layout="total,sizes,prev,pager,next,jumper"
+          v-model:current-page="listQuery.pageNo"
+          v-model:page-size="listQuery.pageSize"
+          :total="total"
+          @size-change="fetchData({ pageSize: $event })"
+          @current-change="fetchData({ pageNo: $event })"
+        />
+      </div>
+    </template>
+    <template #footer>
+      <el-button @click="onClose">取消</el-button>
+      <el-button type="primary" @click="onConfirm">确定</el-button>
+    </template>
+  </el-dialog>
+</template>
+
 <script lang="ts" setup>
 import { reactive, toRefs } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -96,91 +182,6 @@ const onConfirm = () => {
 
 defineExpose({ show })
 </script>
-<template>
-  <el-dialog
-    title="请选择"
-    :close-on-click-modal="false"
-    v-model="visible"
-    @closed="onClose"
-  >
-    <template #default>
-      <Searchs @submit="fetchData({ pageNo: 1 })">
-        <SearchsItem label="账号：">
-          <el-input
-            placeholder="请输入账号"
-            v-model="listQuery.account"
-            clearable
-          />
-        </SearchsItem>
-        <SearchsItem label="昵称：">
-          <el-input
-            placeholder="请输入昵称"
-            v-model="listQuery.nickname"
-            clearable
-          />
-        </SearchsItem>
-      </Searchs>
-      <el-table
-        v-loading="listLoading"
-        element-loading-text="加载中..."
-        :data="tableData"
-        height="100%"
-        border
-      >
-        <el-table-column align="center" width="55">
-          <template #default="{ row }">
-            <el-radio
-              v-model="radiov"
-              :label="row.id"
-              @change="onRadioSelect"
-              >{{ '' }}</el-radio
-            >
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="序号" width="70">
-          <template #default="{ $index }">
-            {{ (listQuery.pageNo - 1) * listQuery.pageSize + $index + 1 }}
-          </template>
-        </el-table-column>
-        <el-table-column
-          align="center"
-          prop="account"
-          label="账号"
-          min-width="120"
-          show-overflow-tooltip
-        />
-        <el-table-column
-          align="center"
-          prop="nickname"
-          label="昵称"
-          min-width="120"
-          show-overflow-tooltip
-        />
-        <el-table-column
-          align="center"
-          prop="phone"
-          label="手机号"
-          min-width="120"
-          show-overflow-tooltip
-        />
-      </el-table>
-      <div class="pagination-wrap">
-        <el-pagination
-          layout="total,sizes,prev,pager,next,jumper"
-          v-model:current-page="listQuery.pageNo"
-          v-model:page-size="listQuery.pageSize"
-          :total="total"
-          @size-change="fetchData({ pageSize: $event })"
-          @current-change="fetchData({ pageNo: $event })"
-        />
-      </div>
-    </template>
-    <template #footer>
-      <el-button @click="onClose">取消</el-button>
-      <el-button type="primary" @click="onConfirm">确定</el-button>
-    </template>
-  </el-dialog>
-</template>
 
 <style lang="scss" scoped>
 .pagination-wrap {

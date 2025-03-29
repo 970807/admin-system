@@ -1,103 +1,3 @@
-<script lang="ts">
-import { defineComponent } from 'vue'
-export default defineComponent({ name: 'meishijie_recipeList' })
-</script>
-<script lang="ts" setup>
-import { ref, reactive, toRefs, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Position, Delete } from '@element-plus/icons-vue'
-import PageContainer from '@/components/PageContainer/index.vue'
-import { Searchs, SearchsItem } from '@/components/Searchs/index'
-import CombineButtons from '@/components/CombineButtons/index.vue'
-import AddOrEditRecipeDrawer from './components/AddOrEditRecipeDrawer.vue'
-import ImportFromHTMLDialog from './components/ImportFromHTMLDialog.vue'
-import {
-  getRecipeList,
-  batchDeleteRecipe,
-  publishRecipe
-} from '@/api/meishijie/recipe'
-import type { listItemType } from '@/api/meishijie/model/recipeModel'
-
-const addOrEditRecipeDrawerRef =
-  ref<InstanceType<typeof AddOrEditRecipeDrawer>>()
-const importFromHTMLDialogRef = ref<InstanceType<typeof ImportFromHTMLDialog>>()
-
-const state = reactive<{
-  listQuery: {
-    recipeName: string
-    pageNo: number
-    pageSize: number
-  }
-  selectedRow: listItemType[]
-  tableData: listItemType[]
-  total: number
-  listLoading: boolean
-}>({
-  listQuery: {
-    recipeName: '', // 菜谱名称
-    pageNo: 1,
-    pageSize: 10
-  },
-  selectedRow: [],
-  tableData: [],
-  total: 0,
-  listLoading: false
-})
-
-const { listQuery, selectedRow, tableData, total, listLoading } = toRefs(state)
-
-const fetchData = (pageInfo?: { pageNo?: number; pageSize?: number }) => {
-  if (pageInfo) {
-    pageInfo.pageNo && (listQuery.value.pageNo = pageInfo.pageNo)
-    pageInfo.pageSize && (listQuery.value.pageSize = pageInfo.pageSize)
-  }
-  listLoading.value = true
-  getRecipeList(listQuery.value)
-    .then(res => {
-      tableData.value = res.data.list
-      total.value = res.data.totalCount
-    })
-    .finally(() => (listLoading.value = false))
-}
-
-// 添加/编辑菜谱
-const onAddOrEdit = (id?: listItemType['id']) => {
-  addOrEditRecipeDrawerRef.value.show(id)
-}
-
-// 批量删除
-const onBatchDelete = async () => {
-  const idList = state.selectedRow.map(item => item.id)
-  if (idList.length < 1) {
-    ElMessage.error('请先选择要删除的菜谱！')
-    return
-  }
-  await ElMessageBox.confirm(`删除数据后将无法恢复，是否继续？`, '提示')
-  const { message } = await batchDeleteRecipe({ idList })
-  ElMessage.success(message)
-  fetchData()
-}
-
-/**
- * 发布/取消发布
- * @param publish 是否发布 1:发布 0:取消发布
- */
-const handlePublish = async (publish: 1 | 0) => {
-  const idList = state.selectedRow.map(item => item.id)
-  if (idList.length < 1) {
-    ElMessage.error(`请先选择要${publish ? '发布' : '取消发布'}的菜谱！`)
-    return
-  }
-  const { message } = await publishRecipe({ publish, idList })
-  ElMessage.success(message)
-  fetchData()
-}
-
-onMounted(() => {
-  fetchData()
-})
-</script>
-
 <template>
   <div class="recipe-list">
     <!-- 添加/编辑菜谱 -->
@@ -203,3 +103,103 @@ onMounted(() => {
     </PageContainer>
   </div>
 </template>
+
+<script lang="ts">
+import { defineComponent } from 'vue'
+export default defineComponent({ name: 'meishijie_recipeList' })
+</script>
+<script lang="ts" setup>
+import { ref, reactive, toRefs, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Plus, Position, Delete } from '@element-plus/icons-vue'
+import PageContainer from '@/components/PageContainer/index.vue'
+import { Searchs, SearchsItem } from '@/components/Searchs/index'
+import CombineButtons from '@/components/CombineButtons/index.vue'
+import AddOrEditRecipeDrawer from './components/AddOrEditRecipeDrawer.vue'
+import ImportFromHTMLDialog from './components/ImportFromHTMLDialog.vue'
+import {
+  getRecipeList,
+  batchDeleteRecipe,
+  publishRecipe
+} from '@/api/meishijie/recipe'
+import type { listItemType } from '@/api/meishijie/model/recipeModel'
+
+const addOrEditRecipeDrawerRef =
+  ref<InstanceType<typeof AddOrEditRecipeDrawer>>()
+const importFromHTMLDialogRef = ref<InstanceType<typeof ImportFromHTMLDialog>>()
+
+const state = reactive<{
+  listQuery: {
+    recipeName: string
+    pageNo: number
+    pageSize: number
+  }
+  selectedRow: listItemType[]
+  tableData: listItemType[]
+  total: number
+  listLoading: boolean
+}>({
+  listQuery: {
+    recipeName: '', // 菜谱名称
+    pageNo: 1,
+    pageSize: 10
+  },
+  selectedRow: [],
+  tableData: [],
+  total: 0,
+  listLoading: false
+})
+
+const { listQuery, selectedRow, tableData, total, listLoading } = toRefs(state)
+
+const fetchData = (pageInfo?: { pageNo?: number; pageSize?: number }) => {
+  if (pageInfo) {
+    pageInfo.pageNo && (listQuery.value.pageNo = pageInfo.pageNo)
+    pageInfo.pageSize && (listQuery.value.pageSize = pageInfo.pageSize)
+  }
+  listLoading.value = true
+  getRecipeList(listQuery.value)
+    .then(res => {
+      tableData.value = res.data.list
+      total.value = res.data.totalCount
+    })
+    .finally(() => (listLoading.value = false))
+}
+
+// 添加/编辑菜谱
+const onAddOrEdit = (id?: listItemType['id']) => {
+  addOrEditRecipeDrawerRef.value.show(id)
+}
+
+// 批量删除
+const onBatchDelete = async () => {
+  const idList = state.selectedRow.map(item => item.id)
+  if (idList.length < 1) {
+    ElMessage.error('请先选择要删除的菜谱！')
+    return
+  }
+  await ElMessageBox.confirm(`删除数据后将无法恢复，是否继续？`, '提示')
+  const { message } = await batchDeleteRecipe({ idList })
+  ElMessage.success(message)
+  fetchData()
+}
+
+/**
+ * 发布/取消发布
+ * @param publish 是否发布 1:发布 0:取消发布
+ */
+const handlePublish = async (publish: 1 | 0) => {
+  const idList = state.selectedRow.map(item => item.id)
+  if (idList.length < 1) {
+    ElMessage.error(`请先选择要${publish ? '发布' : '取消发布'}的菜谱！`)
+    return
+  }
+  const { message } = await publishRecipe({ publish, idList })
+  ElMessage.success(message)
+  fetchData()
+}
+
+onMounted(() => {
+  fetchData()
+})
+</script>

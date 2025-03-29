@@ -1,3 +1,73 @@
+<template>
+  <el-drawer
+    v-model="visible"
+    :title="isEdit ? '编辑账号' : '添加账号'"
+    :size="500"
+    destroy-on-close
+    @closed="onClose"
+  >
+    <el-form ref="formRef" :model="formData" :rules="rules" label-width="auto">
+      <el-form-item ref="accountRef" label="账号：" prop="account">
+        <el-input
+          v-model="formData.account"
+          clearable
+          show-word-limit
+          maxlength="255"
+        />
+      </el-form-item>
+      <el-form-item ref="phoneRef" label="手机号：" prop="phone">
+        <el-input
+          v-model="formData.phone"
+          clearable
+          show-word-limit
+          maxlength="255"
+        />
+      </el-form-item>
+      <el-form-item label="密码：" prop="password">
+        <el-input
+          v-model="formData.password"
+          clearable
+          show-word-limit
+          maxlength="255"
+        />
+      </el-form-item>
+      <el-form-item label="昵称：" prop="nickname">
+        <el-input
+          v-model="formData.nickname"
+          clearable
+          show-word-limit
+          maxlength="255"
+        />
+      </el-form-item>
+      <el-form-item label="头像链接：" prop="avatar">
+        <ImageViewer ref="avatarViewRef" :url-list="[formData.avatar]" />
+        <el-input
+          v-model="formData.avatar"
+          clearable
+          show-word-limit
+          maxlength="255"
+        >
+          <template #append>
+            <div
+              v-show="formData.avatar"
+              class="icon-wrap"
+              @click="avatarViewRef.show()"
+            >
+              <el-icon><Picture /></el-icon>
+            </div>
+          </template>
+        </el-input>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="onClose">取消</el-button>
+      <el-button :loading="btnLoading" type="primary" @click="save"
+        >保存</el-button
+      >
+    </template>
+  </el-drawer>
+</template>
+
 <script lang="ts" setup>
 import { ref, reactive, toRefs, computed, defineExpose } from 'vue'
 import { Picture } from '@element-plus/icons-vue'
@@ -108,76 +178,6 @@ const save = async () => {
 
 defineExpose({ show })
 </script>
-
-<template>
-  <el-drawer
-    v-model="visible"
-    :title="isEdit ? '编辑账号' : '添加账号'"
-    :size="500"
-    destroy-on-close
-    @closed="onClose"
-  >
-    <el-form ref="formRef" :model="formData" :rules="rules" label-width="auto">
-      <el-form-item ref="accountRef" label="账号：" prop="account">
-        <el-input
-          v-model="formData.account"
-          clearable
-          show-word-limit
-          maxlength="255"
-        />
-      </el-form-item>
-      <el-form-item ref="phoneRef" label="手机号：" prop="phone">
-        <el-input
-          v-model="formData.phone"
-          clearable
-          show-word-limit
-          maxlength="255"
-        />
-      </el-form-item>
-      <el-form-item label="密码：" prop="password">
-        <el-input
-          v-model="formData.password"
-          clearable
-          show-word-limit
-          maxlength="255"
-        />
-      </el-form-item>
-      <el-form-item label="昵称：" prop="nickname">
-        <el-input
-          v-model="formData.nickname"
-          clearable
-          show-word-limit
-          maxlength="255"
-        />
-      </el-form-item>
-      <el-form-item label="头像链接：" prop="avatar">
-        <ImageViewer ref="avatarViewRef" :url-list="[formData.avatar]" />
-        <el-input
-          v-model="formData.avatar"
-          clearable
-          show-word-limit
-          maxlength="255"
-        >
-          <template #append>
-            <div
-              v-show="formData.avatar"
-              class="icon-wrap"
-              @click="avatarViewRef.show()"
-            >
-              <el-icon><Picture /></el-icon>
-            </div>
-          </template>
-        </el-input>
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <el-button @click="onClose">取消</el-button>
-      <el-button :loading="btnLoading" type="primary" @click="save"
-        >保存</el-button
-      >
-    </template>
-  </el-drawer>
-</template>
 
 <style lang="scss" scoped>
 :deep() {

@@ -1,3 +1,45 @@
+<template>
+  <el-drawer
+    v-model="visible"
+    destroy-on-close
+    :title="`${isEdit ? '编辑角色' : '添加角色'}`"
+    @closed="onClose"
+  >
+    <el-form
+      :model="formData"
+      :rules="formRules"
+      ref="formRef"
+      label-width="auto"
+    >
+      <el-form-item label="角色名" prop="roleName">
+        <el-input
+          v-model="formData.roleName"
+          placeholder="请输入角色名"
+          maxlength="10"
+          show-word-limit
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="排序值" prop="sort">
+        <el-input-number v-model="formData.sort" :min="1" :max="999" />
+      </el-form-item>
+      <el-form-item label="是否启用" required>
+        <el-switch
+          v-model="formData.enable"
+          :active-value="1"
+          :inactive-value="0"
+        />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="onClose">取消</el-button>
+      <el-button :loading="btnLoading" type="primary" @click="save"
+        >保存</el-button
+      >
+    </template>
+  </el-drawer>
+</template>
+
 <script lang="ts">
 import { defineComponent, ref, reactive, computed, toRefs } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -140,45 +182,3 @@ export default defineComponent({
   }
 })
 </script>
-
-<template>
-  <el-drawer
-    v-model="visible"
-    destroy-on-close
-    :title="`${isEdit ? '编辑角色' : '添加角色'}`"
-    @closed="onClose"
-  >
-    <el-form
-      :model="formData"
-      :rules="formRules"
-      ref="formRef"
-      label-width="auto"
-    >
-      <el-form-item label="角色名" prop="roleName">
-        <el-input
-          v-model="formData.roleName"
-          placeholder="请输入角色名"
-          maxlength="10"
-          show-word-limit
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="排序值" prop="sort">
-        <el-input-number v-model="formData.sort" :min="1" :max="999" />
-      </el-form-item>
-      <el-form-item label="是否启用" required>
-        <el-switch
-          v-model="formData.enable"
-          :active-value="1"
-          :inactive-value="0"
-        />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <el-button @click="onClose">取消</el-button>
-      <el-button :loading="btnLoading" type="primary" @click="save"
-        >保存</el-button
-      >
-    </template>
-  </el-drawer>
-</template>

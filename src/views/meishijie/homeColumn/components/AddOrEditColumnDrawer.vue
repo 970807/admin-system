@@ -1,3 +1,48 @@
+<template>
+  <el-drawer
+    v-model="visible"
+    :title="isEdit ? '编辑栏位' : '添加栏位'"
+    :size="700"
+    destroy-on-close
+    @closed="onClose"
+  >
+    <template #default>
+      <el-form
+        ref="formRef"
+        :model="inputForm"
+        :rules="rules"
+        label-width="auto"
+      >
+        <el-form-item label="栏位名称：" prop="columnName">
+          <el-input
+            v-model="inputForm.columnName"
+            placeholder="请输入栏位名称"
+            clearable
+            show-word-limit
+            maxlength="80"
+          />
+        </el-form-item>
+        <el-form-item label="排序值：" prop="sortNo">
+          <el-input-number v-model="inputForm.sortNo" :min="0" :max="999" />
+        </el-form-item>
+        <el-form-item label="立即启用：" prop="available">
+          <el-switch
+            v-model="inputForm.available"
+            :active-value="1"
+            :inactive-value="0"
+          />
+        </el-form-item>
+      </el-form>
+    </template>
+    <template #footer>
+      <el-button @click="onClose">取消</el-button>
+      <el-button :loading="btnLoading" type="primary" @click="onSave"
+        >保存</el-button
+      >
+    </template>
+  </el-drawer>
+</template>
+
 <script lang="ts" setup>
 import { ref, reactive, toRefs, computed } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -104,48 +149,3 @@ const onSave = () => {
 
 defineExpose({ show })
 </script>
-
-<template>
-  <el-drawer
-    v-model="visible"
-    :title="isEdit ? '编辑栏位' : '添加栏位'"
-    :size="700"
-    destroy-on-close
-    @closed="onClose"
-  >
-    <template #default>
-      <el-form
-        ref="formRef"
-        :model="inputForm"
-        :rules="rules"
-        label-width="auto"
-      >
-        <el-form-item label="栏位名称：" prop="columnName">
-          <el-input
-            v-model="inputForm.columnName"
-            placeholder="请输入栏位名称"
-            clearable
-            show-word-limit
-            maxlength="80"
-          />
-        </el-form-item>
-        <el-form-item label="排序值：" prop="sortNo">
-          <el-input-number v-model="inputForm.sortNo" :min="0" :max="999" />
-        </el-form-item>
-        <el-form-item label="立即启用：" prop="available">
-          <el-switch
-            v-model="inputForm.available"
-            :active-value="1"
-            :inactive-value="0"
-          />
-        </el-form-item>
-      </el-form>
-    </template>
-    <template #footer>
-      <el-button @click="onClose">取消</el-button>
-      <el-button :loading="btnLoading" type="primary" @click="onSave"
-        >保存</el-button
-      >
-    </template>
-  </el-drawer>
-</template>

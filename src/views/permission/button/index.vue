@@ -1,19 +1,3 @@
-<script setup lang="ts">
-import { type CSSProperties, computed } from 'vue'
-import { hasAuth, getAuths } from '@/router/utils'
-
-defineOptions({
-  name: 'PermissionButton'
-})
-
-const elStyle = computed((): CSSProperties => {
-  return {
-    width: '85vw',
-    justifyContent: 'start'
-  }
-})
-</script>
-
 <template>
   <el-space direction="vertical" size="large">
     <el-tag :style="elStyle" size="large" effect="dark">
@@ -73,3 +57,19 @@ const elStyle = computed((): CSSProperties => {
     </el-card>
   </el-space>
 </template>
+
+<script setup lang="ts">
+import { type CSSProperties, computed } from 'vue'
+import { hasAuth, getAuths } from '@/router/utils'
+
+defineOptions({
+  name: 'PermissionButton'
+})
+
+const elStyle = computed((): CSSProperties => {
+  return {
+    width: '85vw',
+    justifyContent: 'start'
+  }
+})
+</script>

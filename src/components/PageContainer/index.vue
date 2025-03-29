@@ -1,13 +1,3 @@
-<script lang="ts">
-import { defineComponent } from 'vue'
-export default defineComponent({ name: 'PageContainer' })
-</script>
-<script lang="ts" setup>
-import { useSlots } from 'vue'
-
-const slots = useSlots()
-</script>
-
 <template>
   <div class="page-container">
     <header v-if="slots.header">
@@ -22,6 +12,15 @@ const slots = useSlots()
     </footer>
   </div>
 </template>
+<script lang="ts">
+import { defineComponent } from 'vue'
+export default defineComponent({ name: 'PageContainer' })
+</script>
+<script lang="ts" setup>
+import { useSlots } from 'vue'
+
+const slots = useSlots()
+</script>
 
 <style lang="scss" scoped>
 .page-container {

@@ -1,259 +1,3 @@
-<script lang="ts" setup>
-import { ref, reactive, computed, toRefs } from 'vue'
-import { ElMessage } from 'element-plus'
-import type { FormInstance, FormRules } from 'element-plus'
-import { CircleClose } from '@element-plus/icons-vue'
-import SelectAuthorDialog from './SelectAuthorDialog.vue'
-import {
-  getRecipeDetailById,
-  addRecipe,
-  editRecipe
-} from '@/api/meishijie/recipe'
-
-const emit = defineEmits(['refresh'])
-
-const formRef = ref<FormInstance>()
-const selectAuthorDialogRef = ref<InstanceType<typeof SelectAuthorDialog>>()
-
-interface IFormData {
-  id?: string
-  recipeName: string
-  recipeQrcode: string
-  isVideo: 0 | 1
-  coverUrl: string
-  videoUrl: string
-  simpleIntroductionTechnology: string
-  simpleIntroductionTaste: string
-  simpleIntroductionTime: string
-  simpleIntroductionDifficulty: string
-  mainIngredientsStr: string
-  subIngredientsStr: string
-  peopleCount: number
-  favCount: number
-  browerCount: number
-  authorId: string
-  authorName?: string
-  authorWords: string
-  stepList: Array<{ imgUrl: string; content: string }>
-  finishFoodImgUrlList: string[]
-  recipeTips: string
-  originWebLink: string
-  publish: 1 | 0
-}
-
-const getDefaultFormData = (): IFormData => ({
-  id: undefined,
-  recipeName: '', // 菜谱名称
-  recipeQrcode: '', // 菜谱二维码链接
-  isVideo: 0, // 是否是视频菜谱
-  coverUrl: '', // 封面图链接
-  videoUrl: '', // 视频链接
-  simpleIntroductionTechnology: '', // 工艺
-  simpleIntroductionTaste: '', // 口味
-  simpleIntroductionTime: '', // 时间
-  simpleIntroductionDifficulty: '', // 难度
-  mainIngredientsStr: '', // 主料
-  subIngredientsStr: '', // 辅料
-  peopleCount: 0, // 份数
-  favCount: 0, // 收藏数
-  browerCount: 0, // 浏览数
-  authorId: '', // 菜谱作者id
-  authorName: '', // 菜谱作者
-  authorWords: '', // 作者推荐语
-  stepList: [], // 做法步骤
-  finishFoodImgUrlList: [], // 成品图
-  recipeTips: '', // 烹饪技巧
-  originWebLink: '', // 官方链接
-  publish: 1 // 立即发布
-})
-
-const state = reactive<{
-  visible: boolean
-  formData: IFormData
-  btnLoading: boolean
-}>({
-  visible: false,
-  formData: getDefaultFormData(),
-  btnLoading: false
-})
-
-const { visible, formData, btnLoading } = toRefs(state)
-
-// 是否编辑操作 true: 编辑 false: 新增
-const isEdit = computed(() => typeof formData.value.id !== 'undefined')
-
-const rules = reactive<FormRules>({
-  recipeName: [
-    { required: true, message: '请输入菜谱名称', trigger: ['blur', 'change'] }
-  ],
-  recipeQrcode: [
-    { required: true, message: '请输入二维码链接', trigger: ['blur', 'change'] }
-  ],
-  isVideo: [
-    {
-      required: true,
-      type: 'integer',
-      message: '请选择是否为视频菜谱',
-      trigger: ['blur', 'change']
-    }
-  ],
-  videoUrl: [
-    { required: true, message: '请输入视频链接', trigger: ['blur', 'change'] }
-  ],
-  coverUrl: [
-    { required: true, message: '请输入封面图链接', trigger: ['blur', 'change'] }
-  ],
-  simpleIntroductionTechnology: [
-    { required: true, message: '请输入工艺', trigger: ['blur', 'change'] }
-  ],
-  simpleIntroductionTaste: [
-    { required: true, message: '请输入口味', trigger: ['blur', 'change'] }
-  ],
-  simpleIntroductionTime: [
-    { required: true, message: '请输入时间', trigger: ['blur', 'change'] }
-  ],
-  simpleIntroductionDifficulty: [
-    { required: true, message: '请输入难度', trigger: ['blur', 'change'] }
-  ],
-  mainIngredientsStr: [
-    { required: true, message: '请输入主料', trigger: ['blur', 'change'] }
-  ],
-  subIngredientsStr: [
-    { required: true, message: '请输入辅料', trigger: ['blur', 'change'] }
-  ],
-  peopleCount: [
-    {
-      required: true,
-      type: 'integer',
-      message: '请输入份数',
-      trigger: ['blur', 'change']
-    }
-  ],
-  favCount: [
-    {
-      required: true,
-      type: 'integer',
-      message: '请输入收藏数',
-      trigger: ['blur', 'change']
-    }
-  ],
-  browerCount: [
-    {
-      required: true,
-      type: 'integer',
-      message: '请输入浏览数',
-      trigger: ['blur', 'change']
-    }
-  ],
-  authorId: [
-    {
-      required: true,
-      message: '请选择菜谱作者',
-      trigger: ['blur', 'change']
-    }
-  ],
-  authorWords: [
-    { required: true, message: '请输入作者推荐语', trigger: ['blur', 'change'] }
-  ],
-  stepList: [
-    {
-      required: true,
-      trigger: ['blur', 'change'],
-      validator(rule, value, callback) {
-        if (!Array.isArray(value) || value.length < 1) {
-          return callback(new Error('请添加做法步骤'))
-        }
-        for (let i = 0; i < value.length; i++) {
-          if (!value[i].content) {
-            return callback(new Error(`step ${i + 1}内容不能为空`))
-          }
-        }
-        callback()
-      }
-    }
-  ],
-  finishFoodImgUrlList: [
-    {
-      required: true,
-      trigger: ['blur', 'change'],
-      validator(rule, value, callback) {
-        if (!Array.isArray(value) || value.length < 1) {
-          return callback(new Error('请添加成品图'))
-        }
-        for (let i = 0; i < value.length; i++) {
-          if (!value[i]) {
-            return callback(new Error(`成品图${i + 1}链接不能为空`))
-          }
-        }
-        callback()
-      }
-    }
-  ]
-})
-
-const show = (id?: string) => {
-  visible.value = true
-  if (id) getDetail(id)
-}
-
-const onClose = () => {
-  visible.value = false
-  formData.value = getDefaultFormData()
-}
-
-// 获取详情
-const getDetail = (id: string) => {
-  getRecipeDetailById({ id }).then(res => {
-    formData.value = res.data
-  })
-}
-
-// 添加做法步骤
-const handleAddStep = () => {
-  formData.value.stepList.push({ imgUrl: '', content: '' })
-}
-
-// 删除做法步骤
-const handleDeleteStep = (index: number) => {
-  formData.value.stepList.splice(index)
-}
-
-// 添加成品图
-const handleAddFinishImg = () => {
-  formData.value.finishFoodImgUrlList.push('')
-}
-
-const handleFinishGoodsImgUrlChange = (index: number) => {
-  if (formData.value.finishFoodImgUrlList[index]) {
-    return
-  }
-  formData.value.finishFoodImgUrlList.splice(index, 1)
-}
-
-const onSave = () => {
-  formRef.value.validate(valid => {
-    if (!valid) return
-    btnLoading.value = true
-    ;(isEdit.value ? editRecipe : addRecipe)(
-      formData.value as Required<IFormData>
-    )
-      .then(res => {
-        ElMessage.success(res.message)
-        emit('refresh')
-        onClose()
-      })
-      .finally(() => (btnLoading.value = false))
-  })
-}
-
-const onAuthorSelect = (row: any) => {
-  state.formData.authorName = row.nickname
-  state.formData.authorId = row.id
-}
-
-defineExpose({ show })
-</script>
-
 <template>
   <el-drawer
     v-model="visible"
@@ -539,6 +283,262 @@ defineExpose({ show })
     </template>
   </el-drawer>
 </template>
+
+<script lang="ts" setup>
+import { ref, reactive, computed, toRefs } from 'vue'
+import { ElMessage } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
+import { CircleClose } from '@element-plus/icons-vue'
+import SelectAuthorDialog from './SelectAuthorDialog.vue'
+import {
+  getRecipeDetailById,
+  addRecipe,
+  editRecipe
+} from '@/api/meishijie/recipe'
+
+const emit = defineEmits(['refresh'])
+
+const formRef = ref<FormInstance>()
+const selectAuthorDialogRef = ref<InstanceType<typeof SelectAuthorDialog>>()
+
+interface IFormData {
+  id?: string
+  recipeName: string
+  recipeQrcode: string
+  isVideo: 0 | 1
+  coverUrl: string
+  videoUrl: string
+  simpleIntroductionTechnology: string
+  simpleIntroductionTaste: string
+  simpleIntroductionTime: string
+  simpleIntroductionDifficulty: string
+  mainIngredientsStr: string
+  subIngredientsStr: string
+  peopleCount: number
+  favCount: number
+  browerCount: number
+  authorId: string
+  authorName?: string
+  authorWords: string
+  stepList: Array<{ imgUrl: string; content: string }>
+  finishFoodImgUrlList: string[]
+  recipeTips: string
+  originWebLink: string
+  publish: 1 | 0
+}
+
+const getDefaultFormData = (): IFormData => ({
+  id: undefined,
+  recipeName: '', // 菜谱名称
+  recipeQrcode: '', // 菜谱二维码链接
+  isVideo: 0, // 是否是视频菜谱
+  coverUrl: '', // 封面图链接
+  videoUrl: '', // 视频链接
+  simpleIntroductionTechnology: '', // 工艺
+  simpleIntroductionTaste: '', // 口味
+  simpleIntroductionTime: '', // 时间
+  simpleIntroductionDifficulty: '', // 难度
+  mainIngredientsStr: '', // 主料
+  subIngredientsStr: '', // 辅料
+  peopleCount: 0, // 份数
+  favCount: 0, // 收藏数
+  browerCount: 0, // 浏览数
+  authorId: '', // 菜谱作者id
+  authorName: '', // 菜谱作者
+  authorWords: '', // 作者推荐语
+  stepList: [], // 做法步骤
+  finishFoodImgUrlList: [], // 成品图
+  recipeTips: '', // 烹饪技巧
+  originWebLink: '', // 官方链接
+  publish: 1 // 立即发布
+})
+
+const state = reactive<{
+  visible: boolean
+  formData: IFormData
+  btnLoading: boolean
+}>({
+  visible: false,
+  formData: getDefaultFormData(),
+  btnLoading: false
+})
+
+const { visible, formData, btnLoading } = toRefs(state)
+
+// 是否编辑操作 true: 编辑 false: 新增
+const isEdit = computed(() => typeof formData.value.id !== 'undefined')
+
+const rules = reactive<FormRules>({
+  recipeName: [
+    { required: true, message: '请输入菜谱名称', trigger: ['blur', 'change'] }
+  ],
+  recipeQrcode: [
+    { required: true, message: '请输入二维码链接', trigger: ['blur', 'change'] }
+  ],
+  isVideo: [
+    {
+      required: true,
+      type: 'integer',
+      message: '请选择是否为视频菜谱',
+      trigger: ['blur', 'change']
+    }
+  ],
+  videoUrl: [
+    { required: true, message: '请输入视频链接', trigger: ['blur', 'change'] }
+  ],
+  coverUrl: [
+    { required: true, message: '请输入封面图链接', trigger: ['blur', 'change'] }
+  ],
+  simpleIntroductionTechnology: [
+    { required: true, message: '请输入工艺', trigger: ['blur', 'change'] }
+  ],
+  simpleIntroductionTaste: [
+    { required: true, message: '请输入口味', trigger: ['blur', 'change'] }
+  ],
+  simpleIntroductionTime: [
+    { required: true, message: '请输入时间', trigger: ['blur', 'change'] }
+  ],
+  simpleIntroductionDifficulty: [
+    { required: true, message: '请输入难度', trigger: ['blur', 'change'] }
+  ],
+  mainIngredientsStr: [
+    { required: true, message: '请输入主料', trigger: ['blur', 'change'] }
+  ],
+  subIngredientsStr: [
+    { required: true, message: '请输入辅料', trigger: ['blur', 'change'] }
+  ],
+  peopleCount: [
+    {
+      required: true,
+      type: 'integer',
+      message: '请输入份数',
+      trigger: ['blur', 'change']
+    }
+  ],
+  favCount: [
+    {
+      required: true,
+      type: 'integer',
+      message: '请输入收藏数',
+      trigger: ['blur', 'change']
+    }
+  ],
+  browerCount: [
+    {
+      required: true,
+      type: 'integer',
+      message: '请输入浏览数',
+      trigger: ['blur', 'change']
+    }
+  ],
+  authorId: [
+    {
+      required: true,
+      message: '请选择菜谱作者',
+      trigger: ['blur', 'change']
+    }
+  ],
+  authorWords: [
+    { required: true, message: '请输入作者推荐语', trigger: ['blur', 'change'] }
+  ],
+  stepList: [
+    {
+      required: true,
+      trigger: ['blur', 'change'],
+      validator(rule, value, callback) {
+        if (!Array.isArray(value) || value.length < 1) {
+          return callback(new Error('请添加做法步骤'))
+        }
+        for (let i = 0; i < value.length; i++) {
+          if (!value[i].content) {
+            return callback(new Error(`step ${i + 1}内容不能为空`))
+          }
+        }
+        callback()
+      }
+    }
+  ],
+  finishFoodImgUrlList: [
+    {
+      required: true,
+      trigger: ['blur', 'change'],
+      validator(rule, value, callback) {
+        if (!Array.isArray(value) || value.length < 1) {
+          return callback(new Error('请添加成品图'))
+        }
+        for (let i = 0; i < value.length; i++) {
+          if (!value[i]) {
+            return callback(new Error(`成品图${i + 1}链接不能为空`))
+          }
+        }
+        callback()
+      }
+    }
+  ]
+})
+
+const show = (id?: string) => {
+  visible.value = true
+  if (id) getDetail(id)
+}
+
+const onClose = () => {
+  visible.value = false
+  formData.value = getDefaultFormData()
+}
+
+// 获取详情
+const getDetail = (id: string) => {
+  getRecipeDetailById({ id }).then(res => {
+    formData.value = res.data
+  })
+}
+
+// 添加做法步骤
+const handleAddStep = () => {
+  formData.value.stepList.push({ imgUrl: '', content: '' })
+}
+
+// 删除做法步骤
+const handleDeleteStep = (index: number) => {
+  formData.value.stepList.splice(index)
+}
+
+// 添加成品图
+const handleAddFinishImg = () => {
+  formData.value.finishFoodImgUrlList.push('')
+}
+
+const handleFinishGoodsImgUrlChange = (index: number) => {
+  if (formData.value.finishFoodImgUrlList[index]) {
+    return
+  }
+  formData.value.finishFoodImgUrlList.splice(index, 1)
+}
+
+const onSave = () => {
+  formRef.value.validate(valid => {
+    if (!valid) return
+    btnLoading.value = true
+    ;(isEdit.value ? editRecipe : addRecipe)(
+      formData.value as Required<IFormData>
+    )
+      .then(res => {
+        ElMessage.success(res.message)
+        emit('refresh')
+        onClose()
+      })
+      .finally(() => (btnLoading.value = false))
+  })
+}
+
+const onAuthorSelect = (row: any) => {
+  state.formData.authorName = row.nickname
+  state.formData.authorId = row.id
+}
+
+defineExpose({ show })
+</script>
 
 <style lang="scss" scoped>
 :deep() {

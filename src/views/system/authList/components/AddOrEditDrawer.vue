@@ -1,3 +1,137 @@
+<template>
+  <el-drawer
+    v-model="visible"
+    destroy-on-close
+    :title="options.drawerTitle"
+    @closed="onClose"
+  >
+    <template #default>
+      <el-form
+        :model="formData"
+        :rules="rules"
+        ref="formRef"
+        label-width="auto"
+      >
+        <el-form-item label="名称" prop="name">
+          <el-input
+            v-model="formData.name"
+            maxlength="10"
+            show-word-limit
+            placeholder="请输入名称"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="权限标识" prop="authMarker">
+          <el-input
+            v-model="formData.authMarker"
+            maxlength="30"
+            show-word-limit
+            placeholder="请输入权限标识"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="权限类型" prop="authType">
+          <el-radio-group v-model="formData.authType">
+            <el-radio-button
+              v-for="item in AUTH_TYPE_ARR"
+              :key="item.value"
+              :label="item.value"
+              :disabled="handleAuthTypeDisabled(item.value)"
+              >{{ item.name }}</el-radio-button
+            >
+          </el-radio-group>
+        </el-form-item>
+        <template v-if="formData.authType === AUTH_TYPE_EM.MENU.value">
+          <el-form-item label="菜单name">
+            <el-input
+              v-model="formData.menuName"
+              maxlength="50"
+              show-word-limit
+              placeholder="请输入菜单name"
+              clearable
+            />
+          </el-form-item>
+          <el-form-item label="菜单路径" prop="menuPath">
+            <el-input
+              v-model="formData.menuPath"
+              maxlength="50"
+              show-word-limit
+              placeholder="请输入菜单路径"
+              clearable
+            />
+          </el-form-item>
+          <el-form-item label="菜单icon" prop="menuIcon">
+            <el-input
+              v-model="formData.menuIcon"
+              maxlength="20"
+              show-word-limit
+              placeholder="请输入菜单icon"
+              clearable
+            />
+          </el-form-item>
+          <el-form-item label="菜单隐藏" prop="menuHidden">
+            <el-switch
+              v-model="formData.menuHidden"
+              :active-value="1"
+              :inactive-value="0"
+              active-text="是"
+              inactive-text="否"
+            />
+          </el-form-item>
+          <el-form-item label="重定向" prop="redirect">
+            <el-input
+              v-model="formData.redirect"
+              maxlength="50"
+              show-word-limit
+              placeholder="请输入重定向路径"
+              clearable
+            />
+          </el-form-item>
+          <el-form-item label="组件路径" prop="cpnPath">
+            <el-input
+              v-model="formData.cpnPath"
+              maxlength="50"
+              show-word-limit
+              placeholder="请输入组件路径"
+              clearable
+            />
+          </el-form-item>
+        </template>
+        <el-form-item label="排序值" prop="sortNo">
+          <el-input-number v-model="formData.sortNo" :min="0" :max="999" />
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input
+            v-model="formData.remark"
+            clearable
+            maxlength="50"
+            show-word-limit
+            placeholder="请输入备注"
+          />
+        </el-form-item>
+        <el-form-item label="是否启用" prop="enable">
+          <el-switch
+            v-model="formData.enable"
+            :active-value="1"
+            :inactive-value="0"
+          />
+        </el-form-item>
+      </el-form>
+    </template>
+    <template #footer>
+      <template v-if="options.readMode">
+        <el-button @click="onClose">关闭</el-button>
+      </template>
+      <template v-else>
+        <el-button @click="onClose">取消</el-button>
+        <el-button :loading="btnLoading" type="primary" @click="save"
+          >保存</el-button
+        >
+      </template>
+    </template>
+  </el-drawer>
+</template>
+
 <script lang="ts" setup>
 import {
   ref,
@@ -196,137 +330,3 @@ watch(
 
 defineExpose({ show })
 </script>
-
-<template>
-  <el-drawer
-    v-model="visible"
-    destroy-on-close
-    :title="options.drawerTitle"
-    @closed="onClose"
-  >
-    <template #default>
-      <el-form
-        :model="formData"
-        :rules="rules"
-        ref="formRef"
-        label-width="auto"
-      >
-        <el-form-item label="名称" prop="name">
-          <el-input
-            v-model="formData.name"
-            maxlength="10"
-            show-word-limit
-            placeholder="请输入名称"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="权限标识" prop="authMarker">
-          <el-input
-            v-model="formData.authMarker"
-            maxlength="30"
-            show-word-limit
-            placeholder="请输入权限标识"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="权限类型" prop="authType">
-          <el-radio-group v-model="formData.authType">
-            <el-radio-button
-              v-for="item in AUTH_TYPE_ARR"
-              :key="item.value"
-              :label="item.value"
-              :disabled="handleAuthTypeDisabled(item.value)"
-              >{{ item.name }}</el-radio-button
-            >
-          </el-radio-group>
-        </el-form-item>
-        <template v-if="formData.authType === AUTH_TYPE_EM.MENU.value">
-          <el-form-item label="菜单name">
-            <el-input
-              v-model="formData.menuName"
-              maxlength="50"
-              show-word-limit
-              placeholder="请输入菜单name"
-              clearable
-            />
-          </el-form-item>
-          <el-form-item label="菜单路径" prop="menuPath">
-            <el-input
-              v-model="formData.menuPath"
-              maxlength="50"
-              show-word-limit
-              placeholder="请输入菜单路径"
-              clearable
-            />
-          </el-form-item>
-          <el-form-item label="菜单icon" prop="menuIcon">
-            <el-input
-              v-model="formData.menuIcon"
-              maxlength="20"
-              show-word-limit
-              placeholder="请输入菜单icon"
-              clearable
-            />
-          </el-form-item>
-          <el-form-item label="菜单隐藏" prop="menuHidden">
-            <el-switch
-              v-model="formData.menuHidden"
-              :active-value="1"
-              :inactive-value="0"
-              active-text="是"
-              inactive-text="否"
-            />
-          </el-form-item>
-          <el-form-item label="重定向" prop="redirect">
-            <el-input
-              v-model="formData.redirect"
-              maxlength="50"
-              show-word-limit
-              placeholder="请输入重定向路径"
-              clearable
-            />
-          </el-form-item>
-          <el-form-item label="组件路径" prop="cpnPath">
-            <el-input
-              v-model="formData.cpnPath"
-              maxlength="50"
-              show-word-limit
-              placeholder="请输入组件路径"
-              clearable
-            />
-          </el-form-item>
-        </template>
-        <el-form-item label="排序值" prop="sortNo">
-          <el-input-number v-model="formData.sortNo" :min="0" :max="999" />
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input
-            v-model="formData.remark"
-            clearable
-            maxlength="50"
-            show-word-limit
-            placeholder="请输入备注"
-          />
-        </el-form-item>
-        <el-form-item label="是否启用" prop="enable">
-          <el-switch
-            v-model="formData.enable"
-            :active-value="1"
-            :inactive-value="0"
-          />
-        </el-form-item>
-      </el-form>
-    </template>
-    <template #footer>
-      <template v-if="options.readMode">
-        <el-button @click="onClose">关闭</el-button>
-      </template>
-      <template v-else>
-        <el-button @click="onClose">取消</el-button>
-        <el-button :loading="btnLoading" type="primary" @click="save"
-          >保存</el-button
-        >
-      </template>
-    </template>
-  </el-drawer>
-</template>

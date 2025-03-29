@@ -1,102 +1,3 @@
-<script lang="ts">
-import { defineComponent } from 'vue'
-export default defineComponent({ name: 'meishijie_accountList' })
-</script>
-
-<script lang="ts" setup>
-import { ref, reactive, toRefs, onMounted } from 'vue'
-import { ElMessageBox, ElMessage } from 'element-plus'
-import { Plus, Edit, Unlock, Delete } from '@element-plus/icons-vue'
-import PageContainer from '@/components/PageContainer/index.vue'
-import { Searchs, SearchsItem } from '@/components/Searchs/index'
-import {
-  getList,
-  editAccountPassword,
-  deleteAccount
-} from '@/api/meishijie/account'
-import AddOrEditAccountDrawer from './components/AddOrEditAccountDrawer.vue'
-import type {
-  listItemType,
-  IGetListParams
-} from '@/api/meishijie/model/accountModel'
-
-const addOrEditAccountDrawerRef =
-  ref<InstanceType<typeof AddOrEditAccountDrawer>>()
-
-const state = reactive<{
-  tableData: listItemType[]
-  listQuery: IGetListParams
-  listLoading: boolean
-  total: number
-}>({
-  tableData: [],
-  listQuery: {
-    pageNo: 1,
-    pageSize: 10,
-    account: '',
-    nickname: ''
-  },
-  listLoading: false,
-  total: 0
-})
-
-const { tableData, listQuery, listLoading, total } = toRefs(state)
-
-const fetchData = (pageInfo?: { pageNo?: number; pageSize?: number }) => {
-  if (pageInfo) {
-    pageInfo.pageNo && (listQuery.value.pageNo = pageInfo.pageNo)
-    pageInfo.pageSize && (listQuery.value.pageSize = pageInfo.pageSize)
-  }
-  listLoading.value = true
-  getList(listQuery.value)
-    .then(res => {
-      tableData.value = res.data.list
-      total.value = res.data.totalCount
-    })
-    .finally(() => (listLoading.value = false))
-}
-
-// 添加/编辑账号
-const onAddOrEdit = (row?: listItemType) => {
-  addOrEditAccountDrawerRef.value.show(row)
-}
-
-// 修改密码
-const onEditPassword = (id: listItemType['id']) => {
-  ElMessageBox.prompt('请输入新密码', '修改密码', {
-    inputPattern: /^.+$/,
-    inputErrorMessage: '密码不能为空'
-  })
-    .then(async ({ value: password }) => {
-      const res = await editAccountPassword({ id, password })
-      ElMessage.success(res.message)
-    })
-    .catch(() => {
-      ElMessage.info('已取消')
-    })
-}
-
-// 删除账号
-const onDeleteAccount = async (id: listItemType['id']) => {
-  ElMessageBox.confirm('删除后将无法恢复，是否继续？', '提示', {
-    type: 'warning'
-  })
-    .then(() => {
-      deleteAccount({ id }).then(res => {
-        ElMessage.success(res.message)
-        fetchData()
-      })
-    })
-    .catch(() => {
-      ElMessage.info('已取消')
-    })
-}
-
-onMounted(() => {
-  fetchData()
-})
-</script>
-
 <template>
   <div class="account-list">
     <!-- 添加/编辑账号drawer -->
@@ -220,3 +121,102 @@ onMounted(() => {
     </PageContainer>
   </div>
 </template>
+
+<script lang="ts">
+import { defineComponent } from 'vue'
+export default defineComponent({ name: 'meishijie_accountList' })
+</script>
+
+<script lang="ts" setup>
+import { ref, reactive, toRefs, onMounted } from 'vue'
+import { ElMessageBox, ElMessage } from 'element-plus'
+import { Plus, Edit, Unlock, Delete } from '@element-plus/icons-vue'
+import PageContainer from '@/components/PageContainer/index.vue'
+import { Searchs, SearchsItem } from '@/components/Searchs/index'
+import {
+  getList,
+  editAccountPassword,
+  deleteAccount
+} from '@/api/meishijie/account'
+import AddOrEditAccountDrawer from './components/AddOrEditAccountDrawer.vue'
+import type {
+  listItemType,
+  IGetListParams
+} from '@/api/meishijie/model/accountModel'
+
+const addOrEditAccountDrawerRef =
+  ref<InstanceType<typeof AddOrEditAccountDrawer>>()
+
+const state = reactive<{
+  tableData: listItemType[]
+  listQuery: IGetListParams
+  listLoading: boolean
+  total: number
+}>({
+  tableData: [],
+  listQuery: {
+    pageNo: 1,
+    pageSize: 10,
+    account: '',
+    nickname: ''
+  },
+  listLoading: false,
+  total: 0
+})
+
+const { tableData, listQuery, listLoading, total } = toRefs(state)
+
+const fetchData = (pageInfo?: { pageNo?: number; pageSize?: number }) => {
+  if (pageInfo) {
+    pageInfo.pageNo && (listQuery.value.pageNo = pageInfo.pageNo)
+    pageInfo.pageSize && (listQuery.value.pageSize = pageInfo.pageSize)
+  }
+  listLoading.value = true
+  getList(listQuery.value)
+    .then(res => {
+      tableData.value = res.data.list
+      total.value = res.data.totalCount
+    })
+    .finally(() => (listLoading.value = false))
+}
+
+// 添加/编辑账号
+const onAddOrEdit = (row?: listItemType) => {
+  addOrEditAccountDrawerRef.value.show(row)
+}
+
+// 修改密码
+const onEditPassword = (id: listItemType['id']) => {
+  ElMessageBox.prompt('请输入新密码', '修改密码', {
+    inputPattern: /^.+$/,
+    inputErrorMessage: '密码不能为空'
+  })
+    .then(async ({ value: password }) => {
+      const res = await editAccountPassword({ id, password })
+      ElMessage.success(res.message)
+    })
+    .catch(() => {
+      ElMessage.info('已取消')
+    })
+}
+
+// 删除账号
+const onDeleteAccount = async (id: listItemType['id']) => {
+  ElMessageBox.confirm('删除后将无法恢复，是否继续？', '提示', {
+    type: 'warning'
+  })
+    .then(() => {
+      deleteAccount({ id }).then(res => {
+        ElMessage.success(res.message)
+        fetchData()
+      })
+    })
+    .catch(() => {
+      ElMessage.info('已取消')
+    })
+}
+
+onMounted(() => {
+  fetchData()
+})
+</script>
