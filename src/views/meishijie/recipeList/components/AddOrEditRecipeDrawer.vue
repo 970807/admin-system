@@ -38,6 +38,7 @@ interface IFormData {
   finishFoodImgUrlList: string[]
   recipeTips: string
   originWebLink: string
+  publish: 1 | 0
 }
 
 const getDefaultFormData = (): IFormData => ({
@@ -62,7 +63,8 @@ const getDefaultFormData = (): IFormData => ({
   stepList: [], // 做法步骤
   finishFoodImgUrlList: [], // 成品图
   recipeTips: '', // 烹饪技巧
-  originWebLink: '' // 官方链接
+  originWebLink: '', // 官方链接
+  publish: 1 // 立即发布
 })
 
 const state = reactive<{
@@ -162,9 +164,6 @@ const rules = reactive<FormRules>({
           return callback(new Error('请添加做法步骤'))
         }
         for (let i = 0; i < value.length; i++) {
-          if (!value[i].imgUrl) {
-            return callback(new Error(`step ${i + 1}图片链接不能为空`))
-          }
           if (!value[i].content) {
             return callback(new Error(`step ${i + 1}内容不能为空`))
           }
@@ -516,6 +515,13 @@ defineExpose({ show })
             clearable
             show-word-limit
             maxlength="255"
+          />
+        </el-form-item>
+        <el-form-item label="立即发布：">
+          <el-switch
+            v-model="formData.publish"
+            :active-value="1"
+            :inactive-value="0"
           />
         </el-form-item>
       </el-form>

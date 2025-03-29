@@ -103,7 +103,8 @@ exports.addRecipe = async (req, res, next) => {
       finishFoodImgUrlList,
       recipeTips,
       authorId,
-      originWebLink
+      originWebLink,
+      publish = 0
     } = req.body
     const d = new Date()
     const id = uuidv4()
@@ -129,6 +130,7 @@ exports.addRecipe = async (req, res, next) => {
       recipeTips,
       authorId,
       originWebLink,
+      publish,
       createTime: d,
       updateTime: d
     })
@@ -164,10 +166,11 @@ exports.editRecipe = async (req, res, next) => {
       finishFoodImgUrlList,
       recipeTips,
       authorId,
-      originWebLink
+      originWebLink,
+      publish = 0
     } = req.body
     const r = await meishijieDb.query(
-      'update recipe_list set recipe_name=?,is_video=?,cover_url=?,video_url=?,recipe_qrcode=?,simple_introduction_technology=?,simple_introduction_taste=?,simple_introduction_time=?,simple_introduction_difficulty=?,main_ingredients_str=?,sub_ingredients_str=?,people_count=?,fav_count=?,brower_count=?,author_words=?,finish_food_imgs_str=?,steps_str=?,recipe_tips=?,author_id=?,origin_web_link=?,update_time=? where id=?',
+      'update recipe_list set recipe_name=?,is_video=?,cover_url=?,video_url=?,recipe_qrcode=?,simple_introduction_technology=?,simple_introduction_taste=?,simple_introduction_time=?,simple_introduction_difficulty=?,main_ingredients_str=?,sub_ingredients_str=?,people_count=?,fav_count=?,brower_count=?,author_words=?,finish_food_imgs_str=?,steps_str=?,recipe_tips=?,author_id=?,origin_web_link=?,available=?,update_time=? where id=?',
       [
         recipeName,
         isVideo,
@@ -189,6 +192,7 @@ exports.editRecipe = async (req, res, next) => {
         recipeTips,
         authorId,
         originWebLink,
+        publish,
         new Date(),
         id
       ]
@@ -390,5 +394,24 @@ exports.importFromHtmlStr = async (req, res, next) => {
   } catch (err) {
     next(err)
     return
+  }
+}
+
+exports.publish = async (req, res, next) => {
+  try {
+    const { publish, idList } = req.body
+
+    if (Array.isArray(idList) && idList.length) {
+      const { affectedRows } = await meishijieDb.query(
+        'update recipe_list set publish=?, update_time=? where id in (?)',
+        [publish, new Date(), idList]
+      )
+      if (affectedRows < 1) {
+        return res.json({ code: -1, message: '操作失败' })
+      }
+    }
+    res.json({ code: 0, message: '操作成功' })
+  } catch (err) {
+    next(err)
   }
 }

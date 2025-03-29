@@ -7,7 +7,8 @@ import {
   addRecipeDataType,
   editRecipeDataType,
   IImportFromHtmlStrDataType,
-  IBatchDeleteRecipeData
+  IBatchDeleteRecipeData,
+  IPublishRecipeData,
 } from './model/recipeModel'
 
 /**
@@ -66,4 +67,11 @@ export const batchDeleteRecipe = (data: IBatchDeleteRecipeData) => {
   return http.request('delete', '/api/meishijie/recipe/batchDeleteRecipe', {
     data
   })
+}
+
+/**
+ * @description：发布/取消发布
+ */
+export const publishRecipe = (data: IPublishRecipeData) => {
+  return http.request('post', '/api/meishijie/recipe/publish', { data })
 }

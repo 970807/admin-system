@@ -123,9 +123,6 @@ async function addOrEditRecipeValidator(req, res, next, isEdit) {
     if (regMsg4) {
       return res.json({ code: -1, message: regMsg4 })
     }
-    if (!recipeTips) {
-      return res.json({ code: -1, message: '烹饪技巧不能为空' })
-    }
     const regMsg5 = await validateAuthorId(authorId)
     if (regMsg5) {
       return res.json({ code: -1, message: regMsg5 })
@@ -164,6 +161,17 @@ exports.importFromHtmlStr = (req, res, next) => {
   const { htmlStr } = req.body
   if (!htmlStr) {
     return res.json({ code: -1, message: 'htmlStr字段为必须' })
+  }
+  next()
+}
+
+exports.publish = (req, res, next) => {
+  const { publish, idList } = req.body
+  if (publish === undefined || publish === null) {
+    return res.json({ code: -1, message: 'publish字段不能为空' })
+  }
+  if (!idList) {
+    return res.json({ code: -1, message: 'idList字段不能为空' })
   }
   next()
 }

@@ -54,4 +54,12 @@ router.post(
   meishijieCtrl.recipe.importFromHtmlStr
 )
 
+// 发布/取消发布菜谱
+router.post(
+  '/publish',
+  auth,
+  validator.meishijie.recipe.publish,
+  meishijieCtrl.recipe.publish
+)
+
 module.exports = router

@@ -8,9 +8,14 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Position, Delete } from '@element-plus/icons-vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import { Searchs, SearchsItem } from '@/components/Searchs/index'
+import CombineButtons from '@/components/CombineButtons/index.vue'
 import AddOrEditRecipeDrawer from './components/AddOrEditRecipeDrawer.vue'
 import ImportFromHTMLDialog from './components/ImportFromHTMLDialog.vue'
-import { getRecipeList, batchDeleteRecipe } from '@/api/meishijie/recipe'
+import {
+  getRecipeList,
+  batchDeleteRecipe,
+  publishRecipe
+} from '@/api/meishijie/recipe'
 import type { listItemType } from '@/api/meishijie/model/recipeModel'
 
 const addOrEditRecipeDrawerRef =
@@ -73,6 +78,21 @@ const onBatchDelete = async () => {
   fetchData()
 }
 
+/**
+ * 发布/取消发布
+ * @param publish 是否发布 1:发布 0:取消发布
+ */
+const handlePublish = async (publish: 1 | 0) => {
+  const idList = state.selectedRow.map(item => item.id)
+  if (idList.length < 1) {
+    ElMessage.error(`请先选择要${publish ? '发布' : '取消发布'}的菜谱！`)
+    return
+  }
+  const { message } = await publishRecipe({ publish, idList })
+  ElMessage.success(message)
+  fetchData()
+}
+
 onMounted(() => {
   fetchData()
 })
@@ -110,6 +130,12 @@ onMounted(() => {
             <el-button type="danger" :icon="Delete" @click="onBatchDelete"
               >批量删除</el-button
             >
+            <CombineButtons
+              :btnList="[
+                { name: '发布', clickFn: () => handlePublish(1) },
+                { name: '取消发布', clickFn: () => handlePublish(0) }
+              ]"
+            />
           </template>
         </Searchs>
       </template>
@@ -129,13 +155,6 @@ onMounted(() => {
             </template>
           </el-table-column>
           <el-table-column
-            label="菜谱id"
-            align="center"
-            prop="id"
-            min-width="120"
-            show-overflow-tooltip
-          />
-          <el-table-column
             label="菜谱名称"
             align="center"
             prop="recipeName"
@@ -147,6 +166,13 @@ onMounted(() => {
             align="center"
             prop="authorName"
             min-width="90"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            label="发布状态"
+            align="center"
+            min-width="90"
+            :formatter="row => ['未发布', '已发布'][row.publish]"
             show-overflow-tooltip
           />
           <el-table-column
