@@ -11,11 +11,35 @@
  Target Server Version : 80300
  File Encoding         : 65001
 
- Date: 29/03/2025 17:20:22
+ Date: 29/03/2025 23:03:59
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for home_column_list
+-- ----------------------------
+DROP TABLE IF EXISTS `home_column_list`;
+CREATE TABLE `home_column_list` (
+  `id` varchar(80) COLLATE utf32_bin NOT NULL COMMENT '主键id',
+  `column_name` varchar(80) CHARACTER SET utf32 COLLATE utf32_bin NOT NULL COMMENT '栏位名称',
+  `system` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是系统预设栏位 1:是 0:否',
+  `available` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否启用 1:启用 0：禁用',
+  `sort_no` int NOT NULL DEFAULT '0' COMMENT '排序值',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf32 COLLATE=utf32_bin COMMENT='首页栏位';
+
+-- ----------------------------
+-- Records of home_column_list
+-- ----------------------------
+BEGIN;
+INSERT INTO `home_column_list` VALUES ('TODAY_HOT_SEARCH', '今日热搜', 1, 1, 1, '2025-03-29 19:04:51', '2025-03-29 23:00:46');
+INSERT INTO `home_column_list` VALUES ('TODAY_HOT_VIDEO_RECIPE', '今日热门视频菜谱', 1, 1, 0, '2025-03-29 19:03:23', '2025-03-29 19:03:23');
+INSERT INTO `home_column_list` VALUES ('TODAY_THREE_MEALS', '今日三餐', 1, 1, 2, '2025-03-29 19:05:55', '2025-03-29 23:00:45');
+COMMIT;
 
 -- ----------------------------
 -- Table structure for home_recommend_column_list
@@ -119,7 +143,7 @@ CREATE TABLE `recipe_list` (
   `steps_str` varchar(5000) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '菜谱步骤：格式 =>  步骤图片,步骤内容;步骤图片,步骤内容;',
   `recipe_tips` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin DEFAULT NULL,
   `origin_web_link` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin DEFAULT NULL COMMENT '美食杰官方对应的链接',
-  `publish` tinyint DEFAULT '0' COMMENT '发布状态 1:已发布 0:未发布',
+  `publish` tinyint NOT NULL DEFAULT '0' COMMENT '发布状态 1:已发布 0:未发布',
   `create_time` datetime NOT NULL,
   `update_time` datetime NOT NULL,
   PRIMARY KEY (`id`) USING BTREE

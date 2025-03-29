@@ -136,6 +136,7 @@ exports.addRecipe = async (req, res, next) => {
     })
     if (r.affectedRows < 1) {
       res.json({ code: -1, message: '添加菜谱失败' })
+      return
     }
     res.json({ code: 0, message: '添加菜谱成功', data: { id } })
   } catch (err) {
@@ -199,6 +200,7 @@ exports.editRecipe = async (req, res, next) => {
     )
     if (r.changedRows < 1) {
       res.json({ code: -1, message: '修改菜谱失败' })
+      return
     }
     res.json({ code: 0, message: '修改菜谱成功', data: { id } })
   } catch (err) {
@@ -231,6 +233,7 @@ exports.getRecipeDetailById = async (req, res, next) => {
     )
     if (!detail) {
       res.json({ code: -1, message: '获取详情失败' })
+      return
     }
     // 根据authorId查询菜谱作者
     if (detail.authorId) {
