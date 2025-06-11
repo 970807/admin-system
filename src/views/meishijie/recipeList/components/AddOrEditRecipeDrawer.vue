@@ -59,7 +59,7 @@
             placeholder="请输入封面图链接"
             clearable
             show-word-limit
-            maxlength="255"
+            maxlength="300"
           />
         </el-form-item>
         <el-row>
@@ -195,7 +195,7 @@
             <el-input
               v-model="item.imgUrl"
               placeholder="请输入步骤图片链接"
-              maxlength="255"
+              maxlength="300"
               show-word-limit
               style="margin-bottom: 12px"
               clearable
@@ -205,7 +205,7 @@
               type="textarea"
               :autosize="{ minRows: 2, maxRows: 4 }"
               placeholder="请输入步骤内容"
-              maxlength="255"
+              maxlength="300"
               show-word-limit
             />
           </section>
@@ -227,7 +227,7 @@
               <el-input
                 v-model="formData.finishFoodImgUrlList[index]"
                 placeholder="请输入成品图链接"
-                maxlength="255"
+                maxlength="300"
                 show-word-limit
                 style="margin-bottom: 12px"
                 clearable

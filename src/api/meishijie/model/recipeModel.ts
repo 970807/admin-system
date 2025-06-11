@@ -21,7 +21,7 @@ export type listItemType = {
   stepsStr: string // 菜谱步骤：格式 =>  步骤图片,步骤内容;步骤图片,步骤内容;
   recipeTips: string | null
   originWebLink: string | null // 美食杰官方对应的链接
-  publish: 1 | 0, // 是否发布 1:发布 0:未发布
+  publish: 1 | 0 // 是否发布 1:发布 0:未发布
   createTime: string
   updateTime: string
 }
@@ -29,6 +29,7 @@ export type listItemType = {
 // 获取菜谱列表请求参数
 export interface IGetRecipeListParams {
   recipeName: string
+  isVideo?: 1 | 0 // 是否是视频菜谱 1：是 0:否
   pageNo: number
   pageSize: number
 }
@@ -79,6 +80,6 @@ export interface IBatchDeleteRecipeData {
 
 // 发布/取消发布菜谱请求体
 export interface IPublishRecipeData {
-  publish: 1 | 0,
+  publish: 1 | 0
   idList: string[]
 }

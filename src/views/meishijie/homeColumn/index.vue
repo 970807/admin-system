@@ -40,7 +40,6 @@
             type="selection"
             width="55"
           ></el-table-column>
-          />
           <el-table-column align="center" label="序号" width="70">
             <template #default="{ $index }">
               {{ $index + 1 }}
@@ -71,9 +70,9 @@
           <el-table-column
             label="栏位菜谱数"
             align="center"
-            prop="recipeCount"
             min-width="120"
             show-overflow-tooltip
+            :formatter="row => row.recipeCount ?? '--'"
           />
           <el-table-column
             label="是否启用"
@@ -107,6 +106,9 @@
               <el-button link type="primary" @click="onAddOrEdit(row.id)"
                 >编辑</el-button
               >
+              <el-button link type="primary" @click="onManage(row)">{{
+                row.id === 'TODAY_HOT_SEARCH' ? '管理热搜' : '管理菜谱'
+              }}</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -118,6 +120,14 @@
       ref="addOrEditColumnDrawerRef"
       @refresh="fetchData"
     />
+    <!-- 管理'今日热门视频菜谱'抽屉 -->
+    <ManageTodayHotVideoRecipeDrawer ref="manageTodayHotVideoRecipeDrawerRef" />
+    <!-- 管理热搜抽屉 -->
+    <ManageTodayHotSearchDrawer ref="manageTodayHotSearchDrawerRef" />
+    <!-- 管理今日三餐抽屉 -->
+    <ManageTodayThreeMealsDrawer ref="manageTodayThreeMealsDrawerRef" />
+    <!-- 管理菜谱 -->
+    <ManageRecipeDrawer ref="manageRecipeDrawerRef" />
   </div>
 </template>
 
@@ -133,6 +143,10 @@ import PageContainer from '@/components/PageContainer/index.vue'
 import { Searchs, SearchsItem } from '@/components/Searchs/index'
 import CombineButtons from '@/components/CombineButtons/index.vue'
 import AddOrEditColumnDrawer from './components/AddOrEditColumnDrawer.vue'
+import ManageTodayHotVideoRecipeDrawer from './components/ManageTodayHotVideoRecipeDrawer.vue'
+import ManageTodayHotSearchDrawer from './components/ManageTodayHotSearchDrawer.vue'
+import ManageTodayThreeMealsDrawer from './components/ManageTodayThreeMealsDrawer.vue'
+import ManageRecipeDrawer from './components/ManageRecipeDrawer.vue'
 import {
   getHomeColumnList,
   updateHomeColumnSortNo,
@@ -142,6 +156,13 @@ import {
 
 const addOrEditColumnDrawerRef =
   ref<InstanceType<typeof AddOrEditColumnDrawer>>()
+const manageTodayHotVideoRecipeDrawerRef =
+  ref<InstanceType<typeof ManageTodayHotVideoRecipeDrawer>>()
+const manageTodayHotSearchDrawerRef =
+  ref<InstanceType<typeof ManageTodayHotSearchDrawer>>()
+const manageTodayThreeMealsDrawerRef =
+  ref<InstanceType<typeof ManageTodayThreeMealsDrawer>>()
+const manageRecipeDrawerRef = ref<InstanceType<typeof ManageRecipeDrawer>>()
 
 const state = reactive<{
   listQuery: {
@@ -225,6 +246,25 @@ const handleAvailable = async (isAvailable: 1 | 0) => {
   })
   ElMessage.success(message)
   fetchData()
+}
+
+/**
+ * 管理菜谱/关键词
+ */
+const onManage = (row: any) => {
+  if (row.id === 'TODAY_HOT_VIDEO_RECIPE') {
+    // 今日热门视频菜谱
+    manageTodayHotVideoRecipeDrawerRef.value.show()
+  } else if (row.id === 'TODAY_HOT_SEARCH') {
+    // 今日热搜
+    manageTodayHotSearchDrawerRef.value.show()
+  } else if (row.id === 'TODAY_THREE_MEALS') {
+    // 今日三餐
+    manageTodayThreeMealsDrawerRef.value.show()
+  } else {
+    // 其它 管理菜谱
+    manageRecipeDrawerRef.value.show(row.id, row.columnName)
+  }
 }
 
 onMounted(() => {
