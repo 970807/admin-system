@@ -10,7 +10,6 @@ export type listItemType = {
   simpleIntroductionTaste: string // 口味
   simpleIntroductionTime: string // 时间
   simpleIntroductionDifficulty: string // 难度
-  recipeQrcode: string // 菜谱二维码
   mainIngredientsStr: string // 主料
   subIngredientsStr: string // 辅料
   peopleCount: number // 人份 例：3人份

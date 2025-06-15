@@ -89,7 +89,6 @@ exports.addRecipe = async (req, res, next) => {
       isVideo,
       coverUrl,
       videoUrl,
-      recipeQrcode,
       simpleIntroductionTechnology,
       simpleIntroductionTaste,
       simpleIntroductionTime,
@@ -115,7 +114,6 @@ exports.addRecipe = async (req, res, next) => {
       isVideo,
       coverUrl,
       videoUrl,
-      recipeQrcode,
       simpleIntroductionTechnology,
       simpleIntroductionTaste,
       simpleIntroductionTime,
@@ -153,7 +151,6 @@ exports.editRecipe = async (req, res, next) => {
       isVideo,
       coverUrl,
       videoUrl,
-      recipeQrcode,
       simpleIntroductionTechnology,
       simpleIntroductionTaste,
       simpleIntroductionTime,
@@ -172,13 +169,12 @@ exports.editRecipe = async (req, res, next) => {
       publish = 0
     } = req.body
     const r = await meishijieDb.query(
-      'update recipe_list set recipe_name=?,is_video=?,cover_url=?,video_url=?,recipe_qrcode=?,simple_introduction_technology=?,simple_introduction_taste=?,simple_introduction_time=?,simple_introduction_difficulty=?,main_ingredients_str=?,sub_ingredients_str=?,people_count=?,fav_count=?,brower_count=?,author_words=?,finish_food_imgs_str=?,steps_str=?,recipe_tips=?,author_id=?,origin_web_link=?,publish=?,update_time=? where id=?',
+      'update recipe_list set recipe_name=?,is_video=?,cover_url=?,video_url=?,simple_introduction_technology=?,simple_introduction_taste=?,simple_introduction_time=?,simple_introduction_difficulty=?,main_ingredients_str=?,sub_ingredients_str=?,people_count=?,fav_count=?,brower_count=?,author_words=?,finish_food_imgs_str=?,steps_str=?,recipe_tips=?,author_id=?,origin_web_link=?,publish=?,update_time=? where id=?',
       [
         recipeName,
         isVideo,
         coverUrl,
         videoUrl,
-        recipeQrcode,
         simpleIntroductionTechnology,
         simpleIntroductionTaste,
         simpleIntroductionTime,

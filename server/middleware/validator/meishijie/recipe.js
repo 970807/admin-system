@@ -55,7 +55,6 @@ async function addOrEditRecipeValidator(req, res, next, isEdit) {
       isVideo,
       coverUrl,
       videoUrl,
-      recipeQrcode,
       simpleIntroductionTechnology,
       simpleIntroductionTaste,
       simpleIntroductionTime,
@@ -75,9 +74,6 @@ async function addOrEditRecipeValidator(req, res, next, isEdit) {
     }
     if (!recipeName) {
       return res.json({ code: -1, message: '菜谱名称不能为空' })
-    }
-    if (!recipeQrcode) {
-      return res.json({ code: -1, message: '菜谱二维码链接不能为空' })
     }
     if (typeof isVideo !== 'number') {
       return res.json({ code: -1, message: '缺少isVideo字段' })

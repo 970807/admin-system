@@ -22,15 +22,6 @@
             maxlength="255"
           />
         </el-form-item>
-        <el-form-item label="菜谱二维码：" prop="recipeQrcode">
-          <el-input
-            v-model="formData.recipeQrcode"
-            placeholder="请输入二维码链接"
-            clearable
-            show-word-limit
-            maxlength="255"
-          />
-        </el-form-item>
         <el-form-item label="视频菜谱：" prop="isVideo">
           <el-switch
             v-model="formData.isVideo"
@@ -304,7 +295,6 @@ const selectAuthorDialogRef = ref<InstanceType<typeof SelectAuthorDialog>>()
 interface IFormData {
   id?: string
   recipeName: string
-  recipeQrcode: string
   isVideo: 0 | 1
   coverUrl: string
   videoUrl: string
@@ -330,7 +320,6 @@ interface IFormData {
 const getDefaultFormData = (): IFormData => ({
   id: undefined,
   recipeName: '', // 菜谱名称
-  recipeQrcode: '', // 菜谱二维码链接
   isVideo: 0, // 是否是视频菜谱
   coverUrl: '', // 封面图链接
   videoUrl: '', // 视频链接
@@ -371,9 +360,6 @@ const isEdit = computed(() => typeof formData.value.id !== 'undefined')
 const rules = reactive<FormRules>({
   recipeName: [
     { required: true, message: '请输入菜谱名称', trigger: ['blur', 'change'] }
-  ],
-  recipeQrcode: [
-    { required: true, message: '请输入二维码链接', trigger: ['blur', 'change'] }
   ],
   isVideo: [
     {
